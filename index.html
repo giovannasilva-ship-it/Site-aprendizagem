@@ -1,0 +1,924 @@
+<!DOCTYPE html>
+<html lang="pt-BR" translate="no">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SITE DA APRENDIZAGEM - CIEE</title>
+  <style>
+    :root {
+      --ciee-blue-deep: #002356;
+      --ciee-blue-main: #003882;
+      --ciee-blue-cyan: #0099ff;
+      --ciee-magenta: #e6007e;
+      --ciee-yellow: #ffc800;
+      --ciee-purple: #8c52ff;
+      --ciee-orange: #FE7F0C;
+      --ciee-bg: #f0f4f9;
+      --ciee-card: #ffffff;
+      --ciee-text: #1a2536;
+      --ciee-border: #d5e0ea;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; }
+    body { background-color: var(--ciee-bg); color: var(--ciee-text); display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
+
+    /* TELAS E MENUS */
+    #welcome-screen { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: linear-gradient(135deg, var(--ciee-blue-deep) 0%, #004ba8 100%); display: flex; align-items: center; justify-content: center; z-index: 1000; padding: 20px; transition: transform 0.6s cubic-bezier(0.77, 0, 0.175, 1), opacity 0.6s ease; }
+    #welcome-screen.hidden { transform: translateY(-100%); opacity: 0; pointer-events: none; }
+    .welcome-container { background: #ffffff; border-radius: 20px; width: 100%; max-width: 900px; display: grid; grid-template-columns: 1.1fr 0.9fr; box-shadow: 0 20px 50px rgba(0, 0, 0, 0.35); overflow: hidden; border: 3px solid var(--ciee-yellow); }
+    .welcome-banner { background: linear-gradient(180deg, #003380 0%, #001e4e 100%); color: white; padding: 40px; display: flex; flex-direction: column; justify-content: space-between; }
+    .banner-header { display: flex; flex-direction: column; gap: 12px; }
+    .banner-logo { font-size: 28px; font-weight: 900; color: #ffffff; letter-spacing: 2px; }
+    .banner-tagline { font-size: 34px; font-weight: 900; line-height: 1.1; color: var(--ciee-yellow); text-transform: uppercase; }
+    .banner-sub { font-size: 16px; font-weight: 600; color: #e0eafd; }
+    .banner-pilares { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 24px; }
+    .pilar-badge { padding: 6px 12px; border-radius: 20px; font-size: 11px; font-weight: 800; color: white; text-transform: uppercase; }
+    .pilar-1 { background-color: var(--ciee-magenta); } .pilar-2 { background-color: var(--ciee-yellow); color: #000; } .pilar-3 { background-color: var(--ciee-purple); } .pilar-4 { background-color: var(--ciee-blue-cyan); }
+    .welcome-action-side { padding: 45px 35px; display: flex; flex-direction: column; justify-content: center; gap: 20px; text-align: center; }
+    .welcome-title { font-size: 24px; font-weight: 800; color: var(--ciee-blue-deep); line-height: 1.2; }
+    .welcome-desc { font-size: 14px; color: #718096; line-height: 1.5; }
+    .btn-enter { background-color: var(--ciee-magenta); color: white; border: none; padding: 16px 24px; border-radius: 12px; font-size: 16px; font-weight: 800; cursor: pointer; box-shadow: 0 6px 18px rgba(230, 0, 126, 0.4); transition: all 0.25s ease; display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: 10px; }
+    .btn-enter:hover { background-color: #c9006b; transform: translateY(-2px); box-shadow: 0 8px 22px rgba(230, 0, 126, 0.5); }
+
+    /* HEADER */
+    header { background-color: var(--ciee-blue-deep); height: 60px; display: flex; align-items: center; justify-content: space-between; padding: 0 20px; color: white; box-shadow: 0 3px 8px rgba(0,0,0,0.2); z-index: 10; border-bottom: 3px solid var(--ciee-yellow); }
+    .top-left { display: flex; align-items: center; gap: 15px; }
+    .menu-toggle { background: none; border: none; color: white; font-size: 22px; cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 4px; border-radius: 4px; transition: background 0.2s ease; }
+    .menu-toggle:hover { background-color: rgba(255, 255, 255, 0.1); }
+    .header-title { font-size: 18px; font-weight: 800; letter-spacing: 1px; color: #ffffff; display: flex; align-items: center; gap: 8px; }
+    .header-title::after { content: ''; display: inline-block; width: 8px; height: 8px; background-color: var(--ciee-yellow); border-radius: 50%; }
+    .top-right { display: flex; align-items: center; gap: 15px; }
+    .help-icon { width: 28px; height: 28px; border-radius: 50%; background-color: var(--ciee-magenta); color: white; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 14px; cursor: pointer; }
+
+    /* LAYOUT APP */
+    .app-container { display: flex; flex: 1; overflow: hidden; }
+    aside { width: 290px; background-color: #ffffff; border-right: 1px solid var(--ciee-border); display: flex; flex-direction: column; padding: 15px 10px; gap: 6px; overflow-y: auto; transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.25s ease; margin-left: 0; flex-shrink: 0; }
+    aside.collapsed { margin-left: -290px; opacity: 0; pointer-events: none; }
+    .sidebar-header { display: flex; align-items: center; justify-content: space-between; padding: 0 6px 10px 6px; border-bottom: 1px dashed var(--ciee-border); margin-bottom: 4px; }
+    .sidebar-header span { font-size: 11px; font-weight: 700; color: #718096; text-transform: uppercase; }
+    .add-folder-btn { background-color: #eef5fc; color: var(--ciee-blue-main); border: 1px solid #c0d8f0; padding: 4px 8px; border-radius: 6px; font-size: 12px; font-weight: 700; cursor: pointer; }
+
+    .nav-item-wrapper { position: relative; display: flex; align-items: center; width: 100%; }
+    .nav-item { display: flex; align-items: center; gap: 10px; padding: 10px 36px 10px 12px; border-radius: 8px; color: #4a5568; text-decoration: none; font-size: 13px; font-weight: 600; cursor: pointer; width: 100%; overflow: hidden; }
+    .nav-item.active { background-color: var(--ciee-magenta); color: #ffffff; }
+    .nav-item.active svg.folder-icon { fill: var(--ciee-yellow); }
+    .nav-item svg.folder-icon { width: 16px; height: 16px; fill: #718096; flex-shrink: 0; }
+    .actions-btn { position: absolute; right: 8px; background: none; border: none; cursor: pointer; color: #a0aec0; padding: 4px; }
+    .action-menu { position: absolute; right: 10px; top: 36px; background: white; border: 1px solid var(--ciee-border); border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); z-index: 50; display: none; flex-direction: column; overflow: hidden; min-width: 120px; }
+    .action-menu.open { display: flex; }
+    .action-menu-item { padding: 8px 12px; font-size: 12px; font-weight: 600; color: #2d3748; cursor: pointer; }
+
+    main { flex: 1; padding: 24px; overflow-y: auto; display: flex; flex-direction: column; transition: all 0.3s ease; }
+    .dashboard-container { background: var(--ciee-card); border-radius: 12px; padding: 24px; box-shadow: 0 4px 15px rgba(0, 56, 130, 0.08); border: 1px solid var(--ciee-border); flex: 1; display: flex; flex-direction: column; position: relative; overflow-y: auto;}
+    .section-title { font-size: 18px; font-weight: 800; color: var(--ciee-blue-main); margin-bottom: 20px; display: flex; align-items: center; justify-content: space-between; text-transform: uppercase; }
+    .title-left { display: flex; align-items: center; gap: 10px; }
+    .title-left::before { content: ''; display: inline-block; width: 6px; height: 20px; background-color: var(--ciee-magenta); border-radius: 3px; }
+    .btn-primary { background-color: var(--ciee-blue-main); color: white; border: none; padding: 8px 14px; border-radius: 6px; font-weight: 700; cursor: pointer; font-size: 12px; display: inline-flex; align-items: center; justify-content: center; gap: 6px; transition: background 0.2s;}
+    .btn-primary:hover { background-color: var(--ciee-magenta); }
+    .btn-back-map { background-color: var(--ciee-blue-main); color: white; border: none; padding: 8px 14px; border-radius: 6px; font-size: 12px; font-weight: 700; cursor: pointer; display: none; transition: background 0.2s;}
+    .btn-back-map:hover { background-color: var(--ciee-magenta); }
+    .btn-excel { background-color: #38a169; color: white; border: none; padding: 8px 14px; border-radius: 6px; font-size: 12px; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: background 0.2s; }
+    .btn-excel:hover { background-color: #2f855a; }
+
+    .view-content { display: none; flex: 1; flex-direction: column; }
+    .view-content.active { display: flex; }
+
+    /* =========================================================
+       DASHBOARD SUMMARY CARDS (NOVIDADE)
+       ========================================================= */
+    .dashboard-summary { display: flex; gap: 20px; margin-bottom: 24px; animation: fadeIn 0.5s ease; }
+    .summary-card { 
+      background: linear-gradient(135deg, var(--ciee-blue-main) 0%, var(--ciee-blue-deep) 100%); 
+      color: white; 
+      padding: 20px 24px; 
+      border-radius: 12px; 
+      flex: 1; 
+      display: flex; 
+      flex-direction: column; 
+      gap: 5px; 
+      box-shadow: 0 6px 15px rgba(0, 35, 86, 0.15); 
+      border-left: 4px solid var(--ciee-yellow); 
+    }
+    .summary-value { font-size: 32px; font-weight: 900; color: var(--ciee-yellow); line-height: 1; }
+    .summary-label { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; opacity: 0.9; }
+
+    /* =========================================================
+       DIRETÓRIO CORPORATIVO (GRID DE ESTADOS)
+       ========================================================= */
+    .corporate-directory-wrapper { width: 100%; display: flex; flex-direction: column; gap: 30px; padding-bottom: 20px; animation: fadeIn 0.5s ease; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+    .region-group { display: flex; flex-direction: column; gap: 14px; }
+    .region-title { font-size: 14px; font-weight: 800; color: var(--ciee-blue-deep); border-bottom: 2px solid var(--ciee-border); padding-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; display: flex; align-items: center; gap: 8px; }
+    .region-title::before { content: ''; display: block; width: 12px; height: 12px; background-color: var(--ciee-yellow); border-radius: 2px; }
+
+    .states-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; }
+    .state-btn { background: #f8fafc; border: 1px solid var(--ciee-border); border-radius: 8px; padding: 14px 16px; display: flex; align-items: center; justify-content: space-between; cursor: pointer; transition: all 0.2s ease; color: var(--ciee-text); font-weight: 700; font-size: 13px; box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
+    .state-btn:hover { background: white; border-color: var(--ciee-blue-main); transform: translateY(-2px); box-shadow: 0 6px 15px rgba(0, 56, 130, 0.08); color: var(--ciee-blue-main); }
+    .state-btn .sigla { background: var(--ciee-border); color: var(--ciee-blue-deep); padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 800; transition: all 0.2s ease; }
+    .state-btn:hover .sigla { background: var(--ciee-blue-main); color: white; }
+
+    /* PAINEL DE DETALHES DO ESTADO */
+    .state-detail-view { position: relative; width: 100%; background: #ffffff; border-radius: 12px; border: 1px solid var(--ciee-border); box-shadow: 0 12px 35px rgba(0, 35, 86, 0.08); display: none; flex-direction: column; padding: 24px; opacity: 0; transform: translateY(20px); transition: opacity 0.4s ease, transform 0.4s ease; margin-bottom: 20px; }
+    .state-detail-view.active { display: flex; opacity: 1; transform: translateY(0); }
+    .detail-tabs { display: flex; gap: 12px; border-bottom: 2px solid var(--ciee-border); margin-bottom: 20px; }
+    .tab-btn { padding: 10px 20px; background: none; border: none; font-size: 14px; font-weight: 700; color: #718096; cursor: pointer; position: relative; }
+    .tab-btn.active { color: var(--ciee-magenta); }
+    .tab-btn.active::after { content: ''; position: absolute; bottom: -2px; left: 0; right: 0; height: 3px; background-color: var(--ciee-magenta); }
+    .tab-panel { display: none; flex: 1; overflow-y: auto; }
+    .tab-panel.active { display: flex; flex-direction: column; gap: 20px; }
+
+    .leaders-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 16px; }
+    .leader-card { display: flex; align-items: center; gap: 16px; background: #f8fafc; padding: 16px; border-radius: 12px; border: 1px solid var(--ciee-border); box-shadow: 0 2px 8px rgba(0,0,0,0.04); }
+    .leader-avatar { width: 75px; height: 75px; border-radius: 50%; background-color: var(--ciee-blue-main); color: white; display: flex; align-items: center; justify-content: center; font-size: 26px; font-weight: 800; border: 3px solid var(--ciee-yellow); overflow: hidden; flex-shrink: 0; }
+    .leader-avatar img { width: 100%; height: 100%; object-fit: cover; }
+    .leader-info { display: flex; flex-direction: column; gap: 4px; flex: 1; }
+    .leader-name { font-size: 16px; font-weight: 800; color: var(--ciee-blue-deep); }
+    .leader-role { font-size: 12px; color: #718096; font-weight: 600; }
+    
+    .polos-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; }
+    .polo-card { background: white; border: 1px solid var(--ciee-border); border-radius: 10px; padding: 16px; display: flex; flex-direction: column; gap: 12px; }
+    .polo-title { font-size: 15px; font-weight: 800; color: var(--ciee-blue-main); }
+    .polo-img { width: 100%; height: 130px; background-color: #edf2f7; border-radius: 6px; display: flex; align-items: center; justify-content: center; color: #718096; font-size: 12px; cursor: pointer; border: 2px dashed #cbd5e0; overflow: hidden; }
+    .polo-img img { width: 100%; height: 100%; object-fit: cover; }
+
+    .docs-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 20px; margin-top: 15px; }
+    .doc-card { background: white; border: 1px solid var(--ciee-border); border-radius: 12px; padding: 16px; display: flex; flex-direction: column; gap: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); transition: transform 0.2s ease, box-shadow 0.2s ease; }
+    .doc-card:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(0, 56, 130, 0.12); }
+    .doc-preview-box { width: 100%; height: 140px; background-color: #f0f4f9; border-radius: 8px; border: 1px dashed #cbd5e0; display: flex; align-items: center; justify-content: center; overflow: hidden; cursor: pointer; }
+    .doc-preview-box img { width: 100%; height: 100%; object-fit: cover; }
+    .doc-title { font-size: 15px; font-weight: 800; color: var(--ciee-blue-deep); line-height: 1.3; }
+    .doc-actions { display: flex; gap: 8px; margin-top: auto; }
+    
+    /* MODAIS */
+    .doc-modal-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0, 35, 86, 0.5); display: none; align-items: center; justify-content: center; z-index: 500; backdrop-filter: blur(4px); }
+    .doc-modal-overlay.active { display: flex; }
+    .doc-modal-card { background: white; border-radius: 14px; width: 100%; max-width: 480px; padding: 24px; display: flex; flex-direction: column; gap: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.25); border: 2px solid var(--ciee-blue-main); }
+    .doc-modal-title { font-size: 18px; font-weight: 800; color: var(--ciee-blue-main); display: flex; justify-content: space-between; align-items: center; }
+    .form-group { display: flex; flex-direction: column; gap: 6px; }
+    .form-group label { font-size: 12px; font-weight: 700; color: #4a5568; text-transform: uppercase; }
+    .form-group input { padding: 10px 12px; border: 1px solid var(--ciee-border); border-radius: 6px; font-size: 13px; outline: none; }
+    .placeholder-box { border: 2px dashed var(--ciee-border); border-radius: 10px; padding: 40px; text-align: center; color: #555; background-color: #f8fafc; flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; }
+  </style>
+</head>
+<body>
+
+  <!-- Inputs Escondidos para Upload -->
+  <input type="file" id="file-input-leader" accept="image/*" style="display: none;">
+  <input type="file" id="file-input-polo" accept="image/*" style="display: none;">
+  <input type="file" id="file-input-doc" accept="image/*" style="display: none;">
+
+  <!-- TELA INICIAL BOAS-VINDAS -->
+  <div id="welcome-screen">
+    <div class="welcome-container">
+      <div class="welcome-banner">
+        <div class="banner-header">
+          <div class="banner-logo">CIEE</div>
+          <div class="banner-tagline">Além do<br>HORIZONTE</div>
+          <div class="banner-sub">Juntos por mais oportunidades!</div>
+        </div>
+        <div class="banner-pilares">
+          <div class="pilar-badge pilar-1">Trabalho em Equipe</div>
+          <div class="pilar-badge pilar-2">Foco em Resultados</div>
+          <div class="pilar-badge pilar-3">Aprendizado Constante</div>
+          <div class="pilar-badge pilar-4">Impacto Positivo</div>
+        </div>
+      </div>
+      <div class="welcome-action-side">
+        <div class="welcome-title">Bem-vindo ao Site da Aprendizagem</div>
+        <div class="welcome-desc">Acesse a plataforma para consultar líderes regionais, polos e dossiês de acompanhamento em todo o Brasil.</div>
+        <button class="btn-enter" onclick="enterSite()"><span>Entrar no Site</span> →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- DASHBOARD PRINCIPAL -->
+  <header>
+    <div class="top-left">
+      <button class="menu-toggle" id="btn-toggle-sidebar" title="Ocultar/Exibir Menu Lateral">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="white"><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/></svg>
+      </button>
+      <div class="header-title">SITE DA APRENDIZAGEM</div>
+    </div>
+    <div class="top-right">
+      <div class="help-icon" title="Início" onclick="location.reload()">🏠</div>
+    </div>
+  </header>
+
+  <div class="app-container">
+    <aside id="sidebar">
+      <div class="sidebar-header">
+        <span>Menu de Opções</span>
+        <button class="add-folder-btn" id="btn-add-folder" title="Adicionar Nova Pasta">+ Nova Pasta</button>
+      </div>
+      <div class="nav-item-wrapper">
+        <a class="nav-item active" data-target="mapa-view">
+          <svg class="folder-icon" viewBox="0 0 24 24"><path d="M10 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"/></svg>
+          <span class="title-text">PAINEL BRASIL</span>
+        </a>
+      </div>
+      <div id="folders-list"></div>
+    </aside>
+
+    <main id="main-content">
+      <div class="dashboard-container">
+        
+        <!-- View 1: Painel Corporativo de Estados -->
+        <div id="mapa-view" class="view-content active">
+          
+          <div class="section-title">
+            <span class="title-left" id="main-section-title">Painel Nacional de Lideranças</span>
+            <div style="display: flex; gap: 10px;">
+              <button class="btn-excel" onclick="exportToExcel()">📥 Exportar Planilha</button>
+              <button class="btn-back-map" id="btn-back-map" onclick="resetMapZoom()">← Voltar ao Painel</button>
+            </div>
+          </div>
+
+          <!-- DASHBOARD SUMMARY CARDS (KPIs) -->
+          <div id="dashboard-summary" class="dashboard-summary">
+            <div class="summary-card">
+              <div class="summary-value" id="total-polos-count">0</div>
+              <div class="summary-label">Polos Cadastrados</div>
+            </div>
+            <div class="summary-card">
+              <div class="summary-value" id="total-leaders-count">0</div>
+              <div class="summary-label">Líderes Regionais</div>
+            </div>
+          </div>
+
+          <!-- O GRID DE ESTADOS -->
+          <div class="corporate-directory-wrapper" id="corporate-directory">
+             <!-- O JS vai injetar as regiões aqui -->
+          </div>
+
+          <!-- Painel do Estado -->
+          <div class="state-detail-view" id="state-detail-panel">
+            <div class="detail-tabs">
+              <button class="tab-btn active" onclick="switchTab('tab-leader')">👥 Líderes do Estado</button>
+              <button class="tab-btn" onclick="switchTab('tab-polos')">🏢 Polos & Dossiês</button>
+            </div>
+
+            <!-- Aba Múltiplos Líderes -->
+            <div class="tab-panel active" id="tab-leader">
+              <div style="display: flex; justify-content: space-between; align-items: center;">
+                <span style="font-weight: 800; font-size: 16px; color: var(--ciee-blue-main);">Lideranças Regionais</span>
+                <button class="btn-primary" onclick="addNewLeader()">+ Adicionar Líder</button>
+              </div>
+              <div class="leaders-grid" id="leaders-container"></div>
+            </div>
+
+            <!-- Aba Polos -->
+            <div class="tab-panel" id="tab-polos">
+              <div style="display: flex; justify-content: space-between; align-items: center;">
+                <span style="font-weight: 800; font-size: 16px; color: var(--ciee-blue-main);">Polos no Estado</span>
+                <button class="btn-primary" onclick="addNewPolo()">+ Adicionar Novo Polo</button>
+              </div>
+              <div class="polos-grid" id="polos-container"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- View 2: Conteúdo das Pastas Laterais -->
+        <div id="folder-view" class="view-content">
+          <div class="section-title">
+            <span class="title-left" id="folder-title">Nome da Pasta</span>
+            <div style="display: flex; gap: 10px;">
+              <button class="btn-excel" onclick="exportDocsToExcel()">📥 Exportar Planilha</button>
+              <button class="btn-primary" onclick="openDocModal()">+ Adicionar Conteúdo</button>
+            </div>
+          </div>
+          <div id="docs-container" class="docs-grid"></div>
+          <div id="folder-placeholder" class="placeholder-box" style="display: none;">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="#003882"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+            <p>Esta seção está pronta para receber seus documentos e links do Google Docs.</p>
+            <button class="btn-primary" onclick="openDocModal()">+ Adicionar Conteúdo</button>
+          </div>
+        </div>
+
+      </div>
+    </main>
+  </div>
+
+  <!-- Modal Documentos -->
+  <div class="doc-modal-overlay" id="doc-modal">
+    <div class="doc-modal-card">
+      <div class="doc-modal-title">
+        <span id="doc-modal-heading">Adicionar Novo Documento</span>
+        <button style="background:none; border:none; font-size:20px; cursor:pointer;" onclick="closeDocModal()">&times;</button>
+      </div>
+      <div class="form-group"><label>Título do Documento</label><input type="text" id="doc-title-input" placeholder="Ex: Acompanhamento de Turmas - Q1"></div>
+      <div class="form-group"><label>Link do Google Docs / Drive</label><input type="url" id="doc-link-input" placeholder="https://docs.google.com/document/d/..."></div>
+      <div class="form-group">
+        <label>Foto de Prévia / Capa do Documento</label>
+        <div style="display: flex; gap: 8px;">
+          <button class="btn-primary" style="background:#718096; flex:1;" onclick="triggerDocFileSelect()">📷 Do Computador</button>
+          <input type="url" id="doc-img-url-input" placeholder="Ou cole a URL da imagem..." style="flex:1;">
+        </div>
+      </div>
+      <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 10px;">
+        <button class="btn-primary" style="background:#a0aec0;" onclick="closeDocModal()">Cancelar</button>
+        <button class="btn-primary" onclick="saveDocument()">Salvar Documento</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function enterSite() { document.getElementById('welcome-screen').classList.add('hidden'); }
+
+    const btnToggleSidebar = document.getElementById('btn-toggle-sidebar');
+    const sidebar = document.getElementById('sidebar');
+    btnToggleSidebar.addEventListener('click', () => { sidebar.classList.toggle('collapsed'); });
+
+    let activeStateCode = null;
+    let selectedPoloIndex = null;
+    let selectedLeaderIndex = null;
+
+    const folderDocsDatabase = {};
+    let activeFolderName = null;
+    let editingDocIndex = null;
+    let tempDocImage = null;
+
+    let initialFolders = [
+      "AÇÕES - FAMÍLIAS E APRENDIZES", "AÇÕES - GESTORES E EMPRESAS", "ACOMPANHAMENTO DE TURMAS",
+      "APRESENTAÇÕES - PROJETOS", "ATAS - REUNIÕES", "AVALIAÇÃO DE DESEMPENHO", "COMUNICADOS",
+      "CONTEÚDOS E MATERIAL DIDÁTICO", "DOSSIÊ DOS POLOS", "EAD - FLUXO DE PROCESSOS",
+      "EVENTOS", "GESTÃO DO APRENDIZ", "GUARDA DE DOCUMENTOS", "IMPULSO DIGITAL",
+      "INICIAIS", "LISTAS DE PRESENÇA", "MAPA DA APRENDIZAGEM", "MODELOS DE DOCUMENTOS",
+      "ORÇAMENTOS", "ORIENTAÇÕES", "PERSONALIZADO", "PLANILHAS EM GERAL",
+      "REMUNERAÇÃO RH", "SE LIGA MOÇADA - BEM-ESTAR", "SECRETARIA - SECON",
+      "SERVIÇO SOCIAL", "SESCOOP - PLANILHAS", "TREINAMENTO EQUIPES"
+    ];
+
+    const foldersList = document.getElementById('folders-list');
+    const folderTitle = document.getElementById('folder-title');
+    const views = document.querySelectorAll('.view-content');
+
+    function renderFolders() {
+      foldersList.innerHTML = '';
+      initialFolders.forEach((name, index) => {
+        const wrapper = document.createElement('div'); wrapper.className = 'nav-item-wrapper';
+        wrapper.innerHTML = `
+          <a class="nav-item" data-target="mapa-view" data-title="${name}">
+            <svg class="folder-icon" viewBox="0 0 24 24"><path d="M10 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"/></svg>
+            <span class="title-text">${name}</span>
+          </a>
+          <button class="actions-btn" title="Editar ou Excluir" onclick="toggleMenu(event, ${index})">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>
+          </button>
+          <div class="action-menu" id="menu-${index}">
+            <div class="action-menu-item" onclick="editFolder(${index})">✏️ Editar nome</div>
+            <div class="action-menu-item delete-item" onclick="deleteFolder(${index})">🗑️ Excluir</div>
+          </div>
+        `;
+        foldersList.appendChild(wrapper);
+      });
+      attachNavEvents();
+    }
+
+    window.toggleMenu = function(e, index) {
+      e.stopPropagation();
+      document.querySelectorAll('.action-menu').forEach(m => { if (m.id !== `menu-${index}`) m.classList.remove('open'); });
+      const menu = document.getElementById(`menu-${index}`);
+      if (menu) menu.classList.toggle('open');
+    };
+    document.addEventListener('click', () => { document.querySelectorAll('.action-menu').forEach(m => m.classList.remove('open')); });
+
+    window.editFolder = function(index) {
+      const currentName = initialFolders[index];
+      const newName = prompt("Digite o novo nome para esta pasta:", currentName);
+      if (newName && newName.trim() !== '') { initialFolders[index] = newName.trim(); renderFolders(); }
+    };
+    window.deleteFolder = function(index) {
+      if (confirm(`Tem certeza que deseja excluir a pasta "${initialFolders[index]}"?`)) { initialFolders.splice(index, 1); renderFolders(); }
+    };
+    document.getElementById('btn-add-folder').addEventListener('click', () => {
+      const name = prompt("Digite o nome da nova pasta:");
+      if (name && name.trim() !== '') { initialFolders.unshift(name.trim()); renderFolders(); }
+    });
+
+    function attachNavEvents() {
+      const navItems = document.querySelectorAll('.nav-item');
+      navItems.forEach(item => {
+        item.addEventListener('click', () => {
+          navItems.forEach(nav => nav.classList.remove('active'));
+          item.classList.add('active');
+          const target = item.getAttribute('data-target');
+          views.forEach(v => v.classList.remove('active'));
+          
+          const menuText = item.querySelector('.title-text').textContent;
+          if (menuText === 'PAINEL BRASIL' || menuText === 'DIRETÓRIO BRASIL' || menuText === 'LÍDERES BRASIL') {
+            document.getElementById('mapa-view').classList.add('active');
+            updateDashboardTotals(); // Atualiza os contadores ao voltar pro inicio
+          } else {
+            activeFolderName = item.getAttribute('data-title');
+            folderTitle.textContent = activeFolderName;
+            document.getElementById('folder-view').classList.add('active');
+            renderFolderDocs();
+          }
+        });
+      });
+    }
+
+    renderFolders();
+
+    function renderFolderDocs() {
+      const container = document.getElementById('docs-container');
+      const placeholder = document.getElementById('folder-placeholder');
+      container.innerHTML = '';
+      if (!folderDocsDatabase[activeFolderName]) folderDocsDatabase[activeFolderName] = [];
+      const docs = folderDocsDatabase[activeFolderName];
+      if (docs.length === 0) {
+        placeholder.style.display = 'flex';
+      } else {
+        placeholder.style.display = 'none';
+        docs.forEach((doc, idx) => {
+          const card = document.createElement('div'); card.className = 'doc-card';
+          card.innerHTML = `
+            <div class="doc-title"><span>📄 ${doc.title}</span></div>
+            <div class="doc-preview-box" onclick="editDoc(${idx})" title="Clique para editar documento">
+              ${doc.image ? `<img src="${doc.image}">` : '<span style="color:#718096; font-weight:600;">Sem imagem de prévia</span>'}
+            </div>
+            <div class="doc-actions">
+              <a href="${doc.link}" target="_blank" class="btn-primary" style="flex:1; text-decoration:none;">🔗 Abrir Documento</a>
+              <button class="btn-primary" style="background:#718096;" title="Editar" onclick="editDoc(${idx})">✏️</button>
+              <button class="btn-primary" style="background:#e53e3e;" title="Excluir" onclick="deleteDoc(${idx})">🗑️</button>
+            </div>
+          `;
+          container.appendChild(card);
+        });
+      }
+    }
+
+    function openDocModal(isEdit = false) {
+      document.getElementById('doc-modal').classList.add('active');
+      if (!isEdit) {
+        editingDocIndex = null; tempDocImage = null;
+        document.getElementById('doc-modal-heading').textContent = "Adicionar Novo Documento";
+        document.getElementById('doc-title-input').value = ""; document.getElementById('doc-link-input').value = ""; document.getElementById('doc-img-url-input').value = "";
+      }
+    }
+    function closeDocModal() { document.getElementById('doc-modal').classList.remove('active'); }
+    function saveDocument() {
+      const title = document.getElementById('doc-title-input').value.trim();
+      const link = document.getElementById('doc-link-input').value.trim();
+      const urlImg = document.getElementById('doc-img-url-input').value.trim();
+      if (!title) { alert("Por favor, digite o título do documento."); return; }
+      const finalImage = tempDocImage || urlImg || null;
+      if (!folderDocsDatabase[activeFolderName]) folderDocsDatabase[activeFolderName] = [];
+      if (editingDocIndex !== null) folderDocsDatabase[activeFolderName][editingDocIndex] = { title: title, link: link || '#', image: finalImage };
+      else folderDocsDatabase[activeFolderName].push({ title: title, link: link || '#', image: finalImage });
+      closeDocModal(); renderFolderDocs();
+    }
+    function editDoc(idx) {
+      editingDocIndex = idx; const doc = folderDocsDatabase[activeFolderName][idx]; tempDocImage = doc.image;
+      document.getElementById('doc-modal-heading').textContent = "Editar Documento";
+      document.getElementById('doc-title-input').value = doc.title; document.getElementById('doc-link-input').value = doc.link;
+      document.getElementById('doc-img-url-input').value = (doc.image && !doc.image.startsWith('data:')) ? doc.image : "";
+      openDocModal(true);
+    }
+    function deleteDoc(idx) { if (confirm("Deseja excluir este documento?")) { folderDocsDatabase[activeFolderName].splice(idx, 1); renderFolderDocs(); } }
+    function triggerDocFileSelect() { document.getElementById('file-input-doc').click(); }
+    document.getElementById('file-input-doc').addEventListener('change', function(e) {
+      const file = e.target.files[0];
+      if (file) { const reader = new FileReader(); reader.onload = function(evt) { tempDocImage = evt.target.result; alert("Imagem selecionada!"); }; reader.readAsDataURL(file); }
+    });
+
+    // =========================================================================
+    // EXPORTAR PARA EXCEL (CSV UTF-8) - LIDERANÇAS E POLOS
+    // =========================================================================
+    window.exportToExcel = function() {
+      let csvContent = "Estado (Sigla);Nome do Polo;Link do Dossiê;Liderança(s);E-mail(s)\n";
+
+      for (const [sigla, data] of Object.entries(stateDatabase)) {
+        const leaders = data.leaders.map(l => l.name).join(' e ');
+        const emails = data.leaders.map(l => l.email || '-').join(' e ');
+
+        if (data.polos.length === 0) {
+           csvContent += `${sigla};Sem Polos Cadastrados;-;${leaders};${emails}\n`;
+        } else {
+           data.polos.forEach(polo => {
+             const pName = polo.name.replace(/;/g, ',');
+             const pLink = polo.link.replace(/;/g, ',');
+             csvContent += `${sigla};${pName};${pLink};${leaders};${emails}\n`;
+           });
+        }
+      }
+
+      const bom = "\uFEFF";
+      const blob = new Blob([bom + csvContent], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement("a");
+      
+      if (link.download !== undefined) {
+        const url = URL.createObjectURL(blob);
+        link.setAttribute("href", url);
+        link.setAttribute("download", "Liderancas_e_Polos_CIEE.csv");
+        link.style.visibility = 'hidden';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      }
+    };
+
+    // =========================================================================
+    // EXPORTAR PARA EXCEL (DOCUMENTOS DA PASTA)
+    // =========================================================================
+    window.exportDocsToExcel = function() {
+      let csvContent = "Pasta;Título do Documento;Link do Documento\n";
+
+      if (activeFolderName && folderDocsDatabase[activeFolderName] && folderDocsDatabase[activeFolderName].length > 0) {
+        folderDocsDatabase[activeFolderName].forEach(doc => {
+          const pTitle = doc.title.replace(/;/g, ',');
+          const pLink = doc.link.replace(/;/g, ',');
+          csvContent += `${activeFolderName};${pTitle};${pLink}\n`;
+        });
+      } else {
+        csvContent += `${activeFolderName || 'Pasta'};Sem documentos cadastrados;-\n`;
+      }
+
+      const bom = "\uFEFF";
+      const blob = new Blob([bom + csvContent], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement("a");
+      
+      if (link.download !== undefined) {
+        const url = URL.createObjectURL(blob);
+        link.setAttribute("href", url);
+        const fileName = activeFolderName ? activeFolderName.replace(/\s+/g, '_') : 'Documentos';
+        link.setAttribute("download", `Documentos_${fileName}.csv`);
+        link.style.visibility = 'hidden';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      }
+    };
+
+    // =========================================================================
+    // BASE DE DADOS REAL (IMPORTADA DA PLANILHA)
+    // =========================================================================
+    const stateDatabase = {
+      'AC': {
+        leaders: [
+          { name: 'Ana Cicilia Cruz Moreno', role: 'Líder Técnica da Aprendizagem', email: 'ana_moreno@ciee.org.br', photo: null },
+        ],
+        polos: [
+          { name: 'RIO BRANCO - POLO PAZ', link: '#', image: null },
+        ]
+      },
+      'AL': {
+        leaders: [
+          { name: 'Iara Santana', role: 'Líder Técnica da Aprendizagem', email: 'iara_santana@ciee.ong.br', photo: null },
+        ],
+        polos: [
+          { name: 'ARAPIRACA - POLO SANTA EDWIGES', link: '#', image: null },
+          { name: 'MACEIO - POLO JATIÚCA', link: '#', image: null },
+          { name: 'PENEDO - POLO DOM CONSTANTINO', link: '#', image: null },
+        ]
+      },
+      'AM': {
+        leaders: [
+          { name: 'Ana Cicilia Cruz Moreno', role: 'Líder Técnica da Aprendizagem', email: 'ana_moreno@ciee.org.br', photo: null },
+        ],
+        polos: [
+          { name: 'MANAUS - POLO DOM PEDRO', link: '#', image: null },
+          { name: 'MANAUS - POLO  CHAPADA', link: '#', image: null },
+          { name: 'PRESIDENTE FIGUEIREDO - POLO CENTRO', link: '#', image: null },
+          { name: 'MANAUS - POLO JAPIM', link: '#', image: null },
+        ]
+      },
+      'AP': {
+        leaders: [
+          { name: 'Júlia Freitas', role: 'Líder Técnica da Aprendizagem', email: 'julia.freitas@ciee.org.br', photo: null },
+        ],
+        polos: [
+          { name: 'MACAPÁ - POLO JESÚS DE NAZARÉ', link: '#', image: null },
+        ]
+      },
+      'BA': {
+        leaders: [
+          { name: 'Leandro Costa', role: 'Líder Técnica da Aprendizagem', email: 'leandro_costa@ciee.ong.br', photo: null },
+          { name: 'Lorena Santos', role: 'Líder Técnica da Aprendizagem', email: 'lorena_ferreira@ciee.ong.br', photo: null },
+        ],
+        polos: [
+          { name: 'ALAGOINHAS - POLO SANTA ISABEL', link: '#', image: null },
+          { name: 'CAMAÇARI - POLO INDUSTRIAL', link: '#', image: null },
+          { name: 'ILHÉUS - POLO CONQUISTA', link: '#', image: null },
+          { name: 'ITAPETINGA - POLO CENTRO', link: '#', image: null },
+          { name: 'JEQUIE - POLO LOMANTO JUNIOR', link: '#', image: null },
+          { name: 'JUAZEIRO - POLO PARAÍSO', link: '#', image: null },
+          { name: 'PORTO SEGURO - POLO CENTRO', link: '#', image: null },
+          { name: 'SALVADOR - POLO PARALELA', link: '#', image: null },
+          { name: 'SANTO ANTONIO DE JESUS - POLO CENTRO', link: '#', image: null },
+          { name: 'EUNÁPOLIS - POLO CENTRO', link: '#', image: null },
+        ]
+      },
+      'CE': {
+        leaders: [
+          { name: 'Danielle Cabral', role: 'Líder Técnica da Aprendizagem', email: 'danielle_cabral@ciee.ong.br', photo: null },
+        ],
+        polos: [
+          { name: 'FORTALEZA - POLO CENTRO', link: '#', image: null },
+          { name: 'MARACANAU - POLO PAJUCARA', link: '#', image: null },
+          { name: 'SOBRAL - POLO DOM EXPEDITO', link: '#', image: null },
+        ]
+      },
+      'ES': {
+        leaders: [
+          { name: 'Geórgia Thamisa Malta Cardoso', role: 'Líder Técnica da Aprendizagem', email: 'georgia_cardoso@ciee.ong.br', photo: null },
+        ],
+        polos: [
+          { name: 'ARACRUZ - POLO JARDINS', link: '#', image: null },
+          { name: 'CACHOEIRO DE ITAPEMIRIM - POLO CENTRO', link: '#', image: null },
+          { name: 'CARIACICA - POLO CAMPO GRANDE', link: '#', image: null },
+          { name: 'COLATINA - POLO ESPLANADA', link: '#', image: null },
+          { name: 'LINHARES - POLO CENTRO', link: '#', image: null },
+          { name: 'SAO MATEUS - POLO IDEAL', link: '#', image: null },
+          { name: 'SERRA - POLO LARANJEIRAS', link: '#', image: null },
+          { name: 'VILA VELHA - POLO ITAPUÃ', link: '#', image: null },
+          { name: 'VITORIA - POLO CENTRO', link: '#', image: null },
+        ]
+      },
+      'GO': {
+        leaders: [
+          { name: 'Alicione Lima', role: 'Líder Técnica da Aprendizagem', email: 'alicione_lima@ciee.ong.br', photo: null },
+        ],
+        polos: [
+          { name: 'Anápolis - Polo Cidade Jardim', link: '#', image: null },
+          { name: 'APARECIDA DE GOIANIA - POLO SETOR DOS AFONSOS', link: '#', image: null },
+          { name: 'CATALAO - POLO SETOR CENTRAL', link: '#', image: null },
+          { name: 'GOIANIA - POLO CENTRO', link: '#', image: null },
+          { name: 'ITUMBIARA - POLO SETOR CENTRAL', link: '#', image: null },
+          { name: 'JATAI - POLO SETOR CENTRAL', link: '#', image: null },
+          { name: 'RIO VERDE - POLO SETOR CENTRAL', link: '#', image: null },
+        ]
+      },
+      'SE': {
+        leaders: [
+          { name: 'Iara Santana', role: 'Líder Técnica da Aprendizagem', email: 'iara_santana@ciee.org.br', photo: null },
+        ],
+        polos: [
+          { name: 'ARACAJU - POLO SIQUEIRA CAMPOS', link: '#', image: null },
+          { name: 'ESTANCIA - POLO CENTRO', link: '#', image: null },
+          { name: 'ITABAIANA - POLO MARIAP', link: '#', image: null },
+          { name: 'LAGARTO - POLO CENTRO', link: '#', image: null },
+          { name: 'ARACAJU - POLO SALGADO FILHO', link: '#', image: null },
+        ]
+      },
+      'MS': {
+        leaders: [
+          { name: 'Ana Carolina Marques', role: 'Líder Técnica da Aprendizagem', email: 'ana_marques@ciee.org.br', photo: null },
+        ],
+        polos: [
+          { name: 'CAMPO GRANDE - POLO VILA RICA', link: '#', image: null },
+          { name: 'CORUMBA - POLO CENTRO', link: '#', image: null },
+          { name: 'DOURADOS - POLO JARDIM TROPICAL', link: '#', image: null },
+          { name: 'TRES LAGOAS - POLO CENTRO', link: '#', image: null },
+        ]
+      },
+      'MT': {
+        leaders: [
+          { name: 'Adrieli Teixeira', role: 'Líder Técnica da Aprendizagem', email: 'adrieli.teixeira@ciee.org.br', photo: null },
+        ],
+        polos: [
+          { name: 'CUIABA - POLO JARDIM LEBLON', link: '#', image: null },
+          { name: 'SINOP - POLO SETOR COMERCIAL', link: '#', image: null },
+          { name: 'PRIMAVERA DO LESTE - POLO JARDIM RIVA', link: '#', image: null },
+          { name: 'RONDONOPOLIS - POLO LA SALLE', link: '#', image: null },
+        ]
+      },
+      'PA': {
+        leaders: [
+          { name: 'Júlia Freitas', role: 'Líder Técnica da Aprendizagem', email: 'julia.freitas@ciee.org.br', photo: null },
+        ],
+        polos: [
+          { name: 'MARABA - POLO NOVA MARABA', link: '#', image: null },
+          { name: 'PARAUAPEBAS - POLO CIDADE NOVA', link: '#', image: null },
+          { name: 'BELEM - POLO SAO BRAS', link: '#', image: null },
+        ]
+      }
+    };
+
+    // Função para atualizar os KPIs no painel inicial
+    function updateDashboardTotals() {
+      let totalPolos = 0;
+      let totalLeaders = 0;
+      for (const state in stateDatabase) {
+        totalPolos += stateDatabase[state].polos.length;
+        totalLeaders += stateDatabase[state].leaders.length;
+      }
+      
+      const polosEl = document.getElementById('total-polos-count');
+      const leadersEl = document.getElementById('total-leaders-count');
+      
+      if (polosEl) polosEl.textContent = totalPolos;
+      if (leadersEl) leadersEl.textContent = totalLeaders;
+    }
+
+    // =========================================================================
+    // LÓGICA DO DIRETÓRIO CORPORATIVO (GRID DE ESTADOS - NOMENCLATURAS EXATAS)
+    // =========================================================================
+    function initCorporateGrid() {
+      const wrapper = document.getElementById('corporate-directory');
+      if(!wrapper) return;
+      wrapper.innerHTML = '';
+      
+      const regions = [
+        { 
+          name: 'DF, Norte', 
+          states: [{id: 'AC', n: 'Acre'}, {id: 'AP', n: 'Amapá'}, {id: 'AM', n: 'Amazonas'}, {id: 'DF', n: 'Distrito Federal'}, {id: 'PA', n: 'Pará'}, {id: 'RO', n: 'Rondônia'}, {id: 'RR', n: 'Roraima'}, {id: 'TO', n: 'Tocantins'}] 
+        },
+        { 
+          name: 'Nordeste I', 
+          states: [{id: 'AL', n: 'Alagoas'}, {id: 'BA', n: 'Bahia'}, {id: 'SE', n: 'Sergipe'}] 
+        },
+        { 
+          name: 'Nordeste II', 
+          states: [{id: 'CE', n: 'Ceará'}, {id: 'MA', n: 'Maranhão'}, {id: 'PB', n: 'Paraíba'}, {id: 'PI', n: 'Piauí'}, {id: 'RN', n: 'Rio Grande do Norte'}] 
+        },
+        { 
+          name: 'Centro-Oeste', 
+          states: [{id: 'GO', n: 'Goiás'}, {id: 'MT', n: 'Mato Grosso'}, {id: 'MS', n: 'Mato Grosso do Sul'}] 
+        },
+        { 
+          name: 'Espírito Santo', 
+          states: [{id: 'ES', n: 'Espírito Santo'}] 
+        },
+        { 
+          name: 'Gde SP, Capital e Interior', 
+          states: [{id: 'SP', n: 'São Paulo'}] 
+        },
+        { 
+          name: 'Outros Estados', 
+          states: [{id: 'MG', n: 'Minas Gerais'}, {id: 'PR', n: 'Paraná'}, {id: 'RJ', n: 'Rio de Janeiro'}, {id: 'RS', n: 'Rio Grande do Sul'}, {id: 'SC', n: 'Santa Catarina'}, {id: 'PE', n: 'Pernambuco'}] 
+        }
+      ];
+
+      regions.forEach(region => {
+        const group = document.createElement('div');
+        group.className = 'region-group';
+        
+        const title = document.createElement('div');
+        title.className = 'region-title';
+        title.textContent = region.name;
+        
+        const grid = document.createElement('div');
+        grid.className = 'states-grid';
+        
+        region.states.forEach(s => {
+          const btn = document.createElement('button');
+          btn.className = 'state-btn';
+          btn.innerHTML = `<span>${s.n}</span><span class="sigla">${s.id}</span>`;
+          btn.onclick = () => {
+             document.getElementById('corporate-directory').style.display = 'none';
+             document.getElementById('dashboard-summary').style.display = 'none'; // Esconde os KPIs
+             window.zoomToStateSmooth(s.id, s.n);
+          };
+          grid.appendChild(btn);
+        });
+        
+        group.appendChild(title);
+        group.appendChild(grid);
+        wrapper.appendChild(group);
+      });
+    }
+
+    window.addEventListener("load", () => {
+      initCorporateGrid();
+      updateDashboardTotals();
+    });
+
+    window.zoomToStateSmooth = function(id, stateName) {
+      activeStateCode = id;
+      
+      document.getElementById('main-section-title').textContent = `ESTADO: ${stateName.toUpperCase()}`;
+      document.getElementById('btn-back-map').style.display = 'inline-flex';
+
+      if (!stateDatabase[activeStateCode]) {
+        stateDatabase[activeStateCode] = { leaders: [{ name: `Líder 1 - ${stateName}`, role: 'Coordenadora Regional da Aprendizagem', email: 'lider@ciee.org.br', photo: null }], polos: [{ name: `Polo Principal - ${stateName}`, link: 'https://ciee.org.br', image: null }] };
+      }
+
+      loadStateData();
+      
+      const detailPanel = document.getElementById('state-detail-panel');
+      detailPanel.style.display = 'flex';
+      setTimeout(() => { detailPanel.classList.add('active'); }, 50);
+    }
+
+    window.resetMapZoom = function() {
+      document.getElementById('corporate-directory').style.display = 'flex';
+      document.getElementById('dashboard-summary').style.display = 'flex'; // Volta os KPIs
+      document.getElementById('main-section-title').textContent = 'Painel Nacional de Lideranças';
+      document.getElementById('btn-back-map').style.display = 'none';
+      
+      updateDashboardTotals(); // Atualiza contadores caso tenha editado/adicionado líderes ou polos
+      
+      const detailPanel = document.getElementById('state-detail-panel');
+      detailPanel.classList.remove('active');
+      setTimeout(() => { detailPanel.style.display = 'none'; }, 300);
+    }
+
+    function loadStateData() { renderLeaders(); renderPolos(); }
+
+    function renderLeaders() {
+      const container = document.getElementById('leaders-container'); container.innerHTML = '';
+      const leaders = stateDatabase[activeStateCode].leaders;
+      leaders.forEach((leader, idx) => {
+        const card = document.createElement('div'); card.className = 'leader-card';
+        card.innerHTML = `
+          <div class="leader-avatar" id="leader-avatar-${idx}">${leader.photo ? `<img src="${leader.photo}">` : leader.name.charAt(0).toUpperCase()}</div>
+          <div class="leader-info">
+            <div class="leader-name">${leader.name}</div>
+            <div class="leader-role">${leader.role}</div>
+            ${leader.email ? `<div style="font-size:11px; color:#718096; margin-bottom:4px; font-weight:600;">✉️ ${leader.email}</div>` : ''}
+            <div style="margin-top: 6px; display: flex; gap: 6px;">
+              <button class="btn-primary" style="padding: 4px 8px; font-size:11px;" onclick="editLeaderInfo(${idx})">✏️ Editar</button>
+              <button class="btn-primary" style="background:#4a5568; padding: 4px 8px; font-size:11px;" onclick="triggerLeaderFileSelect(${idx})">🖼️ Foto</button>
+              <button class="btn-primary" style="background:#e53e3e; padding: 4px 8px; font-size:11px;" onclick="deleteLeader(${idx})">🗑️</button>
+            </div>
+          </div>`;
+        container.appendChild(card);
+      });
+    }
+
+    function addNewLeader() {
+      const name = prompt("Nome da nova Liderança:");
+      if (name && name.trim() !== '') {
+        const role = prompt("Cargo/Função:", "Líder Regional da Aprendizagem");
+        stateDatabase[activeStateCode].leaders.push({ name: name.trim(), role: role ? role.trim() : 'Líder Regional', email: '', photo: null });
+        renderLeaders();
+      }
+    }
+    function editLeaderInfo(idx) {
+      const leader = stateDatabase[activeStateCode].leaders[idx];
+      const newName = prompt("Nome da Líder:", leader.name); if (newName) leader.name = newName.trim();
+      const newRole = prompt("Cargo/Função da Líder:", leader.role); if (newRole) leader.role = newRole.trim();
+      const newEmail = prompt("Email da Líder:", leader.email || ''); if (newEmail !== null) leader.email = newEmail.trim();
+      renderLeaders();
+    }
+    function deleteLeader(idx) { if (confirm("Deseja remover esta liderança?")) { stateDatabase[activeStateCode].leaders.splice(idx, 1); renderLeaders(); } }
+    function triggerLeaderFileSelect(idx) { selectedLeaderIndex = idx; document.getElementById('file-input-leader').click(); }
+
+    document.getElementById('file-input-leader').addEventListener('change', function(e) {
+      const file = e.target.files[0];
+      if (file && activeStateCode && selectedLeaderIndex !== null) {
+        const reader = new FileReader(); reader.onload = function(evt) { stateDatabase[activeStateCode].leaders[selectedLeaderIndex].photo = evt.target.result; renderLeaders(); }; reader.readAsDataURL(file);
+      }
+    });
+
+    document.getElementById('file-input-polo').addEventListener('change', function(e) {
+      const file = e.target.files[0];
+      if (file && activeStateCode && selectedPoloIndex !== null) {
+        const reader = new FileReader(); reader.onload = function(evt) { stateDatabase[activeStateCode].polos[selectedPoloIndex].image = evt.target.result; renderPolos(); }; reader.readAsDataURL(file);
+      }
+    });
+
+    function triggerPoloFileSelect(idx) { selectedPoloIndex = idx; document.getElementById('file-input-polo').click(); }
+
+    function renderPolos() {
+      const container = document.getElementById('polos-container'); container.innerHTML = '';
+      const polos = stateDatabase[activeStateCode].polos;
+      polos.forEach((polo, idx) => {
+        const card = document.createElement('div'); card.className = 'polo-card';
+        card.innerHTML = `
+          <div class="polo-header">
+            <div class="polo-title">${polo.name}</div>
+            <button style="border:none; background:none; cursor:pointer; color:#ffc800; font-size:16px;" title="Editar Nome" onclick="editPoloName(${idx})">✏️</button>
+          </div>
+          <div class="polo-img" onclick="triggerPoloFileSelect(${idx})" title="Clique para carregar foto do computador">
+            ${polo.image ? `<img src="${polo.image}">` : '📸 Clique para carregar foto'}
+          </div>
+          <div style="display:flex; gap:6px;">
+            <a href="${polo.link}" target="_blank" class="btn-primary" style="flex:1; text-decoration:none;">🔗 Dossiê do Polo</a>
+            <button class="btn-primary" style="background:#718096;" title="Configurar Foto / Link" onclick="editPoloDetails(${idx})">⚙️</button>
+            <button class="btn-primary" style="background:#e53e3e;" title="Excluir Polo" onclick="deletePolo(${idx})">🗑️</button>
+          </div>`;
+        container.appendChild(card);
+      });
+    }
+
+    function editPoloName(idx) {
+      const polo = stateDatabase[activeStateCode].polos[idx];
+      const newName = prompt("Digite o novo nome para o Polo:", polo.name);
+      if (newName && newName.trim() !== '') { polo.name = newName.trim(); renderPolos(); }
+    }
+    function editPoloDetails(idx) {
+      const polo = stateDatabase[activeStateCode].polos[idx];
+      const choice = confirm("Deseja carregar a foto do computador? (Clique em 'Cancelar' se quiser apenas alterar o link do Dossiê)");
+      if (choice) { triggerPoloFileSelect(idx); } else { const link = prompt("Link do Dossiê do Polo:", polo.link); if (link !== null) { polo.link = link.trim(); renderPolos(); } }
+    }
+    function deletePolo(idx) { const polo = stateDatabase[activeStateCode].polos[idx]; if (confirm(`Deseja remover o polo "${polo.name}"?`)) { stateDatabase[activeStateCode].polos.splice(idx, 1); renderPolos(); } }
+    function addNewPolo() {
+      const name = prompt("Nome do Novo Polo:");
+      if (name && name.trim() !== '') {
+        const link = prompt("Link do Dossiê do Polo:", "https://ciee.org.br");
+        stateDatabase[activeStateCode].polos.push({ name: name.trim(), link: link ? link.trim() : '#', image: null }); renderPolos();
+      }
+    }
+
+    function switchTab(tabId) {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+      event.target.classList.add('active');
+      document.getElementById(tabId).classList.add('active');
+    }
+  </script>
+</body>
+</html>
