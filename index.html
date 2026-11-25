@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>SITE DA APRENDIZAGEM - CIEE</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
     :root {
       --ciee-blue-deep: #002356;
@@ -82,11 +83,11 @@
     .map-canvas-wrapper {
       position: relative;
       width: 100%;
-      max-width: 600px;
+      max-width: 580px;
       margin-left: auto;
       margin-right: auto;
       aspect-ratio: 1 / 1;
-      max-height: 580px;
+      max-height: 540px;
       overflow: hidden;
       border-radius: 12px;
     }
@@ -97,6 +98,18 @@
       height: 100%;
       cursor: pointer;
       touch-action: none;
+    }
+
+    .chart-box {
+      position: relative;
+      width: 100%;
+      height: 290px;
+    }
+
+    .chart-box-sm {
+      position: relative;
+      width: 100%;
+      height: 250px;
     }
 
     @keyframes pageFadeIn {
@@ -152,7 +165,7 @@
           Bem-vindo ao Site da Aprendizagem
         </h1>
         <p class="text-sm text-slate-500 leading-relaxed">
-          Acesse a plataforma para consultar líderes regionais, polos e dossiês de acompanhamento em todo o Brasil.
+          Acesse a plataforma para consultar líderes regionais, polos, instrutores, indicadores estratégicos e dossiês de acompanhamento em todo o Brasil.
         </p>
         <button
           type="button"
@@ -185,7 +198,15 @@
       </div>
     </div>
 
-    <div class="flex items-center gap-3">
+    <div class="flex items-center gap-2.5">
+      <button
+        type="button"
+        onclick="switchToDashboardView()"
+        class="hidden sm:inline-flex items-center gap-1.5 bg-white/10 hover:bg-[#e6007e] text-white px-3 py-1.5 rounded-lg text-xs font-bold cursor-pointer transition border border-white/15"
+      >
+        <span>&#128202;</span>
+        <span>Dashboard</span>
+      </button>
       <button
         type="button"
         title="Voltar à Tela Inicial"
@@ -230,6 +251,7 @@
         </div>
       </div>
 
+      <!-- Item Fixo 1: Mapa Brasil -->
       <div class="relative flex items-center w-full">
         <button
           type="button"
@@ -237,37 +259,81 @@
           onclick="switchToMapView()"
           class="nav-item active flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-[13px] font-bold w-full text-left transition cursor-pointer bg-[#e6007e] text-white"
         >
-          <span class="text-[#ffc800] text-sm">&#9638;</span>
+          <span class="text-[#ffc800] text-sm">&#128506;</span>
           <span class="truncate">LÍDERES BRASIL</span>
         </button>
       </div>
 
-      <div id="folders-list" class="flex flex-col gap-1 mt-1"></div>
-
-      <div class="mt-auto pt-3 border-t border-[#d5e0ea]">
-        <div class="bg-[#f0f4f9] rounded-xl p-3 border border-[#d5e0ea] space-y-2">
-          <div class="text-[11px] font-extrabold uppercase text-[#003882]">Resumo Nacional</div>
-          <div class="grid grid-cols-2 gap-2 text-center">
-            <div class="bg-white rounded-lg p-2 border border-[#d5e0ea]">
-              <div id="sidebar-kpi-polos" class="text-base font-black text-[#003882]">0</div>
-              <div class="text-[10px] font-semibold text-slate-500 uppercase">Polos</div>
-            </div>
-            <div class="bg-white rounded-lg p-2 border border-[#d5e0ea]">
-              <div id="sidebar-kpi-leaders" class="text-base font-black text-[#e6007e]">0</div>
-              <div class="text-[10px] font-semibold text-slate-500 uppercase">Líderes</div>
-            </div>
-          </div>
-        </div>
+      <!-- Item Fixo 2: Dashboard Gerencial -->
+      <div class="relative flex items-center w-full">
+        <button
+          type="button"
+          id="nav-dashboard-btn"
+          onclick="switchToDashboardView()"
+          class="nav-item flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-[13px] font-bold w-full text-left transition cursor-pointer text-slate-700 hover:bg-[#f0f4f9]"
+        >
+          <span class="text-[#003882] text-sm">&#128202;</span>
+          <span class="truncate">DASHBOARD GERENCIAL</span>
+        </button>
       </div>
+
+      <div class="px-2 pt-2 pb-1 text-[10px] font-extrabold uppercase tracking-wider text-slate-400">
+        Pastas de Documentos
+      </div>
+
+      <div id="folders-list" class="flex flex-col gap-1 pb-4"></div>
     </aside>
 
     <!-- ÁREA DAS PÁGINAS -->
     <main id="main-content" class="flex-1 p-4 sm:p-6 overflow-y-auto flex flex-col min-w-0">
 
       <!-- =========================================================
-           PÁGINA 1: MAPA INTERATIVO DO BRASIL
+           PÁGINA 1: RESUMO NACIONAL NO TOPO + MAPA INTERATIVO
            ========================================================= -->
       <div id="mapa-view" class="page-enter flex flex-col gap-4 flex-1">
+
+        <!-- RESUMO NACIONAL EM CIMA -->
+        <section class="bg-white rounded-xl p-4 sm:p-5 shadow-sm border border-[#d5e0ea] flex flex-col gap-3">
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <div class="flex items-center gap-2">
+              <span class="inline-block w-1.5 h-5 bg-[#ffc800] rounded-full"></span>
+              <span class="text-xs sm:text-sm font-extrabold uppercase tracking-wider text-[#003882]">Resumo Nacional</span>
+            </div>
+            <div class="flex flex-wrap items-center gap-2">
+              <button
+                type="button"
+                onclick="switchToDashboardView()"
+                class="bg-[#003882] hover:bg-[#e6007e] text-white px-3.5 py-1.5 rounded-lg text-xs font-bold cursor-pointer transition"
+              >
+                &#128202; Ver Dashboard Completo
+              </button>
+              <button
+                type="button"
+                onclick="exportToExcel()"
+                class="bg-[#38a169] hover:bg-[#2f855a] text-white px-3.5 py-1.5 rounded-lg text-xs font-bold cursor-pointer transition"
+              >
+                &#128229; Exportar Planilha
+              </button>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
+            <div class="bg-gradient-to-br from-[#003882] to-[#002356] text-white rounded-xl px-5 py-4 border-l-4 border-[#ffc800] shadow-sm flex flex-col gap-1">
+              <div id="total-polos-count" class="text-3xl font-black text-[#ffc800] leading-none">0</div>
+              <div class="text-xs font-bold uppercase tracking-wide text-[#e0eafd]">Polos Cadastrados</div>
+            </div>
+            <div class="bg-gradient-to-br from-[#003882] to-[#002356] text-white rounded-xl px-5 py-4 border-l-4 border-[#e6007e] shadow-sm flex flex-col gap-1">
+              <div id="total-leaders-count" class="text-3xl font-black text-[#ffc800] leading-none">0</div>
+              <div class="text-xs font-bold uppercase tracking-wide text-[#e0eafd]">Líderes Regionais</div>
+            </div>
+            <div class="bg-gradient-to-br from-[#003882] to-[#002356] text-white rounded-xl px-5 py-4 border-l-4 border-[#0099ff] shadow-sm flex flex-col gap-1">
+              <div id="total-instructors-count" class="text-3xl font-black text-[#ffc800] leading-none">0</div>
+              <div class="text-xs font-bold uppercase tracking-wide text-[#e0eafd]">Instrutores Cadastrados</div>
+            </div>
+          </div>
+        </section>
+
+        <!-- MAPA INTERATIVO DO BRASIL -->
         <section class="bg-white rounded-xl p-4 sm:p-6 shadow-sm border border-[#d5e0ea] flex flex-col gap-4 flex-1">
           <div class="flex flex-wrap items-center justify-between gap-3">
             <div class="flex items-center gap-2.5">
@@ -276,20 +342,10 @@
                 Líderes por Estado — Mapa Nacional
               </h2>
             </div>
-
-            <div class="flex items-center gap-2">
-              <button
-                type="button"
-                onclick="exportToExcel()"
-                class="bg-[#38a169] hover:bg-[#2f855a] text-white px-3.5 py-2 rounded-lg text-xs font-bold cursor-pointer transition"
-              >
-                &#128229; Exportar Planilha
-              </button>
-            </div>
           </div>
 
           <p class="text-xs sm:text-sm text-slate-600">
-            Clique em qualquer Unidade da Federação no mapa para dar zoom e abrir a página exclusiva de <strong>Líderes e Polos</strong> daquele estado.
+            Clique em qualquer Unidade da Federação no mapa para dar zoom e abrir a página exclusiva de <strong>Líderes, Polos e Instrutores</strong> daquele estado.
           </p>
 
           <!-- Filtros Regionais -->
@@ -341,7 +397,7 @@
               <!-- Tooltip ao passar o mouse -->
               <div
                 id="tooltip"
-                class="pointer-events-none absolute z-30 bg-[#002356] text-white px-3 py-2 rounded-lg text-xs font-bold shadow-lg border-l-[3px] border-[#e6007e] opacity-0 transition-opacity duration-100 max-w-[240px]"
+                class="pointer-events-none absolute z-30 bg-[#002356] text-white px-3 py-2 rounded-lg text-xs font-bold shadow-lg border-l-[3px] border-[#e6007e] opacity-0 transition-opacity duration-100 max-w-[250px]"
               ></div>
             </div>
 
@@ -377,7 +433,7 @@
       <div id="state-page-view" class="hidden page-enter flex-col gap-5 flex-1">
         <!-- Barra de Navegação Superior da Página do Estado -->
         <div class="bg-white rounded-xl px-5 py-4 shadow-sm border border-[#d5e0ea] flex flex-wrap items-center justify-between gap-3">
-          <div class="flex items-center gap-3">
+          <div class="flex flex-wrap items-center gap-2.5">
             <button
               type="button"
               onclick="backToBrazilMap()"
@@ -386,7 +442,14 @@
               <span>&#8592;</span>
               <span>Voltar ao Mapa Geral</span>
             </button>
-            <div class="text-xs font-semibold text-slate-400 hidden sm:flex items-center gap-1.5">
+            <button
+              type="button"
+              onclick="switchToDashboardView()"
+              class="bg-[#eef5fc] hover:bg-[#dcebfa] text-[#003882] border border-[#c0d8f0] px-3.5 py-2 rounded-lg text-xs font-bold cursor-pointer transition"
+            >
+              &#128202; Ir para Dashboard
+            </button>
+            <div class="text-xs font-semibold text-slate-400 hidden md:flex items-center gap-1.5 ml-1">
               <span>Mapa Brasil</span>
               <span>/</span>
               <span id="state-breadcrumb-name" class="text-[#002356] font-bold">Estado</span>
@@ -404,8 +467,8 @@
 
         <!-- Card Completo de Detalhes do Estado -->
         <section class="bg-white border-2 border-[#ffc800] rounded-2xl p-5 sm:p-7 shadow-sm flex flex-col gap-5 flex-1">
-          <!-- Cabeçalho do Estado (Sem selo IBGE) -->
-          <div class="flex items-center justify-between gap-3 pb-4 border-b border-[#d5e0ea]">
+          <!-- Cabeçalho do Estado -->
+          <div class="flex flex-wrap items-center justify-between gap-3 pb-4 border-b border-[#d5e0ea]">
             <div class="flex items-center gap-3.5 min-w-0">
               <div id="detail-uf-badge" class="w-12 h-12 rounded-xl bg-[#003882] text-[#ffc800] font-black text-lg flex items-center justify-center shrink-0 shadow-xs">
                 SP
@@ -419,9 +482,16 @@
                 </p>
               </div>
             </div>
+
+            <!-- Resumo rápido do estado -->
+            <div class="flex items-center gap-2 text-xs font-bold">
+              <span class="bg-[#eef5fc] text-[#003882] border border-[#c0d8f0] px-3 py-1.5 rounded-lg">
+                Instrutores no Estado: <strong id="detail-state-instructors-count">0</strong>
+              </span>
+            </div>
           </div>
 
-          <!-- Abas Líderes / Polos -->
+          <!-- Abas Líderes / Polos & Instrutores -->
           <div class="flex gap-4 border-b-2 border-[#d5e0ea]">
             <button
               type="button"
@@ -437,7 +507,7 @@
               onclick="switchDetailTab('polos')"
               class="px-5 py-2.5 text-sm font-bold text-slate-500 hover:text-[#003882] border-b-[3px] border-transparent -mb-[2px] cursor-pointer transition"
             >
-              Polos (<span id="count-tab-polos">0</span>)
+              Polos &amp; Instrutores (<span id="count-tab-polos">0</span>)
             </button>
           </div>
 
@@ -453,9 +523,9 @@
             </button>
           </div>
 
-          <!-- Conteúdo da Aba Polos -->
+          <!-- Conteúdo da Aba Polos & Instrutores -->
           <div id="panel-polos" class="hidden flex-col gap-4 flex-1">
-            <div id="polos-list" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+            <div id="polos-list" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4"></div>
             <button
               type="button"
               onclick="openAddPoloModal()"
@@ -468,7 +538,172 @@
       </div>
 
       <!-- =========================================================
-           PÁGINA 3: CONTEÚDO DAS PASTAS LATERAIS
+           PÁGINA 3: DASHBOARD GERENCIAL (RESULTADOS E TOMADA DE DECISÃO)
+           ========================================================= -->
+      <div id="dashboard-view" class="hidden page-enter flex-col gap-5 pb-6">
+        <!-- Cabeçalho do Dashboard -->
+        <section class="bg-white rounded-xl p-5 shadow-sm border border-[#d5e0ea] flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <div class="flex items-center gap-2.5">
+              <span class="inline-block w-1.5 h-6 bg-[#e6007e] rounded-full"></span>
+              <h2 class="text-lg sm:text-xl font-extrabold text-[#003882] uppercase">
+                Dashboard Gerencial — Polos, Líderes e Instrutores
+              </h2>
+            </div>
+            <p class="text-xs sm:text-sm text-slate-600 mt-1">
+              Painel analítico atualizado automaticamente para identificar concentrações operacionais, carga por liderança, lacunas de instrutores e prioridades de expansão.
+            </p>
+          </div>
+
+          <div class="flex flex-wrap items-center gap-2">
+            <button
+              type="button"
+              onclick="switchToMapView()"
+              class="bg-[#003882] hover:bg-[#e6007e] text-white px-4 py-2 rounded-lg text-xs font-bold cursor-pointer transition"
+            >
+              &#128506; Abrir Mapa Brasil
+            </button>
+            <button
+              type="button"
+              onclick="exportToExcel()"
+              class="bg-[#38a169] hover:bg-[#2f855a] text-white px-4 py-2 rounded-lg text-xs font-bold cursor-pointer transition"
+            >
+              &#128229; Exportar Planilha Completa
+            </button>
+          </div>
+        </section>
+
+        <!-- KPIs Executivos -->
+        <section class="grid grid-cols-2 lg:grid-cols-5 gap-3 sm:gap-4">
+          <div class="bg-gradient-to-br from-[#003882] to-[#002356] text-white rounded-xl p-4 border-l-4 border-[#ffc800] shadow-sm">
+            <div class="text-[11px] font-bold uppercase text-[#cfe0ff]">Total de Polos</div>
+            <div id="dash-kpi-polos" class="text-3xl font-black text-[#ffc800] mt-1">0</div>
+            <div id="dash-kpi-polos-sub" class="text-[11px] text-[#e0eafd] mt-1">em 0 estados</div>
+          </div>
+
+          <div class="bg-gradient-to-br from-[#003882] to-[#002356] text-white rounded-xl p-4 border-l-4 border-[#0099ff] shadow-sm">
+            <div class="text-[11px] font-bold uppercase text-[#cfe0ff]">Instrutores</div>
+            <div id="dash-kpi-instructors" class="text-3xl font-black text-[#ffc800] mt-1">0</div>
+            <div id="dash-kpi-instructors-sub" class="text-[11px] text-[#e0eafd] mt-1">média de 0,0 / polo</div>
+          </div>
+
+          <div class="bg-white rounded-xl p-4 border border-[#d5e0ea] border-l-4 border-l-[#e6007e] shadow-sm">
+            <div class="text-[11px] font-bold uppercase text-slate-500">Líderes Únicos</div>
+            <div id="dash-kpi-leaders" class="text-3xl font-black text-[#002356] mt-1">0</div>
+            <div id="dash-kpi-leaders-sub" class="text-[11px] text-slate-500 mt-1">0 alocações estaduais</div>
+          </div>
+
+          <div class="bg-white rounded-xl p-4 border border-[#d5e0ea] border-l-4 border-l-[#8c52ff] shadow-sm">
+            <div class="text-[11px] font-bold uppercase text-slate-500">Cobertura Nacional</div>
+            <div id="dash-kpi-coverage" class="text-3xl font-black text-[#003882] mt-1">0%</div>
+            <div id="dash-kpi-coverage-sub" class="text-[11px] text-slate-500 mt-1">0 de 27 UFs ativas</div>
+          </div>
+
+          <div class="col-span-2 lg:col-span-1 bg-white rounded-xl p-4 border border-[#d5e0ea] border-l-4 border-l-amber-500 shadow-sm">
+            <div class="text-[11px] font-bold uppercase text-slate-500">Polos c/ Instrutor</div>
+            <div id="dash-kpi-inst-cov" class="text-3xl font-black text-[#e6007e] mt-1">0%</div>
+            <div id="dash-kpi-inst-cov-sub" class="text-[11px] text-slate-500 mt-1">0 polos pendentes</div>
+          </div>
+        </section>
+
+        <!-- Painel de Insights Automáticos para Tomada de Decisão -->
+        <section class="bg-white rounded-xl p-5 shadow-sm border border-[#d5e0ea] flex flex-col gap-3">
+          <div class="flex items-center gap-2">
+            <span class="inline-block w-1.5 h-5 bg-[#ffc800] rounded-full"></span>
+            <h3 class="text-sm sm:text-base font-extrabold text-[#003882] uppercase">
+              Pontos de Atenção e Tomada de Decisão
+            </h3>
+          </div>
+          <div id="dash-insights-grid" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-3"></div>
+        </section>
+
+        <!-- Linha 1 de Gráficos: Ranking de Estados + Regionais -->
+        <section class="grid grid-cols-1 xl:grid-cols-12 gap-5">
+          <div class="xl:col-span-7 bg-white rounded-xl p-5 shadow-sm border border-[#d5e0ea] flex flex-col gap-2">
+            <div class="flex flex-wrap items-center justify-between gap-2">
+              <h3 class="text-sm sm:text-base font-extrabold text-[#002356]">
+                Onde há mais Polos e Instrutores (Por Estado)
+              </h3>
+              <span class="text-[11px] font-semibold text-slate-400">Clique na barra para abrir o estado</span>
+            </div>
+            <div class="chart-box">
+              <canvas id="chart-states-ranking"></canvas>
+            </div>
+          </div>
+
+          <div class="xl:col-span-5 bg-white rounded-xl p-5 shadow-sm border border-[#d5e0ea] flex flex-col gap-2">
+            <h3 class="text-sm sm:text-base font-extrabold text-[#002356]">
+              Distribuição por Regional Corporativa
+            </h3>
+            <div class="chart-box">
+              <canvas id="chart-regions"></canvas>
+            </div>
+          </div>
+        </section>
+
+        <!-- Linha 2 de Gráficos: Cobertura de Instrutores + Carga por Líder -->
+        <section class="grid grid-cols-1 xl:grid-cols-12 gap-5">
+          <div class="xl:col-span-5 bg-white rounded-xl p-5 shadow-sm border border-[#d5e0ea] flex flex-col gap-2">
+            <h3 class="text-sm sm:text-base font-extrabold text-[#002356]">
+              Cobertura de Instrutores nos Polos
+            </h3>
+            <p class="text-xs text-slate-500">
+              Identifica rapidamente quantos polos já possuem instrutores vinculados versus polos aguardando cadastro.
+            </p>
+            <div class="chart-box-sm">
+              <canvas id="chart-instructor-coverage"></canvas>
+            </div>
+          </div>
+
+          <div class="xl:col-span-7 bg-white rounded-xl p-5 shadow-sm border border-[#d5e0ea] flex flex-col gap-2">
+            <h3 class="text-sm sm:text-base font-extrabold text-[#002356]">
+              Carga Operacional por Líder (Polos sob Gestão)
+            </h3>
+            <p class="text-xs text-slate-500">
+              Consolida líderes que atendem mais de um estado. Barras em magenta indicam alta carga (7 ou mais polos).
+            </p>
+            <div class="chart-box-sm">
+              <canvas id="chart-leader-load"></canvas>
+            </div>
+          </div>
+        </section>
+
+        <!-- Matriz Gerencial por Estado -->
+        <section class="bg-white rounded-xl p-5 shadow-sm border border-[#d5e0ea] flex flex-col gap-4">
+          <div class="flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <h3 class="text-sm sm:text-base font-extrabold text-[#002356] uppercase">
+                Matriz Operacional por Estado
+              </h3>
+              <p class="text-xs text-slate-500">
+                Filtre os cenários e clique em <strong>Gerenciar</strong> para adicionar instrutores, polos ou lideranças.
+              </p>
+            </div>
+            <div id="dash-table-filters" class="flex flex-wrap gap-1.5"></div>
+          </div>
+
+          <div class="overflow-x-auto border border-[#d5e0ea] rounded-xl">
+            <table class="w-full text-left border-collapse text-xs sm:text-sm">
+              <thead class="bg-[#f0f4f9] text-[#002356] font-extrabold border-b border-[#d5e0ea]">
+                <tr>
+                  <th class="py-3 px-3">Estado</th>
+                  <th class="py-3 px-3">Regional</th>
+                  <th class="py-3 px-3 text-center">Líderes</th>
+                  <th class="py-3 px-3 text-center">Polos</th>
+                  <th class="py-3 px-3 text-center">Instrutores</th>
+                  <th class="py-3 px-3 text-center">Polos s/ Instrutor</th>
+                  <th class="py-3 px-3">Status / Ação Sugerida</th>
+                  <th class="py-3 px-3 text-right">Acesso</th>
+                </tr>
+              </thead>
+              <tbody id="dash-table-body" class="divide-y divide-slate-100"></tbody>
+            </table>
+          </div>
+        </section>
+      </div>
+
+      <!-- =========================================================
+           PÁGINA 4: CONTEÚDO DAS PASTAS LATERAIS
            ========================================================= -->
       <div id="folder-view" class="hidden page-enter flex-col gap-4 bg-white rounded-xl p-5 sm:p-6 shadow-sm border border-[#d5e0ea] flex-1">
         <div class="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-[#d5e0ea]">
@@ -564,7 +799,7 @@
     </div>
   </div>
 
-  <!-- MODAL UNIVERSAL (PASTAS, LÍDERES E POLOS) -->
+  <!-- MODAL UNIVERSAL (PASTAS, LÍDERES, POLOS E INSTRUTORES) -->
   <div id="universal-modal" class="fixed inset-0 bg-[#002356]/60 backdrop-blur-xs hidden items-center justify-center z-[90] p-4">
     <form id="universal-modal-form" class="bg-white rounded-2xl w-full max-w-[440px] p-6 flex flex-col gap-4 shadow-2xl border-2 border-[#003882]">
       <div class="flex items-center justify-between">
@@ -622,7 +857,7 @@
 
   <script>
     /* =========================================================================
-       1. MAPEAMENTO INTERNO, REGIONAIS CIEE E BASE DE LÍDERES/POLOS
+       1. MAPEAMENTO INTERNO, REGIONAIS CIEE E BASE DE LÍDERES/POLOS/INSTRUTORES
        ========================================================================= */
     const IBGE_CODE_TO_UF = {
       '11': 'RO', '12': 'AC', '13': 'AM', '14': 'RR', '15': 'PA', '16': 'AP', '17': 'TO',
@@ -656,32 +891,32 @@
       ufs.forEach((uf) => { UF_TO_REGION[uf] = region; });
     });
 
-    // Base de dados real preservada do seu projeto (12 estados, 13 lideranças, 54 polos)
+    // Base de dados real preservada (12 estados, 13 lideranças, 54 polos) + campo instructors[] em cada polo
     const stateDatabase = {
       AC: {
         leaders: [{ name: 'Ana Cicilia Cruz Moreno', role: 'Líder Técnica da Aprendizagem', email: 'ana_moreno@ciee.org.br', photo: '' }],
-        polos: [{ name: 'RIO BRANCO - POLO PAZ', link: '#', photo: '' }]
+        polos: [{ name: 'RIO BRANCO - POLO PAZ', link: '#', photo: '', instructors: [] }]
       },
       AL: {
         leaders: [{ name: 'Iara Santana', role: 'Líder Técnica da Aprendizagem', email: 'iara_santana@ciee.ong.br', photo: '' }],
         polos: [
-          { name: 'ARAPIRACA - POLO SANTA EDWIGES', link: '#', photo: '' },
-          { name: 'MACEIO - POLO JATIÚCA', link: '#', photo: '' },
-          { name: 'PENEDO - POLO DOM CONSTANTINO', link: '#', photo: '' }
+          { name: 'ARAPIRACA - POLO SANTA EDWIGES', link: '#', photo: '', instructors: [] },
+          { name: 'MACEIO - POLO JATIÚCA', link: '#', photo: '', instructors: [] },
+          { name: 'PENEDO - POLO DOM CONSTANTINO', link: '#', photo: '', instructors: [] }
         ]
       },
       AM: {
         leaders: [{ name: 'Ana Cicilia Cruz Moreno', role: 'Líder Técnica da Aprendizagem', email: 'ana_moreno@ciee.org.br', photo: '' }],
         polos: [
-          { name: 'MANAUS - POLO DOM PEDRO', link: '#', photo: '' },
-          { name: 'MANAUS - POLO CHAPADA', link: '#', photo: '' },
-          { name: 'PRESIDENTE FIGUEIREDO - POLO CENTRO', link: '#', photo: '' },
-          { name: 'MANAUS - POLO JAPIM', link: '#', photo: '' }
+          { name: 'MANAUS - POLO DOM PEDRO', link: '#', photo: '', instructors: [] },
+          { name: 'MANAUS - POLO CHAPADA', link: '#', photo: '', instructors: [] },
+          { name: 'PRESIDENTE FIGUEIREDO - POLO CENTRO', link: '#', photo: '', instructors: [] },
+          { name: 'MANAUS - POLO JAPIM', link: '#', photo: '', instructors: [] }
         ]
       },
       AP: {
         leaders: [{ name: 'Júlia Freitas', role: 'Líder Técnica da Aprendizagem', email: 'julia.freitas@ciee.org.br', photo: '' }],
-        polos: [{ name: 'MACAPÁ - POLO JESÚS DE NAZARÉ', link: '#', photo: '' }]
+        polos: [{ name: 'MACAPÁ - POLO JESÚS DE NAZARÉ', link: '#', photo: '', instructors: [] }]
       },
       BA: {
         leaders: [
@@ -689,86 +924,86 @@
           { name: 'Lorena Santos', role: 'Líder Técnica da Aprendizagem', email: 'lorena_ferreira@ciee.ong.br', photo: '' }
         ],
         polos: [
-          { name: 'ALAGOINHAS - POLO SANTA ISABEL', link: '#', photo: '' },
-          { name: 'CAMAÇARI - POLO INDUSTRIAL', link: '#', photo: '' },
-          { name: 'ILHÉUS - POLO CONQUISTA', link: '#', photo: '' },
-          { name: 'ITAPETINGA - POLO CENTRO', link: '#', photo: '' },
-          { name: 'JEQUIE - POLO LOMANTO JUNIOR', link: '#', photo: '' },
-          { name: 'JUAZEIRO - POLO PARAÍSO', link: '#', photo: '' },
-          { name: 'PORTO SEGURO - POLO CENTRO', link: '#', photo: '' },
-          { name: 'SALVADOR - POLO PARALELA', link: '#', photo: '' },
-          { name: 'SANTO ANTONIO DE JESUS - POLO CENTRO', link: '#', photo: '' },
-          { name: 'EUNÁPOLIS - POLO CENTRO', link: '#', photo: '' }
+          { name: 'ALAGOINHAS - POLO SANTA ISABEL', link: '#', photo: '', instructors: [] },
+          { name: 'CAMAÇARI - POLO INDUSTRIAL', link: '#', photo: '', instructors: [] },
+          { name: 'ILHÉUS - POLO CONQUISTA', link: '#', photo: '', instructors: [] },
+          { name: 'ITAPETINGA - POLO CENTRO', link: '#', photo: '', instructors: [] },
+          { name: 'JEQUIE - POLO LOMANTO JUNIOR', link: '#', photo: '', instructors: [] },
+          { name: 'JUAZEIRO - POLO PARAÍSO', link: '#', photo: '', instructors: [] },
+          { name: 'PORTO SEGURO - POLO CENTRO', link: '#', photo: '', instructors: [] },
+          { name: 'SALVADOR - POLO PARALELA', link: '#', photo: '', instructors: [] },
+          { name: 'SANTO ANTONIO DE JESUS - POLO CENTRO', link: '#', photo: '', instructors: [] },
+          { name: 'EUNÁPOLIS - POLO CENTRO', link: '#', photo: '', instructors: [] }
         ]
       },
       CE: {
         leaders: [{ name: 'Danielle Cabral', role: 'Líder Técnica da Aprendizagem', email: 'danielle_cabral@ciee.ong.br', photo: '' }],
         polos: [
-          { name: 'FORTALEZA - POLO CENTRO', link: '#', photo: '' },
-          { name: 'MARACANAU - POLO PAJUCARA', link: '#', photo: '' },
-          { name: 'SOBRAL - POLO DOM EXPEDITO', link: '#', photo: '' }
+          { name: 'FORTALEZA - POLO CENTRO', link: '#', photo: '', instructors: [] },
+          { name: 'MARACANAU - POLO PAJUCARA', link: '#', photo: '', instructors: [] },
+          { name: 'SOBRAL - POLO DOM EXPEDITO', link: '#', photo: '', instructors: [] }
         ]
       },
       ES: {
         leaders: [{ name: 'Geórgia Thamisa Malta Cardoso', role: 'Líder Técnica da Aprendizagem', email: 'georgia_cardoso@ciee.ong.br', photo: '' }],
         polos: [
-          { name: 'ARACRUZ - POLO JARDINS', link: '#', photo: '' },
-          { name: 'CACHOEIRO DE ITAPEMIRIM - POLO CENTRO', link: '#', photo: '' },
-          { name: 'CARIACICA - POLO CAMPO GRANDE', link: '#', photo: '' },
-          { name: 'COLATINA - POLO ESPLANADA', link: '#', photo: '' },
-          { name: 'LINHARES - POLO CENTRO', link: '#', photo: '' },
-          { name: 'SAO MATEUS - POLO IDEAL', link: '#', photo: '' },
-          { name: 'SERRA - POLO LARANJEIRAS', link: '#', photo: '' },
-          { name: 'VILA VELHA - POLO ITAPUÃ', link: '#', photo: '' },
-          { name: 'VITORIA - POLO CENTRO', link: '#', photo: '' }
+          { name: 'ARACRUZ - POLO JARDINS', link: '#', photo: '', instructors: [] },
+          { name: 'CACHOEIRO DE ITAPEMIRIM - POLO CENTRO', link: '#', photo: '', instructors: [] },
+          { name: 'CARIACICA - POLO CAMPO GRANDE', link: '#', photo: '', instructors: [] },
+          { name: 'COLATINA - POLO ESPLANADA', link: '#', photo: '', instructors: [] },
+          { name: 'LINHARES - POLO CENTRO', link: '#', photo: '', instructors: [] },
+          { name: 'SAO MATEUS - POLO IDEAL', link: '#', photo: '', instructors: [] },
+          { name: 'SERRA - POLO LARANJEIRAS', link: '#', photo: '', instructors: [] },
+          { name: 'VILA VELHA - POLO ITAPUÃ', link: '#', photo: '', instructors: [] },
+          { name: 'VITORIA - POLO CENTRO', link: '#', photo: '', instructors: [] }
         ]
       },
       GO: {
         leaders: [{ name: 'Alicione Lima', role: 'Líder Técnica da Aprendizagem', email: 'alicione_lima@ciee.ong.br', photo: '' }],
         polos: [
-          { name: 'ANÁPOLIS - POLO CIDADE JARDIM', link: '#', photo: '' },
-          { name: 'APARECIDA DE GOIANIA - POLO SETOR DOS AFONSOS', link: '#', photo: '' },
-          { name: 'CATALAO - POLO SETOR CENTRAL', link: '#', photo: '' },
-          { name: 'GOIANIA - POLO CENTRO', link: '#', photo: '' },
-          { name: 'ITUMBIARA - POLO SETOR CENTRAL', link: '#', photo: '' },
-          { name: 'JATAI - POLO SETOR CENTRAL', link: '#', photo: '' },
-          { name: 'RIO VERDE - POLO SETOR CENTRAL', link: '#', photo: '' }
+          { name: 'ANÁPOLIS - POLO CIDADE JARDIM', link: '#', photo: '', instructors: [] },
+          { name: 'APARECIDA DE GOIANIA - POLO SETOR DOS AFONSOS', link: '#', photo: '', instructors: [] },
+          { name: 'CATALAO - POLO SETOR CENTRAL', link: '#', photo: '', instructors: [] },
+          { name: 'GOIANIA - POLO CENTRO', link: '#', photo: '', instructors: [] },
+          { name: 'ITUMBIARA - POLO SETOR CENTRAL', link: '#', photo: '', instructors: [] },
+          { name: 'JATAI - POLO SETOR CENTRAL', link: '#', photo: '', instructors: [] },
+          { name: 'RIO VERDE - POLO SETOR CENTRAL', link: '#', photo: '', instructors: [] }
         ]
       },
       SE: {
         leaders: [{ name: 'Iara Santana', role: 'Líder Técnica da Aprendizagem', email: 'iara_santana@ciee.org.br', photo: '' }],
         polos: [
-          { name: 'ARACAJU - POLO SIQUEIRA CAMPOS', link: '#', photo: '' },
-          { name: 'ESTANCIA - POLO CENTRO', link: '#', photo: '' },
-          { name: 'ITABAIANA - POLO MARIAP', link: '#', photo: '' },
-          { name: 'LAGARTO - POLO CENTRO', link: '#', photo: '' },
-          { name: 'ARACAJU - POLO SALGADO FILHO', link: '#', photo: '' }
+          { name: 'ARACAJU - POLO SIQUEIRA CAMPOS', link: '#', photo: '', instructors: [] },
+          { name: 'ESTANCIA - POLO CENTRO', link: '#', photo: '', instructors: [] },
+          { name: 'ITABAIANA - POLO MARIAP', link: '#', photo: '', instructors: [] },
+          { name: 'LAGARTO - POLO CENTRO', link: '#', photo: '', instructors: [] },
+          { name: 'ARACAJU - POLO SALGADO FILHO', link: '#', photo: '', instructors: [] }
         ]
       },
       MS: {
         leaders: [{ name: 'Ana Carolina Marques', role: 'Líder Técnica da Aprendizagem', email: 'ana_marques@ciee.org.br', photo: '' }],
         polos: [
-          { name: 'CAMPO GRANDE - POLO VILA RICA', link: '#', photo: '' },
-          { name: 'CORUMBA - POLO CENTRO', link: '#', photo: '' },
-          { name: 'DOURADOS - POLO JARDIM TROPICAL', link: '#', photo: '' },
-          { name: 'TRES LAGOAS - POLO CENTRO', link: '#', photo: '' }
+          { name: 'CAMPO GRANDE - POLO VILA RICA', link: '#', photo: '', instructors: [] },
+          { name: 'CORUMBA - POLO CENTRO', link: '#', photo: '', instructors: [] },
+          { name: 'DOURADOS - POLO JARDIM TROPICAL', link: '#', photo: '', instructors: [] },
+          { name: 'TRES LAGOAS - POLO CENTRO', link: '#', photo: '', instructors: [] }
         ]
       },
       MT: {
         leaders: [{ name: 'Adrieli Teixeira', role: 'Líder Técnica da Aprendizagem', email: 'adrieli.teixeira@ciee.org.br', photo: '' }],
         polos: [
-          { name: 'CUIABA - POLO JARDIM LEBLON', link: '#', photo: '' },
-          { name: 'SINOP - POLO SETOR COMERCIAL', link: '#', photo: '' },
-          { name: 'PRIMAVERA DO LESTE - POLO JARDIM RIVA', link: '#', photo: '' },
-          { name: 'RONDONOPOLIS - POLO LA SALLE', link: '#', photo: '' }
+          { name: 'CUIABA - POLO JARDIM LEBLON', link: '#', photo: '', instructors: [] },
+          { name: 'SINOP - POLO SETOR COMERCIAL', link: '#', photo: '', instructors: [] },
+          { name: 'PRIMAVERA DO LESTE - POLO JARDIM RIVA', link: '#', photo: '', instructors: [] },
+          { name: 'RONDONOPOLIS - POLO LA SALLE', link: '#', photo: '', instructors: [] }
         ]
       },
       PA: {
         leaders: [{ name: 'Júlia Freitas', role: 'Líder Técnica da Aprendizagem', email: 'julia.freitas@ciee.org.br', photo: '' }],
         polos: [
-          { name: 'MARABA - POLO NOVA MARABA', link: '#', photo: '' },
-          { name: 'PARAUAPEBAS - POLO CIDADE NOVA', link: '#', photo: '' },
-          { name: 'BELEM - POLO SAO BRAS', link: '#', photo: '' }
+          { name: 'MARABA - POLO NOVA MARABA', link: '#', photo: '', instructors: [] },
+          { name: 'PARAUAPEBAS - POLO CIDADE NOVA', link: '#', photo: '', instructors: [] },
+          { name: 'BELEM - POLO SAO BRAS', link: '#', photo: '', instructors: [] }
         ]
       }
     };
@@ -821,31 +1056,22 @@
       RS:[[-53.8,-27.15],[-51.5,-27.65],[-49.7,-29.32],[-50.2,-30.2],[-52.1,-32.1],[-53.37,-33.75],[-53.8,-32.6],[-55.5,-30.9],[-57.6,-30.2],[-56.1,-28.6]]
     };
 
-    // Enquadramento simétrico 600x600 (sem margem lateral para cápsulas)
     const VB_W = 600;
     const VB_H = 600;
     const PAD = 22;
 
-    // Tamanho de fonte proporcional para cada sigla caber dentro do próprio estado
     const SMALL_LABEL_SIZES = {
-      DF: 6.5,
-      SE: 7.5,
-      AL: 8.0,
-      PB: 8.2,
-      RN: 8.5,
-      ES: 8.5,
-      RJ: 8.5,
-      PE: 9.2,
-      SC: 9.2
+      DF: 6.5, SE: 7.5, AL: 8.0, PB: 8.2, RN: 8.5, ES: 8.5, RJ: 8.5, PE: 9.2, SC: 9.2
     };
 
     const state = {
-      currentPage: 'map', // 'map' | 'state' | 'folder'
+      currentPage: 'map', // 'map' | 'state' | 'dashboard' | 'folder'
       selectedUf: null,
       hoveredUf: null,
       activeRegion: 'ALL',
       activeDetailTab: 'leaders',
       activeFolderId: null,
+      dashTableFilter: 'active', // 'active' | 'pending' | 'expansion' | 'all'
       projectedScene: null,
       pendingUpload: null,
       modalCallback: null,
@@ -857,6 +1083,13 @@
       isDragging: false,
       dragMoved: false,
       dragStart: { x: 0, y: 0, tx: 0, ty: 0 }
+    };
+
+    const dashCharts = {
+      statesRanking: null,
+      regions: null,
+      instructorCoverage: null,
+      leaderLoad: null
     };
 
     let toastTimer = null;
@@ -992,8 +1225,14 @@
       return stateDatabase[uf];
     }
 
+    function getStateInstructorCount(uf) {
+      const entry = stateDatabase[uf];
+      if (!entry || !entry.polos) return 0;
+      return entry.polos.reduce((acc, p) => acc + ((p.instructors || []).length), 0);
+    }
+
     /* =========================================================================
-       3. NAVEGAÇÃO ENTRE PÁGINAS (MAPA <-> PÁGINA DO ESTADO <-> PASTAS)
+       3. NAVEGAÇÃO ENTRE PÁGINAS (MAPA <-> ESTADO <-> DASHBOARD <-> PASTAS)
        ========================================================================= */
     function cancelPendingZoomTransition() {
       if (state.pendingEnterTimer) {
@@ -1003,34 +1242,42 @@
       state.isTransitioningToState = false;
     }
 
+    function updateSidebarNavHighlight(activeKey) {
+      const btnMap = document.getElementById('nav-leaders-btn');
+      const btnDash = document.getElementById('nav-dashboard-btn');
+
+      const activeClass = 'nav-item active flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-[13px] font-bold w-full text-left transition cursor-pointer bg-[#e6007e] text-white';
+      const inactiveClass = 'nav-item flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-[13px] font-bold w-full text-left transition cursor-pointer text-slate-700 hover:bg-[#f0f4f9]';
+
+      btnMap.className = (activeKey === 'map' || activeKey === 'state') ? activeClass : inactiveClass;
+      btnDash.className = activeKey === 'dashboard' ? activeClass : inactiveClass;
+    }
+
     function showPage(pageName) {
       state.currentPage = pageName;
-      const mapView = document.getElementById('mapa-view');
-      const stateView = document.getElementById('state-page-view');
-      const folderView = document.getElementById('folder-view');
+      const pages = {
+        map: document.getElementById('mapa-view'),
+        state: document.getElementById('state-page-view'),
+        dashboard: document.getElementById('dashboard-view'),
+        folder: document.getElementById('folder-view')
+      };
 
-      mapView.classList.add('hidden');
-      mapView.classList.remove('flex');
-      stateView.classList.add('hidden');
-      stateView.classList.remove('flex');
-      folderView.classList.add('hidden');
-      folderView.classList.remove('flex');
+      Object.entries(pages).forEach(([key, el]) => {
+        if (!el) return;
+        if (key === pageName) {
+          el.classList.remove('hidden');
+          el.classList.add('flex');
+        } else {
+          el.classList.add('hidden');
+          el.classList.remove('flex');
+        }
+      });
 
-      if (pageName === 'map') {
-        mapView.classList.remove('hidden');
-        mapView.classList.add('flex');
-      } else if (pageName === 'state') {
-        stateView.classList.remove('hidden');
-        stateView.classList.add('flex');
-      } else if (pageName === 'folder') {
-        folderView.classList.remove('hidden');
-        folderView.classList.add('flex');
-      }
-
+      updateSidebarNavHighlight(pageName);
+      renderFoldersSidebar();
       document.getElementById('main-content').scrollTop = 0;
     }
 
-    // Clique no estado: 1) aplica zoom suave no estado -> 2) muda para a página do estado
     function zoomAndOpenStatePage(uf) {
       cancelPendingZoomTransition();
       hideTooltip();
@@ -1052,17 +1299,14 @@
       }, 480);
     }
 
-    function openStatePage(uf) {
+    function openStatePage(uf, initialTab = 'leaders') {
+      cancelPendingZoomTransition();
       state.selectedUf = uf;
       state.activeFolderId = null;
       closeMobileSidebar();
 
-      const navBtn = document.getElementById('nav-leaders-btn');
-      navBtn.className = 'nav-item active flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-[13px] font-bold w-full text-left transition cursor-pointer bg-[#e6007e] text-white';
-      renderFoldersSidebar();
-
       renderStateDetails(uf);
-      switchDetailTab('leaders');
+      switchDetailTab(initialTab);
       showPage('state');
     }
 
@@ -1071,6 +1315,7 @@
       state.selectedUf = null;
       state.activeRegion = 'ALL';
       renderRegionFilters();
+      updateDashboardTotals();
       showPage('map');
 
       requestAnimationFrame(() => {
@@ -1086,11 +1331,8 @@
       state.activeRegion = 'ALL';
       closeMobileSidebar();
 
-      const navBtn = document.getElementById('nav-leaders-btn');
-      navBtn.className = 'nav-item active flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-[13px] font-bold w-full text-left transition cursor-pointer bg-[#e6007e] text-white';
-
       renderRegionFilters();
-      renderFoldersSidebar();
+      updateDashboardTotals();
       showPage('map');
 
       requestAnimationFrame(() => {
@@ -1098,6 +1340,16 @@
         state.targetCam = { scale: 1, tx: 0, ty: 0 };
         updateZoomBadge();
         drawMapCanvas();
+      });
+    }
+
+    function switchToDashboardView() {
+      cancelPendingZoomTransition();
+      state.activeFolderId = null;
+      closeMobileSidebar();
+      showPage('dashboard');
+      requestAnimationFrame(() => {
+        renderDashboard();
       });
     }
 
@@ -1198,7 +1450,6 @@
         offY + (py - minY) * scale
       ];
 
-      // DF por último para ser desenhado e clicado sempre acima de GO
       const ufList = Object.keys(projected).sort((a, b) => {
         if (a === 'DF') return 1;
         if (b === 'DF') return -1;
@@ -1367,7 +1618,6 @@
 
       const invScale = 1 / Math.sqrt(state.cam.scale);
 
-      // 1. Polígonos dos 27 estados
       scene.ufList.forEach((uf) => {
         const st = scene.states[uf];
         const polosCount = (stateDatabase[uf]?.polos || []).length;
@@ -1413,7 +1663,6 @@
         ctx.restore();
       });
 
-      // 2. Todas as 27 siglas diretamente dentro do mapa (sem rótulos laterais)
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
 
@@ -1491,10 +1740,11 @@
       const tooltip = document.getElementById('tooltip');
       const stage = document.getElementById('map-stage');
       const data = stateDatabase[uf] || { leaders: [], polos: [] };
+      const instCount = getStateInstructorCount(uf);
 
       tooltip.innerHTML = `
         <div class="text-white text-xs font-extrabold">${UF_NAMES[uf] || uf} (${uf})</div>
-        <div class="text-[#ffc800] text-[11px] mt-0.5">${data.leaders.length} Líder(es) · ${data.polos.length} Polo(s)</div>
+        <div class="text-[#ffc800] text-[11px] mt-0.5">${data.leaders.length} Líder(es) · ${data.polos.length} Polo(s) · ${instCount} Instrutor(es)</div>
         <div class="text-[10px] text-slate-300 mt-0.5">Clique para abrir a página</div>
       `;
       tooltip.style.opacity = '1';
@@ -1516,7 +1766,7 @@
     }
 
     /* =========================================================================
-       5. PÁGINA DO ESTADO: LÍDERES E POLOS
+       5. PÁGINA DO ESTADO: LÍDERES, POLOS E INSTRUTORES DENTRO DE CADA POLO
        ========================================================================= */
     function switchDetailTab(tab) {
       state.activeDetailTab = tab;
@@ -1550,6 +1800,7 @@
       document.getElementById('detail-uf-badge').textContent = uf;
       document.getElementById('detail-state-name').textContent = stateName;
       document.getElementById('detail-state-region').textContent = `Regional: ${UF_TO_REGION[uf] || '—'}`;
+      document.getElementById('detail-state-instructors-count').textContent = getStateInstructorCount(uf);
 
       document.getElementById('count-tab-leaders').textContent = data.leaders.length;
       document.getElementById('count-tab-polos').textContent = data.polos.length;
@@ -1600,7 +1851,7 @@
         });
       }
 
-      // Renderizar Polos
+      // Renderizar Polos + Instrutores internos
       const polosList = document.getElementById('polos-list');
       polosList.innerHTML = '';
 
@@ -1608,20 +1859,63 @@
         polosList.innerHTML = '<p class="col-span-full text-sm text-slate-400 italic py-3">Nenhum polo cadastrado neste estado.</p>';
       } else {
         data.polos.forEach((polo, idx) => {
+          if (!Array.isArray(polo.instructors)) polo.instructors = [];
+
+          const instructorsHtml = polo.instructors.length
+            ? `<div class="flex flex-wrap gap-1.5 mt-1.5">
+                ${polo.instructors.map((inst, iIdx) => {
+                  const instName = typeof inst === 'string' ? inst : inst.name;
+                  const instArea = typeof inst === 'object' && inst.area ? ` (${inst.area})` : '';
+                  return `
+                    <span class="inline-flex items-center gap-1.5 bg-white border border-[#c0d8f0] text-[#002356] px-2.5 py-1 rounded-full text-[11px] font-bold shadow-2xs">
+                      <span>&#128100; ${escapeHtml(instName)}${escapeHtml(instArea)}</span>
+                      <button
+                        type="button"
+                        title="Remover instrutor"
+                        onclick="removeInstructor('${uf}', ${idx}, ${iIdx})"
+                        class="text-rose-500 hover:text-rose-700 font-black cursor-pointer ml-0.5"
+                      >&times;</button>
+                    </span>
+                  `;
+                }).join('')}
+              </div>`
+            : `<p class="text-[11px] text-amber-700 bg-amber-50 border border-amber-200 rounded-md px-2.5 py-1.5 mt-1.5 font-semibold">
+                 Nenhum instrutor cadastrado neste polo ainda.
+               </p>`;
+
           const card = document.createElement('div');
           card.className = 'bg-[#f8fafc] border border-[#d5e0ea] rounded-xl p-4 flex flex-col gap-3 shadow-xs';
           card.innerHTML = `
             <div class="flex items-start justify-between gap-2">
               <div class="text-sm font-extrabold text-[#003882] leading-snug">${escapeHtml(polo.name)}</div>
             </div>
+
             <div
               onclick="triggerPoloPhotoUpload('${uf}', ${idx})"
               title="Clique para carregar foto do computador"
-              class="w-full h-32 bg-[#edf2f7] rounded-lg border-2 border-dashed border-slate-300 flex items-center justify-center text-xs font-semibold text-slate-500 overflow-hidden cursor-pointer hover:border-[#003882]"
+              class="w-full h-28 bg-[#edf2f7] rounded-lg border-2 border-dashed border-slate-300 flex items-center justify-center text-xs font-semibold text-slate-500 overflow-hidden cursor-pointer hover:border-[#003882]"
             >
               ${polo.photo ? `<img src="${polo.photo}" alt="${escapeHtml(polo.name)}" class="w-full h-full object-cover" />` : 'Clique para carregar foto do polo'}
             </div>
-            <div class="flex items-center gap-2 mt-auto">
+
+            <!-- BLOCO DE INSTRUTORES DENTRO DO POLO -->
+            <div class="bg-[#eef5fc]/70 border border-[#d5e0ea] rounded-lg p-3 flex flex-col">
+              <div class="flex items-center justify-between gap-2">
+                <span class="text-[11px] font-extrabold uppercase tracking-wide text-[#003882]">
+                  Instrutores (${polo.instructors.length})
+                </span>
+                <button
+                  type="button"
+                  onclick="openAddInstructorModal('${uf}', ${idx})"
+                  class="bg-[#003882] hover:bg-[#e6007e] text-white px-2.5 py-1 rounded-md text-[11px] font-bold cursor-pointer transition"
+                >
+                  + Instrutor
+                </button>
+              </div>
+              ${instructorsHtml}
+            </div>
+
+            <div class="flex items-center gap-2 mt-auto pt-1">
               <a
                 href="${escapeHtml(polo.link || '#')}"
                 target="_blank"
@@ -1641,6 +1935,49 @@
           polosList.appendChild(card);
         });
       }
+    }
+
+    function openAddInstructorModal(uf, poloIdx) {
+      const polo = stateDatabase[uf]?.polos[poloIdx];
+      if (!polo) return;
+      openUniversalModal({
+        title: `Adicionar Instrutor`,
+        message: `Polo: ${polo.name} (${uf})`,
+        field1: { label: 'Nome do Instrutor', placeholder: 'Ex.: Carlos Eduardo Oliveira' },
+        field2: { label: 'Área / Turma (Opcional)', placeholder: 'Ex.: Administrativo, TI, Logística...' },
+        submitText: 'Salvar Instrutor',
+        onConfirm: (nameVal, areaVal) => {
+          if (!nameVal.trim()) {
+            showToast('Informe o nome do instrutor.');
+            return false;
+          }
+          if (!Array.isArray(polo.instructors)) polo.instructors = [];
+          polo.instructors.push({
+            name: nameVal.trim(),
+            area: (areaVal || '').trim()
+          });
+          refreshAllDataViews();
+          showToast('Instrutor vinculado ao polo!');
+          return true;
+        }
+      });
+    }
+
+    function removeInstructor(uf, poloIdx, instIdx) {
+      const polo = stateDatabase[uf]?.polos[poloIdx];
+      if (!polo || !Array.isArray(polo.instructors)) return;
+      polo.instructors.splice(instIdx, 1);
+      refreshAllDataViews();
+      showToast('Instrutor removido do polo.');
+    }
+
+    function parseInstructorsInput(str) {
+      if (!str || !str.trim()) return [];
+      return str
+        .split(',')
+        .map((s) => s.trim())
+        .filter(Boolean)
+        .map((name) => ({ name, area: '' }));
     }
 
     function openAddLeaderModal() {
@@ -1724,8 +2061,9 @@
         title: `Novo Polo — ${UF_NAMES[uf]} (${uf})`,
         field1: { label: 'Nome do Polo', placeholder: 'Ex.: SÃO PAULO - POLO CENTRO' },
         field2: { label: 'Link do Dossiê (Opcional)', placeholder: 'https://...', value: 'https://ciee.org.br' },
+        field3: { label: 'Instrutores (Opcional — separe por vírgula)', placeholder: 'Ex.: Ana Paula, João Mendes' },
         submitText: 'Salvar Polo',
-        onConfirm: (poloVal, linkVal) => {
+        onConfirm: (poloVal, linkVal, instVal) => {
           if (!poloVal.trim()) {
             showToast('Informe o nome do polo.');
             return false;
@@ -1734,7 +2072,8 @@
           entry.polos.push({
             name: poloVal.trim(),
             link: (linkVal || '#').trim(),
-            photo: ''
+            photo: '',
+            instructors: parseInstructorsInput(instVal)
           });
           refreshAllDataViews();
           showToast('Polo cadastrado com sucesso!');
@@ -1771,7 +2110,7 @@
       const poloName = entry.polos[idx]?.name || 'este polo';
       openUniversalModal({
         title: 'Remover Polo',
-        message: `Deseja remover "${poloName}"?`,
+        message: `Deseja remover "${poloName}" e seus instrutores vinculados?`,
         submitText: 'Remover',
         danger: true,
         onConfirm: () => {
@@ -1801,26 +2140,457 @@
     function refreshAllDataViews() {
       updateDashboardTotals();
       if (state.selectedUf) renderStateDetails(state.selectedUf);
-      drawMapCanvas();
+      if (state.currentPage === 'map') drawMapCanvas();
+      if (state.currentPage === 'dashboard') renderDashboard();
     }
 
     function updateDashboardTotals() {
       let totalLeaders = 0;
       let totalPolos = 0;
+      let totalInstructors = 0;
 
       Object.keys(stateDatabase).forEach((uf) => {
         const entry = stateDatabase[uf];
         if (!entry) return;
         totalLeaders += (entry.leaders || []).length;
         totalPolos += (entry.polos || []).length;
+        (entry.polos || []).forEach((p) => {
+          totalInstructors += (p.instructors || []).length;
+        });
       });
 
-      document.getElementById('sidebar-kpi-polos').textContent = totalPolos;
-      document.getElementById('sidebar-kpi-leaders').textContent = totalLeaders;
+      const polosEl = document.getElementById('total-polos-count');
+      const leadersEl = document.getElementById('total-leaders-count');
+      const instEl = document.getElementById('total-instructors-count');
+      if (polosEl) polosEl.textContent = totalPolos;
+      if (leadersEl) leadersEl.textContent = totalLeaders;
+      if (instEl) instEl.textContent = totalInstructors;
     }
 
     /* =========================================================================
-       6. FILTROS DE REGIONAIS NO MAPA
+       6. DASHBOARD GERENCIAL (CÁLCULOS, INSIGHTS, 4 GRÁFICOS E MATRIZ)
+       ========================================================================= */
+    function computeAnalytics() {
+      const allUfs = Object.keys(UF_NAMES).sort();
+      let totalPolos = 0;
+      let totalLeadersAlloc = 0;
+      let totalInstructors = 0;
+      let polosWithInstructor = 0;
+      let polosWithoutInstructor = 0;
+      let activeStatesCount = 0;
+
+      const leaderMap = new Map(); // normalizedName -> { name, polos, instructors, ufs: Set }
+      const stateRows = [];
+
+      allUfs.forEach((uf) => {
+        const entry = stateDatabase[uf] || { leaders: [], polos: [] };
+        const leaders = entry.leaders || [];
+        const polos = entry.polos || [];
+
+        let stInst = 0;
+        let stWithoutInst = 0;
+        polos.forEach((p) => {
+          const count = (p.instructors || []).length;
+          stInst += count;
+          if (count > 0) polosWithInstructor++;
+          else {
+            polosWithoutInstructor++;
+            stWithoutInst++;
+          }
+        });
+
+        totalPolos += polos.length;
+        totalLeadersAlloc += leaders.length;
+        totalInstructors += stInst;
+        if (polos.length > 0 || leaders.length > 0) activeStatesCount++;
+
+        // Distribui carga para cada líder do estado (evitando distorção de dupla contagem de polos quando há 2 líderes no mesmo estado, mostra total sob gestão compartilhada)
+        leaders.forEach((l) => {
+          const key = l.name.trim().toLowerCase();
+          if (!leaderMap.has(key)) {
+            leaderMap.set(key, { name: l.name.trim(), polos: 0, instructors: 0, ufs: new Set() });
+          }
+          const rec = leaderMap.get(key);
+          rec.polos += polos.length;
+          rec.instructors += stInst;
+          rec.ufs.add(uf);
+        });
+
+        stateRows.push({
+          uf,
+          name: UF_NAMES[uf],
+          region: UF_TO_REGION[uf],
+          leadersCount: leaders.length,
+          polosCount: polos.length,
+          instructorsCount: stInst,
+          polosWithoutInstructor: stWithoutInst
+        });
+      });
+
+      const regionStats = Object.entries(CORPORATE_REGIONS).map(([region, ufs]) => {
+        let polos = 0;
+        let instructors = 0;
+        let leaders = 0;
+        ufs.forEach((uf) => {
+          const row = stateRows.find((r) => r.uf === uf);
+          if (row) {
+            polos += row.polosCount;
+            instructors += row.instructorsCount;
+            leaders += row.leadersCount;
+          }
+        });
+        return { region, polos, instructors, leaders, ufsCount: ufs.length };
+      });
+
+      const leaderList = Array.from(leaderMap.values())
+        .map((l) => ({ ...l, ufLabel: Array.from(l.ufs).join(' + ') }))
+        .sort((a, b) => b.polos - a.polos);
+
+      return {
+        totalPolos,
+        totalLeadersAlloc,
+        uniqueLeadersCount: leaderList.length,
+        totalInstructors,
+        polosWithInstructor,
+        polosWithoutInstructor,
+        activeStatesCount,
+        stateRows,
+        regionStats,
+        leaderList
+      };
+    }
+
+    function renderDashboard() {
+      const stats = computeAnalytics();
+
+      // 1. KPIs
+      const avgInstPerPolo = stats.totalPolos > 0 ? (stats.totalInstructors / stats.totalPolos).toFixed(1).replace('.', ',') : '0,0';
+      const nationalCovPct = Math.round((stats.activeStatesCount / 27) * 100);
+      const instCovPct = stats.totalPolos > 0 ? Math.round((stats.polosWithInstructor / stats.totalPolos) * 100) : 0;
+
+      document.getElementById('dash-kpi-polos').textContent = stats.totalPolos;
+      document.getElementById('dash-kpi-polos-sub').textContent = `em ${stats.activeStatesCount} estados ativos`;
+
+      document.getElementById('dash-kpi-instructors').textContent = stats.totalInstructors;
+      document.getElementById('dash-kpi-instructors-sub').textContent = `média de ${avgInstPerPolo} / polo`;
+
+      document.getElementById('dash-kpi-leaders').textContent = stats.uniqueLeadersCount;
+      document.getElementById('dash-kpi-leaders-sub').textContent = `${stats.totalLeadersAlloc} alocações estaduais`;
+
+      document.getElementById('dash-kpi-coverage').textContent = `${nationalCovPct}%`;
+      document.getElementById('dash-kpi-coverage-sub').textContent = `${stats.activeStatesCount} de 27 UFs ativas`;
+
+      document.getElementById('dash-kpi-inst-cov').textContent = `${instCovPct}%`;
+      document.getElementById('dash-kpi-inst-cov-sub').textContent = `${stats.polosWithoutInstructor} polo(s) sem instrutor`;
+
+      // 2. Insights para Tomada de Decisão
+      const topPoloState = [...stats.stateRows].sort((a, b) => b.polosCount - a.polosCount)[0];
+      const topInstState = [...stats.stateRows].sort((a, b) => b.instructorsCount - a.instructorsCount)[0];
+      const topLeader = stats.leaderList[0];
+      const emptyStatesCount = 27 - stats.activeStatesCount;
+
+      const insightsGrid = document.getElementById('dash-insights-grid');
+      insightsGrid.innerHTML = `
+        <div class="rounded-xl p-4 bg-[#eef5fc] border border-[#c0d8f0] flex flex-col justify-between gap-2">
+          <div class="text-[11px] font-extrabold uppercase text-[#003882]">Maior Concentração de Polos</div>
+          <div class="text-sm font-extrabold text-[#002356]">
+            ${topPoloState && topPoloState.polosCount > 0 ? `${topPoloState.name} (${topPoloState.uf}) — ${topPoloState.polosCount} polos` : 'Sem polos cadastrados'}
+          </div>
+          <p class="text-xs text-slate-600">
+            ${topInstState && topInstState.instructorsCount > 0
+              ? `Líder em instrutores: <strong>${topInstState.uf} (${topInstState.instructorsCount})</strong>.`
+              : 'Nenhum instrutor cadastrado ainda. Acesse um estado para vincular instrutores.'}
+          </p>
+        </div>
+
+        <div class="rounded-xl p-4 bg-amber-50 border border-amber-200 flex flex-col justify-between gap-2">
+          <div class="text-[11px] font-extrabold uppercase text-amber-800">Pendência de Instrutores</div>
+          <div class="text-sm font-extrabold text-amber-950">
+            ${stats.polosWithoutInstructor} de ${stats.totalPolos} polos sem instrutor
+          </div>
+          <p class="text-xs text-amber-900/80">
+            ${stats.polosWithoutInstructor > 0
+              ? 'Priorize o preenchimento dos instrutores nos cards de polo para completar o quadro docente.'
+              : 'Excelente! Todos os polos ativos já possuem instrutores cadastrados.'}
+          </p>
+        </div>
+
+        <div class="rounded-xl p-4 bg-pink-50 border border-pink-200 flex flex-col justify-between gap-2">
+          <div class="text-[11px] font-extrabold uppercase text-[#e6007e]">Maior Carga por Liderança</div>
+          <div class="text-sm font-extrabold text-[#002356]">
+            ${topLeader ? `${escapeHtml(topLeader.name)}` : '—'}
+          </div>
+          <p class="text-xs text-slate-600">
+            ${topLeader
+              ? `Atua em <strong>${topLeader.ufLabel}</strong> com <strong>${topLeader.polos} polos</strong> sob gestão.`
+              : 'Sem lideranças cadastradas.'}
+          </p>
+        </div>
+
+        <div class="rounded-xl p-4 bg-purple-50 border border-purple-200 flex flex-col justify-between gap-2">
+          <div class="text-[11px] font-extrabold uppercase text-[#6b21a8]">Oportunidade de Expansão</div>
+          <div class="text-sm font-extrabold text-[#002356]">
+            ${emptyStatesCount} estados sem polos ativos
+          </div>
+          <p class="text-xs text-slate-600">
+            Inclui praças estratégicas sem registro na base (ex.: SP, RJ, MG, PR, RS, SC e PE).
+          </p>
+        </div>
+      `;
+
+      // 3. Gráficos Chart.js
+      renderDashboardCharts(stats);
+
+      // 4. Matriz Gerencial
+      renderDashboardTableFilters();
+      renderDashboardTable(stats);
+    }
+
+    function renderDashboardCharts(stats) {
+      // Gráfico 1: Ranking de Estados (Polos vs. Instrutores)
+      const activeSorted = stats.stateRows
+        .filter((r) => r.polosCount > 0 || r.instructorsCount > 0)
+        .sort((a, b) => (b.polosCount - a.polosCount) || (b.instructorsCount - a.instructorsCount));
+
+      const ctxStates = document.getElementById('chart-states-ranking').getContext('2d');
+      if (dashCharts.statesRanking) dashCharts.statesRanking.destroy();
+
+      dashCharts.statesRanking = new Chart(ctxStates, {
+        type: 'bar',
+        data: {
+          labels: activeSorted.map((r) => r.uf),
+          datasets: [
+            {
+              label: 'Polos',
+              data: activeSorted.map((r) => r.polosCount),
+              backgroundColor: '#003882',
+              borderRadius: 5
+            },
+            {
+              label: 'Instrutores',
+              data: activeSorted.map((r) => r.instructorsCount),
+              backgroundColor: '#0099ff',
+              borderRadius: 5
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          onClick: (_, elements) => {
+            if (elements && elements.length > 0) {
+              const targetUf = activeSorted[elements[0].index].uf;
+              openStatePage(targetUf, 'polos');
+            }
+          },
+          plugins: {
+            legend: { position: 'top', labels: { boxWidth: 12, font: { size: 11, weight: 'bold' } } },
+            tooltip: {
+              callbacks: {
+                title: (items) => {
+                  const row = activeSorted[items[0].dataIndex];
+                  return `${row.name} (${row.uf}) — ${row.region}`;
+                }
+              }
+            }
+          },
+          scales: {
+            y: { beginAtZero: true, ticks: { precision: 0 }, grid: { color: '#eef2f6' } },
+            x: { grid: { display: false }, ticks: { font: { weight: 'bold' } } }
+          }
+        }
+      });
+
+      // Gráfico 2: Distribuição por Regional Corporativa
+      const ctxRegions = document.getElementById('chart-regions').getContext('2d');
+      if (dashCharts.regions) dashCharts.regions.destroy();
+
+      dashCharts.regions = new Chart(ctxRegions, {
+        type: 'bar',
+        data: {
+          labels: stats.regionStats.map((r) => r.region),
+          datasets: [
+            {
+              label: 'Polos',
+              data: stats.regionStats.map((r) => r.polos),
+              backgroundColor: '#003882',
+              borderRadius: 5
+            },
+            {
+              label: 'Instrutores',
+              data: stats.regionStats.map((r) => r.instructors),
+              backgroundColor: '#ffc800',
+              borderRadius: 5
+            }
+          ]
+        },
+        options: {
+          indexAxis: 'y',
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { position: 'top', labels: { boxWidth: 12, font: { size: 11, weight: 'bold' } } }
+          },
+          scales: {
+            x: { beginAtZero: true, ticks: { precision: 0 }, grid: { color: '#eef2f6' } },
+            y: { grid: { display: false }, ticks: { font: { size: 11, weight: '600' } } }
+          }
+        }
+      });
+
+      // Gráfico 3: Rosca de Cobertura de Instrutores nos Polos
+      const ctxCov = document.getElementById('chart-instructor-coverage').getContext('2d');
+      if (dashCharts.instructorCoverage) dashCharts.instructorCoverage.destroy();
+
+      dashCharts.instructorCoverage = new Chart(ctxCov, {
+        type: 'doughnut',
+        data: {
+          labels: ['Polos com Instrutor', 'Polos sem Instrutor'],
+          datasets: [{
+            data: [stats.polosWithInstructor, stats.polosWithoutInstructor],
+            backgroundColor: ['#0099ff', '#e6007e'],
+            borderWidth: 2,
+            borderColor: '#ffffff'
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          cutout: '62%',
+          plugins: {
+            legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 12, weight: 'bold' } } }
+          }
+        }
+      });
+
+      // Gráfico 4: Carga Operacional por Líder Único
+      const ctxLeaders = document.getElementById('chart-leader-load').getContext('2d');
+      if (dashCharts.leaderLoad) dashCharts.leaderLoad.destroy();
+
+      const topLeaders = stats.leaderList.slice(0, 10);
+      dashCharts.leaderLoad = new Chart(ctxLeaders, {
+        type: 'bar',
+        data: {
+          labels: topLeaders.map((l) => `${l.name.split(' ').slice(0, 2).join(' ')} (${l.ufLabel})`),
+          datasets: [{
+            label: 'Polos sob Gestão',
+            data: topLeaders.map((l) => l.polos),
+            backgroundColor: topLeaders.map((l) => (l.polos >= 7 ? '#e6007e' : '#003882')),
+            borderRadius: 5
+          }]
+        },
+        options: {
+          indexAxis: 'y',
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              callbacks: {
+                title: (items) => {
+                  const l = topLeaders[items[0].dataIndex];
+                  return `${l.name} (${l.ufLabel})`;
+                },
+                afterLabel: (item) => {
+                  const l = topLeaders[item.dataIndex];
+                  return `Instrutores nos polos: ${l.instructors}`;
+                }
+              }
+            }
+          },
+          scales: {
+            x: { beginAtZero: true, ticks: { precision: 0 }, grid: { color: '#eef2f6' } },
+            y: { grid: { display: false }, ticks: { font: { size: 11, weight: '600' } } }
+          }
+        }
+      });
+    }
+
+    function renderDashboardTableFilters() {
+      const container = document.getElementById('dash-table-filters');
+      const filters = [
+        { key: 'active', label: 'Estados Ativos' },
+        { key: 'pending', label: 'Sem Instrutores' },
+        { key: 'expansion', label: 'Sem Operação (Expansão)' },
+        { key: 'all', label: 'Todos (27 UFs)' }
+      ];
+
+      container.innerHTML = '';
+      filters.forEach((f) => {
+        const isActive = state.dashTableFilter === f.key;
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = isActive
+          ? 'px-3 py-1 rounded-full text-xs font-extrabold bg-[#003882] text-white border border-[#003882] cursor-pointer transition'
+          : 'px-3 py-1 rounded-full text-xs font-bold bg-white text-slate-600 border border-[#d5e0ea] hover:border-[#003882] cursor-pointer transition';
+        btn.textContent = f.label;
+        btn.addEventListener('click', () => {
+          state.dashTableFilter = f.key;
+          renderDashboardTableFilters();
+          renderDashboardTable(computeAnalytics());
+        });
+        container.appendChild(btn);
+      });
+    }
+
+    function renderDashboardTable(stats) {
+      const tbody = document.getElementById('dash-table-body');
+      tbody.innerHTML = '';
+
+      let rows = [...stats.stateRows];
+      if (state.dashTableFilter === 'active') {
+        rows = rows.filter((r) => r.polosCount > 0 || r.leadersCount > 0);
+      } else if (state.dashTableFilter === 'pending') {
+        rows = rows.filter((r) => r.polosWithoutInstructor > 0);
+      } else if (state.dashTableFilter === 'expansion') {
+        rows = rows.filter((r) => r.polosCount === 0 && r.leadersCount === 0);
+      }
+
+      rows.sort((a, b) => (b.polosCount - a.polosCount) || (b.instructorsCount - a.instructorsCount) || a.uf.localeCompare(b.uf));
+
+      if (!rows.length) {
+        tbody.innerHTML = '<tr><td colspan="8" class="py-6 text-center text-slate-400 italic">Nenhum estado encontrado para este filtro.</td></tr>';
+        return;
+      }
+
+      rows.forEach((r) => {
+        let statusBadge = '';
+        if (r.polosCount === 0) {
+          statusBadge = '<span class="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-slate-100 text-slate-600">Expansão / Sem Polos</span>';
+        } else if (r.polosWithoutInstructor > 0) {
+          statusBadge = '<span class="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-amber-100 text-amber-800">Cadastrar Instrutores</span>';
+        } else if (r.leadersCount > 0 && r.polosCount / r.leadersCount >= 7) {
+          statusBadge = '<span class="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-pink-100 text-[#e6007e]">Alta Carga p/ Líder</span>';
+        } else {
+          statusBadge = '<span class="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-100 text-emerald-800">Operação Equilibrada</span>';
+        }
+
+        const tr = document.createElement('tr');
+        tr.className = 'hover:bg-[#f8fafc] transition';
+        tr.innerHTML = `
+          <td class="py-2.5 px-3 font-extrabold text-[#002356]">${r.name} <span class="text-slate-400 font-bold">(${r.uf})</span></td>
+          <td class="py-2.5 px-3 text-slate-600 font-semibold">${r.region}</td>
+          <td class="py-2.5 px-3 text-center font-bold text-slate-700">${r.leadersCount}</td>
+          <td class="py-2.5 px-3 text-center font-extrabold text-[#003882]">${r.polosCount}</td>
+          <td class="py-2.5 px-3 text-center font-extrabold text-[#0099ff]">${r.instructorsCount}</td>
+          <td class="py-2.5 px-3 text-center font-bold ${r.polosWithoutInstructor > 0 ? 'text-amber-700' : 'text-emerald-700'}">${r.polosWithoutInstructor}</td>
+          <td class="py-2.5 px-3">${statusBadge}</td>
+          <td class="py-2.5 px-3 text-right">
+            <button
+              type="button"
+              onclick="openStatePage('${r.uf}', 'polos')"
+              class="bg-[#003882] hover:bg-[#e6007e] text-white px-3 py-1 rounded-md text-[11px] font-bold cursor-pointer transition"
+            >
+              Gerenciar
+            </button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    /* =========================================================================
+       7. FILTROS DE REGIONAIS NO MAPA
        ========================================================================= */
     function applyRegionSelection(regionKey) {
       cancelPendingZoomTransition();
@@ -1854,7 +2624,7 @@
     }
 
     /* =========================================================================
-       7. GESTÃO DE PASTAS E DOCUMENTOS
+       8. GESTÃO DE PASTAS E DOCUMENTOS
        ========================================================================= */
     function renderFoldersSidebar() {
       const container = document.getElementById('folders-list');
@@ -1904,12 +2674,8 @@
       state.activeFolderId = folderId;
       closeMobileSidebar();
 
-      const navBtn = document.getElementById('nav-leaders-btn');
-      navBtn.className = 'nav-item flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-[13px] font-bold w-full text-left transition cursor-pointer text-slate-700 hover:bg-[#f0f4f9]';
-
       document.getElementById('folder-view-title').textContent = folder.name;
       showPage('folder');
-      renderFoldersSidebar();
       renderFolderDocs(folder);
     }
 
@@ -2069,7 +2835,7 @@
     }
 
     /* =========================================================================
-       8. EXPORTAÇÃO PARA EXCEL (CSV UTF-8)
+       9. EXPORTAÇÃO PARA EXCEL (CSV UTF-8 — AGORA INCLUINDO INSTRUTORES)
        ========================================================================= */
     function downloadCSV(csvContent, fileName) {
       const blob = new Blob(['\uFEFF' + csvContent], { type: 'text/csv;charset=utf-8;' });
@@ -2085,19 +2851,23 @@
     }
 
     function exportToExcel() {
-      let csv = 'Estado (Sigla);Nome do Polo;Link do Dossiê;Liderança(s);E-mail(s)\n';
+      let csv = 'Estado (Sigla);Regional;Nome do Polo;Instrutor(es);Link do Dossiê;Liderança(s);E-mail(s)\n';
       for (const [sigla, data] of Object.entries(stateDatabase)) {
+        const region = UF_TO_REGION[sigla] || '-';
         const leaders = (data.leaders || []).map((l) => l.name).join(' e ') || '-';
         const emails = (data.leaders || []).map((l) => l.email || '-').join(' e ') || '-';
         if (!data.polos || data.polos.length === 0) {
-          csv += `${sigla};Sem Polos Cadastrados;-;${leaders};${emails}\n`;
+          csv += `${sigla};${region};Sem Polos Cadastrados;-;-;${leaders};${emails}\n`;
         } else {
           data.polos.forEach((polo) => {
-            csv += `${sigla};${polo.name.replace(/;/g, ',')};${(polo.link || '#').replace(/;/g, ',')};${leaders};${emails}\n`;
+            const instNames = (polo.instructors || [])
+              .map((i) => (typeof i === 'string' ? i : (i.area ? `${i.name} (${i.area})` : i.name)))
+              .join(' | ') || 'Sem instrutor';
+            csv += `${sigla};${region};${polo.name.replace(/;/g, ',')};${instNames.replace(/;/g, ',')};${(polo.link || '#').replace(/;/g, ',')};${leaders};${emails}\n`;
           });
         }
       }
-      downloadCSV(csv, 'Liderancas_e_Polos_CIEE.csv');
+      downloadCSV(csv, 'Liderancas_Polos_e_Instrutores_CIEE.csv');
       showToast('Planilha exportada!');
     }
 
@@ -2117,7 +2887,7 @@
     }
 
     /* =========================================================================
-       9. ATUALIZAÇÃO SILENCIOSA DOS CONTORNOS EM SEGUNDO PLANO
+       10. ATUALIZAÇÃO SILENCIOSA DOS CONTORNOS EM SEGUNDO PLANO
        ========================================================================= */
     async function fetchWithTimeout(url, timeoutMs = 7000) {
       const controller = new AbortController();
@@ -2200,7 +2970,7 @@
     }
 
     /* =========================================================================
-       10. INICIALIZAÇÃO
+       11. INICIALIZAÇÃO
        ========================================================================= */
     document.addEventListener('DOMContentLoaded', () => {
       if (isCompactViewport()) {
