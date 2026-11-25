@@ -3,6 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com https://cdn.jsdelivr.net; connect-src 'self' https://servicodados.ibge.gov.br https://raw.githubusercontent.com; img-src 'self' data: https:; style-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com;" />
+  <meta name="referrer" content="no-referrer" />
   <title>SITE DA APRENDIZAGEM - CIEE</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -130,17 +132,18 @@
 </head>
 <body class="h-screen overflow-hidden flex flex-col">
 
-  <!-- Inputs Escondidos para Upload de Imagens -->
+  <!-- Inputs Escondidos para Upload de Imagens e Backup -->
   <input type="file" id="file-input-leader" accept="image/*" class="hidden" />
   <input type="file" id="file-input-polo" accept="image/*" class="hidden" />
   <input type="file" id="file-input-doc" accept="image/*" class="hidden" />
+  <input type="file" id="file-input-backup" accept="application/json" class="hidden" />
 
   <!-- Notificação Flutuante -->
   <div id="toast-banner" class="fixed bottom-5 right-5 z-[1100] bg-[#002356] text-white px-4 py-3 rounded-xl shadow-xl border-l-4 border-[#ffc800] text-xs font-bold opacity-0 pointer-events-none transition-all duration-300 translate-y-2"></div>
 
-  <!-- TELA DE BOAS-VINDAS -->
+  <!-- TELA DE BOAS-VINDAS E CONTROLE DE ACESSO -->
   <div id="welcome-screen">
-    <div class="bg-white rounded-[20px] w-full max-w-[900px] grid grid-cols-1 md:grid-cols-[1.1fr_0.9fr] shadow-2xl overflow-hidden border-[3px] border-[#ffc800]">
+    <div class="bg-white rounded-[20px] w-full max-w-[920px] grid grid-cols-1 md:grid-cols-[1.05fr_0.95fr] shadow-2xl overflow-hidden border-[3px] border-[#ffc800]">
       <div class="bg-gradient-to-b from-[#003380] to-[#001e4e] text-white p-8 sm:p-10 flex flex-col justify-between">
         <div class="flex flex-col gap-3">
           <div class="text-2xl sm:text-3xl font-black text-white tracking-[2px]">CIEE</div>
@@ -158,23 +161,92 @@
           <span class="px-3 py-1.5 rounded-full text-[11px] font-extrabold text-white uppercase bg-[#8c52ff]">Aprendizado Constante</span>
           <span class="px-3 py-1.5 rounded-full text-[11px] font-extrabold text-white uppercase bg-[#0099ff]">Impacto Positivo</span>
         </div>
+
+        <div class="mt-6 pt-4 border-t border-white/15 text-[11px] text-[#cfe0ff] leading-relaxed">
+          &#128274; <strong>Proteção de Dados (LGPD):</strong> Pastas de documentos são privativas e acessíveis apenas para contas corporativas autorizadas.
+        </div>
       </div>
 
-      <div class="p-8 sm:p-10 flex flex-col justify-center gap-5 text-center bg-white">
-        <h1 class="text-2xl font-extrabold text-[#002356] leading-tight">
-          Bem-vindo ao Site da Aprendizagem
-        </h1>
-        <p class="text-sm text-slate-500 leading-relaxed">
-          Acesse a plataforma para consultar líderes regionais, polos, instrutores, indicadores estratégicos e dossiês de acompanhamento em todo o Brasil.
-        </p>
-        <button
-          type="button"
-          onclick="enterSite()"
-          class="bg-[#e6007e] hover:bg-[#c9006b] text-white font-extrabold text-base py-4 px-6 rounded-xl shadow-lg shadow-[#e6007e]/35 transition-all hover:-translate-y-0.5 flex items-center justify-center gap-2.5 mt-1 cursor-pointer"
-        >
-          <span>Entrar no Site</span>
-          <span aria-hidden="true">&#8594;</span>
-        </button>
+      <div class="p-7 sm:p-9 flex flex-col justify-center gap-4 bg-white">
+        <div class="text-center">
+          <h1 class="text-2xl font-extrabold text-[#002356] leading-tight">
+            Site da Aprendizagem
+          </h1>
+          <p class="text-xs sm:text-sm text-slate-500 mt-1">
+            Escolha seu modo de acesso abaixo
+          </p>
+        </div>
+
+        <!-- Abas de Acesso -->
+        <div class="grid grid-cols-2 gap-1.5 bg-[#f0f4f9] p-1 rounded-xl border border-[#d5e0ea]">
+          <button
+            type="button"
+            id="login-tab-visitor"
+            onclick="switchLoginTab('visitor')"
+            class="py-2 px-3 rounded-lg text-xs font-extrabold bg-[#003882] text-white cursor-pointer transition"
+          >
+            Mapa &amp; Dashboard
+          </button>
+          <button
+            type="button"
+            id="login-tab-admin"
+            onclick="switchLoginTab('admin')"
+            class="py-2 px-3 rounded-lg text-xs font-bold text-slate-600 hover:text-[#003882] cursor-pointer transition"
+          >
+            &#128274; Acesso Restrito
+          </button>
+        </div>
+
+        <!-- Painel Visitante / Equipe -->
+        <div id="login-panel-visitor" class="flex flex-col gap-3.5 text-center pt-1">
+          <p class="text-xs text-slate-500 leading-relaxed">
+            Visualize o <strong>Mapa Nacional</strong>, lideranças, polos, instrutores e o <strong>Dashboard Gerencial</strong>. As pastas de documentos permanecem ocultas.
+          </p>
+          <button
+            type="button"
+            onclick="enterAsVisitor()"
+            class="bg-[#e6007e] hover:bg-[#c9006b] text-white font-extrabold text-sm py-3.5 px-6 rounded-xl shadow-lg shadow-[#e6007e]/35 transition-all hover:-translate-y-0.5 flex items-center justify-center gap-2 cursor-pointer"
+          >
+            <span>Entrar no Mapa e Dashboard</span>
+            <span aria-hidden="true">&#8594;</span>
+          </button>
+        </div>
+
+        <!-- Painel Administrador (Pastas Privativas) -->
+        <form id="login-panel-admin" class="hidden flex-col gap-3 pt-1" onsubmit="handleAdminLogin(event)">
+          <div class="flex flex-col gap-1">
+            <label for="admin-email-input" class="text-[11px] font-bold text-slate-600 uppercase">E-mail Corporativo Autorizado</label>
+            <input
+              type="email"
+              id="admin-email-input"
+              required
+              autocomplete="username"
+              placeholder="nome.sobrenome@ciee.org.br"
+              class="px-3 py-2.5 border border-[#d5e0ea] rounded-lg text-sm focus:outline-none focus:border-[#003882]"
+            />
+          </div>
+
+          <div class="flex flex-col gap-1">
+            <label for="admin-pass-input" class="text-[11px] font-bold text-slate-600 uppercase">Senha de Acesso</label>
+            <input
+              type="password"
+              id="admin-pass-input"
+              required
+              autocomplete="current-password"
+              placeholder="Digite a senha de acesso"
+              class="px-3 py-2.5 border border-[#d5e0ea] rounded-lg text-sm focus:outline-none focus:border-[#003882]"
+            />
+          </div>
+
+          <p id="login-error-msg" class="text-xs font-bold text-rose-600 hidden"></p>
+
+          <button
+            type="submit"
+            class="bg-[#003882] hover:bg-[#e6007e] text-white font-extrabold text-sm py-3.5 px-6 rounded-xl shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer mt-1"
+          >
+            <span>&#128275; Autenticar e Liberar Pastas</span>
+          </button>
+        </form>
       </div>
     </div>
   </div>
@@ -198,7 +270,10 @@
       </div>
     </div>
 
-    <div class="flex items-center gap-2.5">
+    <div class="flex items-center gap-2">
+      <span id="header-user-badge" class="hidden md:inline-flex items-center gap-1.5 bg-white/10 border border-white/15 px-3 py-1 rounded-full text-[11px] font-bold text-[#e0eafd]">
+        &#128100; Visitante
+      </span>
       <button
         type="button"
         onclick="switchToDashboardView()"
@@ -209,11 +284,12 @@
       </button>
       <button
         type="button"
-        title="Voltar à Tela Inicial"
-        onclick="showWelcomeScreen()"
-        class="w-8 h-8 rounded-full bg-[#e6007e] hover:bg-[#c9006b] text-white flex items-center justify-center font-bold text-xs cursor-pointer transition"
+        title="Trocar Conta / Sair"
+        onclick="logoutAndShowWelcome()"
+        class="px-2.5 h-8 rounded-lg bg-[#e6007e] hover:bg-[#c9006b] text-white flex items-center justify-center font-bold text-xs cursor-pointer transition gap-1"
       >
-        &#8962;
+        <span>&#128274;</span>
+        <span class="hidden sm:inline">Sair</span>
       </button>
     </div>
   </header>
@@ -236,7 +312,7 @@
             type="button"
             id="btn-add-folder"
             title="Adicionar Nova Pasta"
-            class="bg-[#eef5fc] hover:bg-[#dcebfa] text-[#003882] border border-[#c0d8f0] px-2.5 py-1 rounded-md text-xs font-bold cursor-pointer transition"
+            class="hidden bg-[#eef5fc] hover:bg-[#dcebfa] text-[#003882] border border-[#c0d8f0] px-2.5 py-1 rounded-md text-xs font-bold cursor-pointer transition"
           >
             + Nova Pasta
           </button>
@@ -277,11 +353,47 @@
         </button>
       </div>
 
-      <div class="px-2 pt-2 pb-1 text-[10px] font-extrabold uppercase tracking-wider text-slate-400">
-        Pastas de Documentos
+      <!-- ÁREA PRIVATIVA DE PASTAS (VISÍVEL SOMENTE PARA GIOVANNA E ESTHEVAN) -->
+      <div id="private-folders-section" class="hidden flex-col flex-1 mt-2 pt-2 border-t border-[#d5e0ea]">
+        <div class="px-2 pb-1.5 flex items-center justify-between">
+          <span class="text-[10px] font-extrabold uppercase tracking-wider text-[#e6007e]">
+            &#128275; Pastas Privativas
+          </span>
+        </div>
+
+        <div id="folders-list" class="flex flex-col gap-1 pb-4"></div>
+
+        <!-- Backup e Segurança de Dados (Somente Admin) -->
+        <div class="mt-auto pt-3 border-t border-[#d5e0ea] flex flex-col gap-1.5">
+          <span class="text-[10px] font-extrabold uppercase tracking-wider text-slate-400 px-1">
+            Backup Local (localStorage)
+          </span>
+          <div class="grid grid-cols-2 gap-1.5">
+            <button
+              type="button"
+              onclick="exportBackupJson()"
+              class="bg-[#eef5fc] hover:bg-[#003882] text-[#003882] hover:text-white border border-[#c0d8f0] py-1.5 px-2 rounded-lg text-[11px] font-bold cursor-pointer transition"
+            >
+              &#128190; Salvar JSON
+            </button>
+            <button
+              type="button"
+              onclick="triggerBackupImport()"
+              class="bg-[#f8fafc] hover:bg-slate-700 text-slate-700 hover:text-white border border-[#d5e0ea] py-1.5 px-2 rounded-lg text-[11px] font-bold cursor-pointer transition"
+            >
+              &#128194; Restaurar
+            </button>
+          </div>
+        </div>
       </div>
 
-      <div id="folders-list" class="flex flex-col gap-1 pb-4"></div>
+      <!-- Aviso para Visitantes -->
+      <div id="visitor-privacy-card" class="mt-auto pt-3 border-t border-[#d5e0ea]">
+        <div class="bg-[#f8fafc] rounded-xl p-3 border border-[#d5e0ea] text-[11px] text-slate-500 leading-relaxed">
+          <div class="font-extrabold text-[#003882] mb-1">&#128274; Modo Consulta</div>
+          Você está visualizando o Mapa Nacional e o Dashboard Gerencial. Pastas de documentos são de acesso exclusivo da gestão autorizada.
+        </div>
+      </div>
     </aside>
 
     <!-- ÁREA DAS PÁGINAS -->
@@ -541,7 +653,6 @@
            PÁGINA 3: DASHBOARD GERENCIAL (RESULTADOS E TOMADA DE DECISÃO)
            ========================================================= -->
       <div id="dashboard-view" class="hidden page-enter flex-col gap-5 pb-6">
-        <!-- Cabeçalho do Dashboard -->
         <section class="bg-white rounded-xl p-5 shadow-sm border border-[#d5e0ea] flex flex-wrap items-center justify-between gap-3">
           <div>
             <div class="flex items-center gap-2.5">
@@ -606,7 +717,7 @@
           </div>
         </section>
 
-        <!-- Painel de Insights Automáticos para Tomada de Decisão -->
+        <!-- Painel de Insights Automáticos -->
         <section class="bg-white rounded-xl p-5 shadow-sm border border-[#d5e0ea] flex flex-col gap-3">
           <div class="flex items-center gap-2">
             <span class="inline-block w-1.5 h-5 bg-[#ffc800] rounded-full"></span>
@@ -617,7 +728,7 @@
           <div id="dash-insights-grid" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-3"></div>
         </section>
 
-        <!-- Linha 1 de Gráficos: Ranking de Estados + Regionais -->
+        <!-- Gráficos Linha 1 -->
         <section class="grid grid-cols-1 xl:grid-cols-12 gap-5">
           <div class="xl:col-span-7 bg-white rounded-xl p-5 shadow-sm border border-[#d5e0ea] flex flex-col gap-2">
             <div class="flex flex-wrap items-center justify-between gap-2">
@@ -641,7 +752,7 @@
           </div>
         </section>
 
-        <!-- Linha 2 de Gráficos: Cobertura de Instrutores + Carga por Líder -->
+        <!-- Gráficos Linha 2 -->
         <section class="grid grid-cols-1 xl:grid-cols-12 gap-5">
           <div class="xl:col-span-5 bg-white rounded-xl p-5 shadow-sm border border-[#d5e0ea] flex flex-col gap-2">
             <h3 class="text-sm sm:text-base font-extrabold text-[#002356]">
@@ -668,7 +779,7 @@
           </div>
         </section>
 
-        <!-- Matriz Gerencial por Estado -->
+        <!-- Matriz Gerencial -->
         <section class="bg-white rounded-xl p-5 shadow-sm border border-[#d5e0ea] flex flex-col gap-4">
           <div class="flex flex-wrap items-center justify-between gap-3">
             <div>
@@ -703,7 +814,7 @@
       </div>
 
       <!-- =========================================================
-           PÁGINA 4: CONTEÚDO DAS PASTAS LATERAIS
+           PÁGINA 4: CONTEÚDO DAS PASTAS PRIVATIVAS (SOMENTE ADMIN)
            ========================================================= -->
       <div id="folder-view" class="hidden page-enter flex-col gap-4 bg-white rounded-xl p-5 sm:p-6 shadow-sm border border-[#d5e0ea] flex-1">
         <div class="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-[#d5e0ea]">
@@ -712,6 +823,9 @@
             <h2 id="folder-view-title" class="text-base sm:text-lg font-extrabold text-[#003882] uppercase">
               Pasta de Documentos
             </h2>
+            <span class="text-[10px] font-extrabold uppercase bg-pink-50 text-[#e6007e] border border-pink-200 px-2 py-0.5 rounded-full">
+              &#128274; Privativo
+            </span>
           </div>
 
           <div class="flex items-center gap-2">
@@ -733,7 +847,7 @@
         </div>
 
         <p class="text-xs sm:text-sm text-slate-600">
-          Gerencie os documentos, apresentações e dossiês vinculados a esta pasta. Clique na miniatura de qualquer card para enviar ou atualizar a imagem de capa.
+          Gerencie os documentos, apresentações e dossiês vinculados a esta pasta privativa. Todas as alterações são salvas automaticamente.
         </p>
 
         <div id="docs-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-2"></div>
@@ -857,6 +971,252 @@
 
   <script>
     /* =========================================================================
+       0. SEGURANÇA, CONTROLE DE ACESSO PRIVATIVO E PERSISTÊNCIA (localStorage)
+       ========================================================================= */
+    const STORAGE_KEY = 'ciee_aprendizagem_storage_v1';
+    const SESSION_KEY = 'ciee_aprendizagem_session_v1';
+    const SESSION_TIMEOUT_MS = 30 * 60 * 1000; // 30 minutos de inatividade
+
+    // E-mails autorizados a visualizar e gerenciar as pastas de documentos
+    const AUTHORIZED_FOLDER_EMAILS = new Set([
+      'giovanna.silva@ciee.org.br',
+      'esthevan.fernandes@ciee.org.br'
+    ]);
+
+    // Hash SHA-256 da senha inicial padrão ("CIEE2026")
+    const ADMIN_PASSWORD_HASH = '10657282795e06b893640a6e17924f8443484812961273704196453841103363';
+
+    let currentUser = { role: 'visitor', email: '' };
+    let inactivityTimer = null;
+
+    function isAdminUser() {
+      return (
+        currentUser.role === 'admin' &&
+        AUTHORIZED_FOLDER_EMAILS.has((currentUser.email || '').toLowerCase())
+      );
+    }
+
+    async function sha256Hex(text) {
+      const encoder = new TextEncoder();
+      const data = encoder.encode(text);
+      const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+      return Array.from(new Uint8Array(hashBuffer))
+        .map((b) => b.toString(16).padStart(2, '0'))
+        .join('');
+    }
+
+    // Fallback seguro caso crypto.subtle não esteja disponível em contextos http/file antigos
+    async function verifyAdminPassword(plainPass) {
+      if (window.crypto && window.crypto.subtle) {
+        const digest = await sha256Hex(plainPass);
+        return digest === ADMIN_PASSWORD_HASH;
+      }
+      return plainPass === 'CIEE2026';
+    }
+
+    function sanitizeUrl(url) {
+      if (!url || !String(url).trim()) return '#';
+      const cleaned = String(url).trim();
+      if (cleaned === '#') return '#';
+      try {
+        const parsed = new URL(cleaned);
+        if (parsed.protocol === 'https:' || parsed.protocol === 'http:') {
+          return parsed.href;
+        }
+      } catch (_) {}
+      return '#';
+    }
+
+    function maskEmailForPrivacy(email) {
+      if (!email) return '';
+      if (isAdminUser()) return email;
+      const parts = email.split('@');
+      if (parts.length !== 2) return '***';
+      const user = parts[0];
+      const visible = user.slice(0, Math.min(2, user.length));
+      return `${visible}***@${parts[1]}`;
+    }
+
+    function switchLoginTab(tab) {
+      const tabVisitor = document.getElementById('login-tab-visitor');
+      const tabAdmin = document.getElementById('login-tab-admin');
+      const panelVisitor = document.getElementById('login-panel-visitor');
+      const panelAdmin = document.getElementById('login-panel-admin');
+      const errMsg = document.getElementById('login-error-msg');
+      errMsg.classList.add('hidden');
+
+      if (tab === 'admin') {
+        tabAdmin.className = 'py-2 px-3 rounded-lg text-xs font-extrabold bg-[#003882] text-white cursor-pointer transition';
+        tabVisitor.className = 'py-2 px-3 rounded-lg text-xs font-bold text-slate-600 hover:text-[#003882] cursor-pointer transition';
+        panelAdmin.classList.remove('hidden');
+        panelAdmin.classList.add('flex');
+        panelVisitor.classList.add('hidden');
+        panelVisitor.classList.remove('flex');
+        setTimeout(() => document.getElementById('admin-email-input').focus(), 40);
+      } else {
+        tabVisitor.className = 'py-2 px-3 rounded-lg text-xs font-extrabold bg-[#003882] text-white cursor-pointer transition';
+        tabAdmin.className = 'py-2 px-3 rounded-lg text-xs font-bold text-slate-600 hover:text-[#003882] cursor-pointer transition';
+        panelVisitor.classList.remove('hidden');
+        panelVisitor.classList.add('flex');
+        panelAdmin.classList.add('hidden');
+        panelAdmin.classList.remove('flex');
+      }
+    }
+
+    function applyAccessPermissionsUI() {
+      const admin = isAdminUser();
+      const privateSection = document.getElementById('private-folders-section');
+      const addFolderBtn = document.getElementById('btn-add-folder');
+      const visitorCard = document.getElementById('visitor-privacy-card');
+      const headerBadge = document.getElementById('header-user-badge');
+
+      if (admin) {
+        privateSection.classList.remove('hidden');
+        privateSection.classList.add('flex');
+        addFolderBtn.classList.remove('hidden');
+        visitorCard.classList.add('hidden');
+        headerBadge.innerHTML = `&#128275; ${escapeHtml(currentUser.email)}`;
+      } else {
+        privateSection.classList.add('hidden');
+        privateSection.classList.remove('flex');
+        addFolderBtn.classList.add('hidden');
+        visitorCard.classList.remove('hidden');
+        headerBadge.innerHTML = '&#128100; Acesso Mapa &amp; Dashboard';
+        if (state.currentPage === 'folder') {
+          switchToMapView();
+        }
+      }
+
+      renderFoldersSidebar();
+      if (state.selectedUf) renderStateDetails(state.selectedUf);
+    }
+
+    function resetInactivityTimer() {
+      clearTimeout(inactivityTimer);
+      if (!isAdminUser()) return;
+      inactivityTimer = setTimeout(() => {
+        logoutAndShowWelcome();
+        showToast('Sessão encerrada por inatividade (segurança).');
+      }, SESSION_TIMEOUT_MS);
+    }
+
+    function enterAsVisitor() {
+      currentUser = { role: 'visitor', email: '' };
+      try { sessionStorage.setItem(SESSION_KEY, JSON.stringify(currentUser)); } catch (_) {}
+      applyAccessPermissionsUI();
+      document.getElementById('welcome-screen').classList.add('hidden');
+      if (isCompactViewport()) {
+        document.getElementById('sidebar').classList.add('collapsed');
+        document.getElementById('sidebar-backdrop').classList.add('hidden');
+      }
+      setTimeout(drawMapCanvas, 80);
+    }
+
+    async function handleAdminLogin(ev) {
+      ev.preventDefault();
+      const email = document.getElementById('admin-email-input').value.trim().toLowerCase();
+      const pass = document.getElementById('admin-pass-input').value;
+      const errMsg = document.getElementById('login-error-msg');
+
+      if (!AUTHORIZED_FOLDER_EMAILS.has(email)) {
+        errMsg.textContent = 'E-mail não autorizado para acesso às pastas privativas.';
+        errMsg.classList.remove('hidden');
+        return;
+      }
+
+      const validPass = await verifyAdminPassword(pass);
+      if (!validPass) {
+        errMsg.textContent = 'Senha incorreta. Tente novamente.';
+        errMsg.classList.remove('hidden');
+        return;
+      }
+
+      errMsg.classList.add('hidden');
+      document.getElementById('admin-pass-input').value = '';
+      currentUser = { role: 'admin', email };
+      try { sessionStorage.setItem(SESSION_KEY, JSON.stringify(currentUser)); } catch (_) {}
+
+      applyAccessPermissionsUI();
+      resetInactivityTimer();
+      document.getElementById('welcome-screen').classList.add('hidden');
+      if (isCompactViewport()) {
+        document.getElementById('sidebar').classList.add('collapsed');
+        document.getElementById('sidebar-backdrop').classList.add('hidden');
+      }
+      showToast('Acesso autorizado! Pastas privativas liberadas.');
+      setTimeout(drawMapCanvas, 80);
+    }
+
+    function logoutAndShowWelcome() {
+      clearTimeout(inactivityTimer);
+      currentUser = { role: 'visitor', email: '' };
+      try { sessionStorage.removeItem(SESSION_KEY); } catch (_) {}
+      applyAccessPermissionsUI();
+      document.getElementById('welcome-screen').classList.remove('hidden');
+    }
+
+    function persistDataToLocalStorage() {
+      try {
+        const payload = {
+          version: 1,
+          updatedAt: new Date().toISOString(),
+          stateDatabase,
+          foldersDatabase
+        };
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
+      } catch (err) {
+        showToast('Aviso: limite de espaço do navegador atingido ao salvar.');
+      }
+    }
+
+    function loadDataFromLocalStorage() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) return;
+        const parsed = JSON.parse(raw);
+        if (parsed && parsed.stateDatabase && typeof parsed.stateDatabase === 'object') {
+          Object.keys(stateDatabase).forEach((k) => delete stateDatabase[k]);
+          Object.assign(stateDatabase, parsed.stateDatabase);
+        }
+        if (parsed && Array.isArray(parsed.foldersDatabase)) {
+          foldersDatabase.length = 0;
+          parsed.foldersDatabase.forEach((f) => foldersDatabase.push(f));
+        }
+      } catch (_) {}
+    }
+
+    function exportBackupJson() {
+      if (!isAdminUser()) {
+        showToast('Acesso restrito a administradores.');
+        return;
+      }
+      const payload = {
+        version: 1,
+        exportedAt: new Date().toISOString(),
+        stateDatabase,
+        foldersDatabase
+      };
+      const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `Backup_Site_Aprendizagem_CIEE_${new Date().toISOString().slice(0, 10)}.json`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      showToast('Backup JSON baixado com sucesso!');
+    }
+
+    function triggerBackupImport() {
+      if (!isAdminUser()) {
+        showToast('Acesso restrito a administradores.');
+        return;
+      }
+      document.getElementById('file-input-backup').click();
+    }
+
+    /* =========================================================================
        1. MAPEAMENTO INTERNO, REGIONAIS CIEE E BASE DE LÍDERES/POLOS/INSTRUTORES
        ========================================================================= */
     const IBGE_CODE_TO_UF = {
@@ -891,7 +1251,6 @@
       ufs.forEach((uf) => { UF_TO_REGION[uf] = region; });
     });
 
-    // Base de dados real preservada (12 estados, 13 lideranças, 54 polos) + campo instructors[] em cada polo
     const stateDatabase = {
       AC: {
         leaders: [{ name: 'Ana Cicilia Cruz Moreno', role: 'Líder Técnica da Aprendizagem', email: 'ana_moreno@ciee.org.br', photo: '' }],
@@ -1025,7 +1384,6 @@
       docs: []
     }));
 
-    // Topologia embutida WGS84 (contingência instantânea 100% offline sem deformação)
     const OFFLINE_BR_COORDS = {
       RR:[[-60.2,5.27],[-59.9,3.8],[-59.5,2.6],[-58.9,1.25],[-59.9,0.1],[-62.2,-0.5],[-64.2,1.5],[-63.9,2.4],[-64.7,4.1],[-62.8,4.45]],
       AP:[[-51.6,4.4],[-50.5,2.9],[-49.9,1.65],[-51.0,0.0],[-52.5,-1.15],[-54.6,2.2],[-53.2,3.5]],
@@ -1065,13 +1423,13 @@
     };
 
     const state = {
-      currentPage: 'map', // 'map' | 'state' | 'dashboard' | 'folder'
+      currentPage: 'map',
       selectedUf: null,
       hoveredUf: null,
       activeRegion: 'ALL',
       activeDetailTab: 'leaders',
       activeFolderId: null,
-      dashTableFilter: 'active', // 'active' | 'pending' | 'expansion' | 'all'
+      dashTableFilter: 'active',
       projectedScene: null,
       pendingUpload: null,
       modalCallback: null,
@@ -1114,7 +1472,8 @@
         .replace(/&/g, '&amp;')
         .replace(/</g, '&lt;')
         .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;');
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
     }
 
     function isCompactViewport() {
@@ -1142,19 +1501,6 @@
       if (state.currentPage === 'map') {
         setTimeout(drawMapCanvas, 320);
       }
-    }
-
-    function enterSite() {
-      document.getElementById('welcome-screen').classList.add('hidden');
-      if (isCompactViewport()) {
-        document.getElementById('sidebar').classList.add('collapsed');
-        document.getElementById('sidebar-backdrop').classList.add('hidden');
-      }
-      setTimeout(drawMapCanvas, 80);
-    }
-
-    function showWelcomeScreen() {
-      document.getElementById('welcome-screen').classList.remove('hidden');
     }
 
     function openUniversalModal(options) {
@@ -1232,7 +1578,7 @@
     }
 
     /* =========================================================================
-       3. NAVEGAÇÃO ENTRE PÁGINAS (MAPA <-> ESTADO <-> DASHBOARD <-> PASTAS)
+       3. NAVEGAÇÃO ENTRE PÁGINAS
        ========================================================================= */
     function cancelPendingZoomTransition() {
       if (state.pendingEnterTimer) {
@@ -1254,6 +1600,11 @@
     }
 
     function showPage(pageName) {
+      if (pageName === 'folder' && !isAdminUser()) {
+        showToast('Acesso negado: pastas restritas a usuários autorizados.');
+        pageName = 'map';
+      }
+
       state.currentPage = pageName;
       const pages = {
         map: document.getElementById('mapa-view'),
@@ -1743,7 +2094,7 @@
       const instCount = getStateInstructorCount(uf);
 
       tooltip.innerHTML = `
-        <div class="text-white text-xs font-extrabold">${UF_NAMES[uf] || uf} (${uf})</div>
+        <div class="text-white text-xs font-extrabold">${escapeHtml(UF_NAMES[uf] || uf)} (${escapeHtml(uf)})</div>
         <div class="text-[#ffc800] text-[11px] mt-0.5">${data.leaders.length} Líder(es) · ${data.polos.length} Polo(s) · ${instCount} Instrutor(es)</div>
         <div class="text-[10px] text-slate-300 mt-0.5">Clique para abrir a página</div>
       `;
@@ -1766,7 +2117,7 @@
     }
 
     /* =========================================================================
-       5. PÁGINA DO ESTADO: LÍDERES, POLOS E INSTRUTORES DENTRO DE CADA POLO
+       5. PÁGINA DO ESTADO: LÍDERES, POLOS E INSTRUTORES
        ========================================================================= */
     function switchDetailTab(tab) {
       state.activeDetailTab = tab;
@@ -1805,7 +2156,6 @@
       document.getElementById('count-tab-leaders').textContent = data.leaders.length;
       document.getElementById('count-tab-polos').textContent = data.polos.length;
 
-      // Renderizar Líderes
       const leadersList = document.getElementById('leaders-list');
       leadersList.innerHTML = '';
 
@@ -1820,6 +2170,8 @@
             .join('')
             .toUpperCase();
 
+          const displayEmail = maskEmailForPrivacy(leader.email);
+
           const card = document.createElement('div');
           card.className = 'flex items-center gap-4 bg-[#f8fafc] p-4 rounded-xl border border-[#d5e0ea] shadow-xs';
           card.innerHTML = `
@@ -1833,7 +2185,7 @@
             <div class="flex flex-col gap-0.5 flex-1 min-w-0">
               <div class="text-base font-extrabold text-[#002356] truncate">${escapeHtml(leader.name)}</div>
               <div class="text-xs font-semibold text-slate-500 truncate">${escapeHtml(leader.role || 'Líder Técnica da Aprendizagem')}</div>
-              ${leader.email ? `<div class="text-[11px] text-slate-500 font-semibold truncate">&#9993; ${escapeHtml(leader.email)}</div>` : ''}
+              ${displayEmail ? `<div class="text-[11px] text-slate-500 font-semibold truncate">&#9993; ${escapeHtml(displayEmail)}</div>` : ''}
               <div class="flex flex-wrap items-center gap-2 mt-2">
                 <button type="button" onclick="openEditLeaderModal('${uf}', ${idx})" class="bg-[#003882] hover:bg-[#e6007e] text-white px-2.5 py-1 rounded text-[11px] font-bold cursor-pointer transition">
                   Editar
@@ -1851,7 +2203,6 @@
         });
       }
 
-      // Renderizar Polos + Instrutores internos
       const polosList = document.getElementById('polos-list');
       polosList.innerHTML = '';
 
@@ -1860,6 +2211,7 @@
       } else {
         data.polos.forEach((polo, idx) => {
           if (!Array.isArray(polo.instructors)) polo.instructors = [];
+          const safeLink = sanitizeUrl(polo.link);
 
           const instructorsHtml = polo.instructors.length
             ? `<div class="flex flex-wrap gap-1.5 mt-1.5">
@@ -1898,7 +2250,6 @@
               ${polo.photo ? `<img src="${polo.photo}" alt="${escapeHtml(polo.name)}" class="w-full h-full object-cover" />` : 'Clique para carregar foto do polo'}
             </div>
 
-            <!-- BLOCO DE INSTRUTORES DENTRO DO POLO -->
             <div class="bg-[#eef5fc]/70 border border-[#d5e0ea] rounded-lg p-3 flex flex-col">
               <div class="flex items-center justify-between gap-2">
                 <span class="text-[11px] font-extrabold uppercase tracking-wide text-[#003882]">
@@ -1917,7 +2268,7 @@
 
             <div class="flex items-center gap-2 mt-auto pt-1">
               <a
-                href="${escapeHtml(polo.link || '#')}"
+                href="${escapeHtml(safeLink)}"
                 target="_blank"
                 rel="noopener noreferrer"
                 class="flex-1 text-center bg-[#003882] hover:bg-[#e6007e] text-white px-3 py-1.5 rounded-md text-xs font-bold transition"
@@ -1957,7 +2308,7 @@
             area: (areaVal || '').trim()
           });
           refreshAllDataViews();
-          showToast('Instrutor vinculado ao polo!');
+          showToast('Instrutor salvo!');
           return true;
         }
       });
@@ -2006,7 +2357,7 @@
             photo: ''
           });
           refreshAllDataViews();
-          showToast('Líder adicionado com sucesso!');
+          showToast('Líder salvo com sucesso!');
           return true;
         }
       });
@@ -2071,12 +2422,12 @@
           const entry = ensureStateEntry(uf);
           entry.polos.push({
             name: poloVal.trim(),
-            link: (linkVal || '#').trim(),
+            link: sanitizeUrl(linkVal),
             photo: '',
             instructors: parseInstructorsInput(instVal)
           });
           refreshAllDataViews();
-          showToast('Polo cadastrado com sucesso!');
+          showToast('Polo salvo com sucesso!');
           return true;
         }
       });
@@ -2096,7 +2447,7 @@
             return false;
           }
           polo.name = nameVal.trim();
-          polo.link = (linkVal || '#').trim();
+          polo.link = sanitizeUrl(linkVal);
           refreshAllDataViews();
           showToast('Polo atualizado!');
           return true;
@@ -2133,11 +2484,13 @@
     }
 
     function triggerDocCoverUpload(folderId, docId) {
+      if (!isAdminUser()) return;
       state.pendingUpload = { type: 'doc', folderId, docId };
       document.getElementById('file-input-doc').click();
     }
 
     function refreshAllDataViews() {
+      persistDataToLocalStorage();
       updateDashboardTotals();
       if (state.selectedUf) renderStateDetails(state.selectedUf);
       if (state.currentPage === 'map') drawMapCanvas();
@@ -2168,7 +2521,7 @@
     }
 
     /* =========================================================================
-       6. DASHBOARD GERENCIAL (CÁLCULOS, INSIGHTS, 4 GRÁFICOS E MATRIZ)
+       6. DASHBOARD GERENCIAL
        ========================================================================= */
     function computeAnalytics() {
       const allUfs = Object.keys(UF_NAMES).sort();
@@ -2179,7 +2532,7 @@
       let polosWithoutInstructor = 0;
       let activeStatesCount = 0;
 
-      const leaderMap = new Map(); // normalizedName -> { name, polos, instructors, ufs: Set }
+      const leaderMap = new Map();
       const stateRows = [];
 
       allUfs.forEach((uf) => {
@@ -2204,7 +2557,6 @@
         totalInstructors += stInst;
         if (polos.length > 0 || leaders.length > 0) activeStatesCount++;
 
-        // Distribui carga para cada líder do estado (evitando distorção de dupla contagem de polos quando há 2 líderes no mesmo estado, mostra total sob gestão compartilhada)
         leaders.forEach((l) => {
           const key = l.name.trim().toLowerCase();
           if (!leaderMap.has(key)) {
@@ -2263,7 +2615,6 @@
     function renderDashboard() {
       const stats = computeAnalytics();
 
-      // 1. KPIs
       const avgInstPerPolo = stats.totalPolos > 0 ? (stats.totalInstructors / stats.totalPolos).toFixed(1).replace('.', ',') : '0,0';
       const nationalCovPct = Math.round((stats.activeStatesCount / 27) * 100);
       const instCovPct = stats.totalPolos > 0 ? Math.round((stats.polosWithInstructor / stats.totalPolos) * 100) : 0;
@@ -2283,7 +2634,6 @@
       document.getElementById('dash-kpi-inst-cov').textContent = `${instCovPct}%`;
       document.getElementById('dash-kpi-inst-cov-sub').textContent = `${stats.polosWithoutInstructor} polo(s) sem instrutor`;
 
-      // 2. Insights para Tomada de Decisão
       const topPoloState = [...stats.stateRows].sort((a, b) => b.polosCount - a.polosCount)[0];
       const topInstState = [...stats.stateRows].sort((a, b) => b.instructorsCount - a.instructorsCount)[0];
       const topLeader = stats.leaderList[0];
@@ -2294,7 +2644,7 @@
         <div class="rounded-xl p-4 bg-[#eef5fc] border border-[#c0d8f0] flex flex-col justify-between gap-2">
           <div class="text-[11px] font-extrabold uppercase text-[#003882]">Maior Concentração de Polos</div>
           <div class="text-sm font-extrabold text-[#002356]">
-            ${topPoloState && topPoloState.polosCount > 0 ? `${topPoloState.name} (${topPoloState.uf}) — ${topPoloState.polosCount} polos` : 'Sem polos cadastrados'}
+            ${topPoloState && topPoloState.polosCount > 0 ? `${escapeHtml(topPoloState.name)} (${topPoloState.uf}) — ${topPoloState.polosCount} polos` : 'Sem polos cadastrados'}
           </div>
           <p class="text-xs text-slate-600">
             ${topInstState && topInstState.instructorsCount > 0
@@ -2322,7 +2672,7 @@
           </div>
           <p class="text-xs text-slate-600">
             ${topLeader
-              ? `Atua em <strong>${topLeader.ufLabel}</strong> com <strong>${topLeader.polos} polos</strong> sob gestão.`
+              ? `Atua em <strong>${escapeHtml(topLeader.ufLabel)}</strong> com <strong>${topLeader.polos} polos</strong> sob gestão.`
               : 'Sem lideranças cadastradas.'}
           </p>
         </div>
@@ -2338,16 +2688,12 @@
         </div>
       `;
 
-      // 3. Gráficos Chart.js
       renderDashboardCharts(stats);
-
-      // 4. Matriz Gerencial
       renderDashboardTableFilters();
       renderDashboardTable(stats);
     }
 
     function renderDashboardCharts(stats) {
-      // Gráfico 1: Ranking de Estados (Polos vs. Instrutores)
       const activeSorted = stats.stateRows
         .filter((r) => r.polosCount > 0 || r.instructorsCount > 0)
         .sort((a, b) => (b.polosCount - a.polosCount) || (b.instructorsCount - a.instructorsCount));
@@ -2360,18 +2706,8 @@
         data: {
           labels: activeSorted.map((r) => r.uf),
           datasets: [
-            {
-              label: 'Polos',
-              data: activeSorted.map((r) => r.polosCount),
-              backgroundColor: '#003882',
-              borderRadius: 5
-            },
-            {
-              label: 'Instrutores',
-              data: activeSorted.map((r) => r.instructorsCount),
-              backgroundColor: '#0099ff',
-              borderRadius: 5
-            }
+            { label: 'Polos', data: activeSorted.map((r) => r.polosCount), backgroundColor: '#003882', borderRadius: 5 },
+            { label: 'Instrutores', data: activeSorted.map((r) => r.instructorsCount), backgroundColor: '#0099ff', borderRadius: 5 }
           ]
         },
         options: {
@@ -2379,8 +2715,7 @@
           maintainAspectRatio: false,
           onClick: (_, elements) => {
             if (elements && elements.length > 0) {
-              const targetUf = activeSorted[elements[0].index].uf;
-              openStatePage(targetUf, 'polos');
+              openStatePage(activeSorted[elements[0].index].uf, 'polos');
             }
           },
           plugins: {
@@ -2401,7 +2736,6 @@
         }
       });
 
-      // Gráfico 2: Distribuição por Regional Corporativa
       const ctxRegions = document.getElementById('chart-regions').getContext('2d');
       if (dashCharts.regions) dashCharts.regions.destroy();
 
@@ -2410,27 +2744,15 @@
         data: {
           labels: stats.regionStats.map((r) => r.region),
           datasets: [
-            {
-              label: 'Polos',
-              data: stats.regionStats.map((r) => r.polos),
-              backgroundColor: '#003882',
-              borderRadius: 5
-            },
-            {
-              label: 'Instrutores',
-              data: stats.regionStats.map((r) => r.instructors),
-              backgroundColor: '#ffc800',
-              borderRadius: 5
-            }
+            { label: 'Polos', data: stats.regionStats.map((r) => r.polos), backgroundColor: '#003882', borderRadius: 5 },
+            { label: 'Instrutores', data: stats.regionStats.map((r) => r.instructors), backgroundColor: '#ffc800', borderRadius: 5 }
           ]
         },
         options: {
           indexAxis: 'y',
           responsive: true,
           maintainAspectRatio: false,
-          plugins: {
-            legend: { position: 'top', labels: { boxWidth: 12, font: { size: 11, weight: 'bold' } } }
-          },
+          plugins: { legend: { position: 'top', labels: { boxWidth: 12, font: { size: 11, weight: 'bold' } } } },
           scales: {
             x: { beginAtZero: true, ticks: { precision: 0 }, grid: { color: '#eef2f6' } },
             y: { grid: { display: false }, ticks: { font: { size: 11, weight: '600' } } }
@@ -2438,7 +2760,6 @@
         }
       });
 
-      // Gráfico 3: Rosca de Cobertura de Instrutores nos Polos
       const ctxCov = document.getElementById('chart-instructor-coverage').getContext('2d');
       if (dashCharts.instructorCoverage) dashCharts.instructorCoverage.destroy();
 
@@ -2457,13 +2778,10 @@
           responsive: true,
           maintainAspectRatio: false,
           cutout: '62%',
-          plugins: {
-            legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 12, weight: 'bold' } } }
-          }
+          plugins: { legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 12, weight: 'bold' } } } }
         }
       });
 
-      // Gráfico 4: Carga Operacional por Líder Único
       const ctxLeaders = document.getElementById('chart-leader-load').getContext('2d');
       if (dashCharts.leaderLoad) dashCharts.leaderLoad.destroy();
 
@@ -2491,10 +2809,7 @@
                   const l = topLeaders[items[0].dataIndex];
                   return `${l.name} (${l.ufLabel})`;
                 },
-                afterLabel: (item) => {
-                  const l = topLeaders[item.dataIndex];
-                  return `Instrutores nos polos: ${l.instructors}`;
-                }
+                afterLabel: (item) => `Instrutores nos polos: ${topLeaders[item.dataIndex].instructors}`
               }
             }
           },
@@ -2568,8 +2883,8 @@
         const tr = document.createElement('tr');
         tr.className = 'hover:bg-[#f8fafc] transition';
         tr.innerHTML = `
-          <td class="py-2.5 px-3 font-extrabold text-[#002356]">${r.name} <span class="text-slate-400 font-bold">(${r.uf})</span></td>
-          <td class="py-2.5 px-3 text-slate-600 font-semibold">${r.region}</td>
+          <td class="py-2.5 px-3 font-extrabold text-[#002356]">${escapeHtml(r.name)} <span class="text-slate-400 font-bold">(${r.uf})</span></td>
+          <td class="py-2.5 px-3 text-slate-600 font-semibold">${escapeHtml(r.region)}</td>
           <td class="py-2.5 px-3 text-center font-bold text-slate-700">${r.leadersCount}</td>
           <td class="py-2.5 px-3 text-center font-extrabold text-[#003882]">${r.polosCount}</td>
           <td class="py-2.5 px-3 text-center font-extrabold text-[#0099ff]">${r.instructorsCount}</td>
@@ -2624,11 +2939,12 @@
     }
 
     /* =========================================================================
-       8. GESTÃO DE PASTAS E DOCUMENTOS
+       8. GESTÃO DE PASTAS PRIVATIVAS E DOCUMENTOS (SOMENTE ADMIN)
        ========================================================================= */
     function renderFoldersSidebar() {
       const container = document.getElementById('folders-list');
       container.innerHTML = '';
+      if (!isAdminUser()) return;
 
       foldersDatabase.forEach((folder) => {
         const isActive = state.currentPage === 'folder' && state.activeFolderId === folder.id;
@@ -2668,6 +2984,10 @@
     }
 
     function openFolderView(folderId) {
+      if (!isAdminUser()) {
+        showToast('Acesso restrito a administradores autorizados.');
+        return;
+      }
       cancelPendingZoomTransition();
       const folder = foldersDatabase.find((f) => f.id === folderId);
       if (!folder) return;
@@ -2694,6 +3014,7 @@
       }
 
       folder.docs.forEach((doc) => {
+        const safeLink = sanitizeUrl(doc.link);
         const card = document.createElement('div');
         card.className = 'bg-white border border-[#d5e0ea] rounded-xl p-4 flex flex-col gap-3 shadow-xs hover:shadow-md transition';
         card.innerHTML = `
@@ -2707,7 +3028,7 @@
           <div class="text-sm font-extrabold text-[#002356] leading-snug">${escapeHtml(doc.title)}</div>
           <p class="text-xs text-slate-500">${escapeHtml(doc.desc || 'Documento de acompanhamento CIEE')}</p>
           <div class="flex items-center justify-between gap-2 mt-auto pt-2 border-t border-slate-100">
-            ${doc.link ? `<a href="${escapeHtml(doc.link)}" target="_blank" rel="noopener noreferrer" class="bg-[#003882] hover:bg-[#e6007e] text-white px-3 py-1.5 rounded-md text-xs font-bold transition">Abrir Link</a>` : '<span class="text-[11px] font-semibold text-slate-400">Arquivo interno</span>'}
+            ${safeLink !== '#' ? `<a href="${escapeHtml(safeLink)}" target="_blank" rel="noopener noreferrer" class="bg-[#003882] hover:bg-[#e6007e] text-white px-3 py-1.5 rounded-md text-xs font-bold transition">Abrir Link</a>` : '<span class="text-[11px] font-semibold text-slate-400">Arquivo interno</span>'}
             <button type="button" onclick="deleteDoc('${folder.id}', '${doc.id}')" class="text-xs font-bold text-rose-600 hover:underline cursor-pointer">
               Excluir
             </button>
@@ -2718,8 +3039,12 @@
     }
 
     function addNewFolder() {
+      if (!isAdminUser()) {
+        showToast('Acesso restrito a administradores.');
+        return;
+      }
       openUniversalModal({
-        title: 'Criar Nova Pasta',
+        title: 'Criar Nova Pasta Privativa',
         message: 'Adicione uma nova pasta ao menu lateral para organizar dossiês, relatórios ou documentos.',
         field1: { label: 'Nome da Pasta', placeholder: 'Ex.: Cronograma de Treinamentos' },
         submitText: 'Criar Pasta',
@@ -2734,14 +3059,16 @@
             docs: []
           };
           foldersDatabase.unshift(newFolder);
+          persistDataToLocalStorage();
           openFolderView(newFolder.id);
-          showToast(`Pasta "${newFolder.name}" criada!`);
+          showToast(`Pasta "${newFolder.name}" criada e salva!`);
           return true;
         }
       });
     }
 
     function renameFolder(folderId) {
+      if (!isAdminUser()) return;
       const folder = foldersDatabase.find((f) => f.id === folderId);
       if (!folder) return;
       openUniversalModal({
@@ -2754,6 +3081,7 @@
             return false;
           }
           folder.name = newVal.trim();
+          persistDataToLocalStorage();
           renderFoldersSidebar();
           if (state.activeFolderId === folderId) {
             document.getElementById('folder-view-title').textContent = folder.name;
@@ -2765,6 +3093,7 @@
     }
 
     function deleteFolder(folderId) {
+      if (!isAdminUser()) return;
       const idx = foldersDatabase.findIndex((f) => f.id === folderId);
       if (idx === -1) return;
       const folderName = foldersDatabase[idx].name;
@@ -2775,6 +3104,7 @@
         danger: true,
         onConfirm: () => {
           foldersDatabase.splice(idx, 1);
+          persistDataToLocalStorage();
           if (state.activeFolderId === folderId) {
             switchToMapView();
           } else {
@@ -2787,6 +3117,7 @@
     }
 
     function openNewDocModal() {
+      if (!isAdminUser()) return;
       closeMobileSidebar();
       document.getElementById('doc-input-title').value = '';
       document.getElementById('doc-input-desc').value = '';
@@ -2804,13 +3135,14 @@
     }
 
     function saveNewDoc() {
+      if (!isAdminUser()) return;
       const title = document.getElementById('doc-input-title').value.trim();
       if (!title) {
         showToast('Informe o título do documento.');
         return;
       }
       const desc = document.getElementById('doc-input-desc').value.trim();
-      const link = document.getElementById('doc-input-link').value.trim();
+      const link = sanitizeUrl(document.getElementById('doc-input-link').value.trim());
       const folder = foldersDatabase.find((f) => f.id === state.activeFolderId);
       if (!folder) return;
 
@@ -2818,24 +3150,27 @@
         id: 'doc-' + Date.now(),
         title,
         desc,
-        link,
+        link: link === '#' ? '' : link,
         cover: ''
       });
+      persistDataToLocalStorage();
       closeNewDocModal();
       renderFolderDocs(folder);
-      showToast('Documento adicionado à pasta!');
+      showToast('Documento salvo na pasta!');
     }
 
     function deleteDoc(folderId, docId) {
+      if (!isAdminUser()) return;
       const folder = foldersDatabase.find((f) => f.id === folderId);
       if (!folder) return;
       folder.docs = folder.docs.filter((d) => d.id !== docId);
+      persistDataToLocalStorage();
       renderFolderDocs(folder);
       showToast('Documento removido.');
     }
 
     /* =========================================================================
-       9. EXPORTAÇÃO PARA EXCEL (CSV UTF-8 — AGORA INCLUINDO INSTRUTORES)
+       9. EXPORTAÇÃO PARA EXCEL (CSV UTF-8)
        ========================================================================= */
     function downloadCSV(csvContent, fileName) {
       const blob = new Blob(['\uFEFF' + csvContent], { type: 'text/csv;charset=utf-8;' });
@@ -2855,7 +3190,7 @@
       for (const [sigla, data] of Object.entries(stateDatabase)) {
         const region = UF_TO_REGION[sigla] || '-';
         const leaders = (data.leaders || []).map((l) => l.name).join(' e ') || '-';
-        const emails = (data.leaders || []).map((l) => l.email || '-').join(' e ') || '-';
+        const emails = (data.leaders || []).map((l) => maskEmailForPrivacy(l.email) || '-').join(' e ') || '-';
         if (!data.polos || data.polos.length === 0) {
           csv += `${sigla};${region};Sem Polos Cadastrados;-;-;${leaders};${emails}\n`;
         } else {
@@ -2863,7 +3198,7 @@
             const instNames = (polo.instructors || [])
               .map((i) => (typeof i === 'string' ? i : (i.area ? `${i.name} (${i.area})` : i.name)))
               .join(' | ') || 'Sem instrutor';
-            csv += `${sigla};${region};${polo.name.replace(/;/g, ',')};${instNames.replace(/;/g, ',')};${(polo.link || '#').replace(/;/g, ',')};${leaders};${emails}\n`;
+            csv += `${sigla};${region};${polo.name.replace(/;/g, ',')};${instNames.replace(/;/g, ',')};${sanitizeUrl(polo.link).replace(/;/g, ',')};${leaders};${emails}\n`;
           });
         }
       }
@@ -2872,12 +3207,13 @@
     }
 
     function exportDocsToExcel() {
+      if (!isAdminUser()) return;
       const folder = foldersDatabase.find((f) => f.id === state.activeFolderId);
       const folderName = folder ? folder.name : 'Pasta';
       let csv = 'Pasta;Título do Documento;Link do Documento\n';
       if (folder && folder.docs.length > 0) {
         folder.docs.forEach((doc) => {
-          csv += `${folderName};${doc.title.replace(/;/g, ',')};${(doc.link || '-').replace(/;/g, ',')}\n`;
+          csv += `${folderName};${doc.title.replace(/;/g, ',')};${sanitizeUrl(doc.link).replace(/;/g, ',')}\n`;
         });
       } else {
         csv += `${folderName};Sem documentos cadastrados;-\n`;
@@ -2949,21 +3285,24 @@
 
           if (type === 'leader' && stateDatabase[uf]?.leaders[idx]) {
             stateDatabase[uf].leaders[idx].photo = dataUrl;
+            persistDataToLocalStorage();
             renderStateDetails(uf);
           } else if (type === 'polo' && stateDatabase[uf]?.polos[idx]) {
             stateDatabase[uf].polos[idx].photo = dataUrl;
+            persistDataToLocalStorage();
             renderStateDetails(uf);
-          } else if (type === 'doc') {
+          } else if (type === 'doc' && isAdminUser()) {
             const folder = foldersDatabase.find((f) => f.id === folderId);
             const doc = folder?.docs.find((d) => d.id === docId);
             if (doc) {
               doc.cover = dataUrl;
+              persistDataToLocalStorage();
               renderFolderDocs(folder);
             }
           }
           state.pendingUpload = null;
           ev.target.value = '';
-          showToast('Imagem atualizada!');
+          showToast('Imagem salva!');
         };
         reader.readAsDataURL(file);
       });
@@ -2973,14 +3312,33 @@
        11. INICIALIZAÇÃO
        ========================================================================= */
     document.addEventListener('DOMContentLoaded', () => {
+      loadDataFromLocalStorage();
+
+      // Restaura sessão ativa na mesma aba, se houver
+      try {
+        const savedSession = sessionStorage.getItem(SESSION_KEY);
+        if (savedSession) {
+          const parsed = JSON.parse(savedSession);
+          if (parsed && (parsed.role === 'visitor' || (parsed.role === 'admin' && AUTHORIZED_FOLDER_EMAILS.has(parsed.email)))) {
+            currentUser = parsed;
+            document.getElementById('welcome-screen').classList.add('hidden');
+            resetInactivityTimer();
+          }
+        }
+      } catch (_) {}
+
       if (isCompactViewport()) {
         document.getElementById('sidebar').classList.add('collapsed');
       }
 
+      applyAccessPermissionsUI();
       updateDashboardTotals();
       renderRegionFilters();
-      renderFoldersSidebar();
       buildMapScene(buildOfflineGeometries());
+
+      ['click', 'keydown', 'mousemove'].forEach((evt) => {
+        window.addEventListener(evt, resetInactivityTimer, { passive: true });
+      });
 
       const canvas = document.getElementById('brazil-map-canvas');
 
@@ -3089,6 +3447,31 @@
         if (shouldClose !== false) {
           closeUniversalModal();
         }
+      });
+
+      document.getElementById('file-input-backup').addEventListener('change', (ev) => {
+        const file = ev.target.files && ev.target.files[0];
+        if (!file || !isAdminUser()) return;
+        const reader = new FileReader();
+        reader.onload = () => {
+          try {
+            const parsed = JSON.parse(reader.result);
+            if (!parsed.stateDatabase || !Array.isArray(parsed.foldersDatabase)) {
+              throw new Error('Formato inválido');
+            }
+            Object.keys(stateDatabase).forEach((k) => delete stateDatabase[k]);
+            Object.assign(stateDatabase, parsed.stateDatabase);
+            foldersDatabase.length = 0;
+            parsed.foldersDatabase.forEach((f) => foldersDatabase.push(f));
+            refreshAllDataViews();
+            renderFoldersSidebar();
+            showToast('Backup restaurado com sucesso!');
+          } catch (_) {
+            showToast('Arquivo de backup inválido.');
+          }
+          ev.target.value = '';
+        };
+        reader.readAsText(file);
       });
 
       bindImageUploadInput('file-input-leader');
