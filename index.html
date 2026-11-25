@@ -983,8 +983,8 @@
       'esthevan.fernandes@ciee.org.br'
     ]);
 
-    // Hash SHA-256 da senha inicial padrão ("CIEE2026")
-    const ADMIN_PASSWORD_HASH = '10657282795e06b893640a6e17924f8443484812961273704196453841103363';
+    // Senha inicial padrão ("CIEE2026") codificada em Base64
+    const ADMIN_PASSWORD_B64 = 'Q0lFRTIwMjY=';
 
     let currentUser = { role: 'visitor', email: '' };
     let inactivityTimer = null;
@@ -996,22 +996,8 @@
       );
     }
 
-    async function sha256Hex(text) {
-      const encoder = new TextEncoder();
-      const data = encoder.encode(text);
-      const hashBuffer = await crypto.subtle.digest('SHA-256', data);
-      return Array.from(new Uint8Array(hashBuffer))
-        .map((b) => b.toString(16).padStart(2, '0'))
-        .join('');
-    }
-
-    // Fallback seguro caso crypto.subtle não esteja disponível em contextos http/file antigos
     async function verifyAdminPassword(plainPass) {
-      if (window.crypto && window.crypto.subtle) {
-        const digest = await sha256Hex(plainPass);
-        return digest === ADMIN_PASSWORD_HASH;
-      }
-      return plainPass === 'CIEE2026';
+      return plainPass.trim() === atob(ADMIN_PASSWORD_B64);
     }
 
     function sanitizeUrl(url) {
