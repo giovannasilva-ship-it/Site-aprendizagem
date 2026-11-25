@@ -1006,12 +1006,15 @@
     }
 
     // Fallback seguro caso crypto.subtle não esteja disponível em contextos http/file antigos
-    // Senha inicial padrão ("CIEE2026") codificada em Base64
-    const ADMIN_PASSWORD_B64 = 'Q0lFRTIwMjY=';
-
     async function verifyAdminPassword(plainPass) {
-      return plainPass.trim() === atob(ADMIN_PASSWORD_B64);
+      if (window.crypto && window.crypto.subtle) {
+        const digest = await sha256Hex(plainPass);
+        return digest === ADMIN_PASSWORD_HASH;
+      }
+      return plainPass === 'CIEE2026';
     }
+
+    function sanitizeUrl(url) {
       if (!url || !String(url).trim()) return '#';
       const cleaned = String(url).trim();
       if (cleaned === '#') return '#';
