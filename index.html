@@ -1,9 +1,11 @@
 <!DOCTYPE html>
-<html lang="pt-BR" translate="no">
+<html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>SITE DA APRENDIZAGEM - CIEE</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
     :root {
       --ciee-blue-deep: #002356;
@@ -12,913 +14,2372 @@
       --ciee-magenta: #e6007e;
       --ciee-yellow: #ffc800;
       --ciee-purple: #8c52ff;
-      --ciee-orange: #FE7F0C;
       --ciee-bg: #f0f4f9;
       --ciee-card: #ffffff;
       --ciee-text: #1a2536;
       --ciee-border: #d5e0ea;
     }
 
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; }
-    body { background-color: var(--ciee-bg); color: var(--ciee-text); display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
-
-    /* TELAS E MENUS */
-    #welcome-screen { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: linear-gradient(135deg, var(--ciee-blue-deep) 0%, #004ba8 100%); display: flex; align-items: center; justify-content: center; z-index: 1000; padding: 20px; transition: transform 0.6s cubic-bezier(0.77, 0, 0.175, 1), opacity 0.6s ease; }
-    #welcome-screen.hidden { transform: translateY(-100%); opacity: 0; pointer-events: none; }
-    .welcome-container { background: #ffffff; border-radius: 20px; width: 100%; max-width: 900px; display: grid; grid-template-columns: 1.1fr 0.9fr; box-shadow: 0 20px 50px rgba(0, 0, 0, 0.35); overflow: hidden; border: 3px solid var(--ciee-yellow); }
-    .welcome-banner { background: linear-gradient(180deg, #003380 0%, #001e4e 100%); color: white; padding: 40px; display: flex; flex-direction: column; justify-content: space-between; }
-    .banner-header { display: flex; flex-direction: column; gap: 12px; }
-    .banner-logo { font-size: 28px; font-weight: 900; color: #ffffff; letter-spacing: 2px; }
-    .banner-tagline { font-size: 34px; font-weight: 900; line-height: 1.1; color: var(--ciee-yellow); text-transform: uppercase; }
-    .banner-sub { font-size: 16px; font-weight: 600; color: #e0eafd; }
-    .banner-pilares { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 24px; }
-    .pilar-badge { padding: 6px 12px; border-radius: 20px; font-size: 11px; font-weight: 800; color: white; text-transform: uppercase; }
-    .pilar-1 { background-color: var(--ciee-magenta); } .pilar-2 { background-color: var(--ciee-yellow); color: #000; } .pilar-3 { background-color: var(--ciee-purple); } .pilar-4 { background-color: var(--ciee-blue-cyan); }
-    .welcome-action-side { padding: 45px 35px; display: flex; flex-direction: column; justify-content: center; gap: 20px; text-align: center; }
-    .welcome-title { font-size: 24px; font-weight: 800; color: var(--ciee-blue-deep); line-height: 1.2; }
-    .welcome-desc { font-size: 14px; color: #718096; line-height: 1.5; }
-    .btn-enter { background-color: var(--ciee-magenta); color: white; border: none; padding: 16px 24px; border-radius: 12px; font-size: 16px; font-weight: 800; cursor: pointer; box-shadow: 0 6px 18px rgba(230, 0, 126, 0.4); transition: all 0.25s ease; display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: 10px; }
-    .btn-enter:hover { background-color: #c9006b; transform: translateY(-2px); box-shadow: 0 8px 22px rgba(230, 0, 126, 0.5); }
-
-    /* HEADER */
-    header { background-color: var(--ciee-blue-deep); height: 60px; display: flex; align-items: center; justify-content: space-between; padding: 0 20px; color: white; box-shadow: 0 3px 8px rgba(0,0,0,0.2); z-index: 10; border-bottom: 3px solid var(--ciee-yellow); }
-    .top-left { display: flex; align-items: center; gap: 15px; }
-    .menu-toggle { background: none; border: none; color: white; font-size: 22px; cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 4px; border-radius: 4px; transition: background 0.2s ease; }
-    .menu-toggle:hover { background-color: rgba(255, 255, 255, 0.1); }
-    .header-title { font-size: 18px; font-weight: 800; letter-spacing: 1px; color: #ffffff; display: flex; align-items: center; gap: 8px; }
-    .header-title::after { content: ''; display: inline-block; width: 8px; height: 8px; background-color: var(--ciee-yellow); border-radius: 50%; }
-    .top-right { display: flex; align-items: center; gap: 15px; }
-    .help-icon { width: 28px; height: 28px; border-radius: 50%; background-color: var(--ciee-magenta); color: white; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 14px; cursor: pointer; }
-
-    /* LAYOUT APP */
-    .app-container { display: flex; flex: 1; overflow: hidden; }
-    aside { width: 290px; background-color: #ffffff; border-right: 1px solid var(--ciee-border); display: flex; flex-direction: column; padding: 15px 10px; gap: 6px; overflow-y: auto; transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.25s ease; margin-left: 0; flex-shrink: 0; }
-    aside.collapsed { margin-left: -290px; opacity: 0; pointer-events: none; }
-    .sidebar-header { display: flex; align-items: center; justify-content: space-between; padding: 0 6px 10px 6px; border-bottom: 1px dashed var(--ciee-border); margin-bottom: 4px; }
-    .sidebar-header span { font-size: 11px; font-weight: 700; color: #718096; text-transform: uppercase; }
-    .add-folder-btn { background-color: #eef5fc; color: var(--ciee-blue-main); border: 1px solid #c0d8f0; padding: 4px 8px; border-radius: 6px; font-size: 12px; font-weight: 700; cursor: pointer; }
-
-    .nav-item-wrapper { position: relative; display: flex; align-items: center; width: 100%; }
-    .nav-item { display: flex; align-items: center; gap: 10px; padding: 10px 36px 10px 12px; border-radius: 8px; color: #4a5568; text-decoration: none; font-size: 13px; font-weight: 600; cursor: pointer; width: 100%; overflow: hidden; }
-    .nav-item.active { background-color: var(--ciee-magenta); color: #ffffff; }
-    .nav-item.active svg.folder-icon { fill: var(--ciee-yellow); }
-    .nav-item svg.folder-icon { width: 16px; height: 16px; fill: #718096; flex-shrink: 0; }
-    .actions-btn { position: absolute; right: 8px; background: none; border: none; cursor: pointer; color: #a0aec0; padding: 4px; }
-    .action-menu { position: absolute; right: 10px; top: 36px; background: white; border: 1px solid var(--ciee-border); border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); z-index: 50; display: none; flex-direction: column; overflow: hidden; min-width: 120px; }
-    .action-menu.open { display: flex; }
-    .action-menu-item { padding: 8px 12px; font-size: 12px; font-weight: 600; color: #2d3748; cursor: pointer; }
-
-    main { flex: 1; padding: 24px; overflow-y: auto; display: flex; flex-direction: column; transition: all 0.3s ease; }
-    .dashboard-container { background: var(--ciee-card); border-radius: 12px; padding: 24px; box-shadow: 0 4px 15px rgba(0, 56, 130, 0.08); border: 1px solid var(--ciee-border); flex: 1; display: flex; flex-direction: column; position: relative; overflow-y: auto;}
-    .section-title { font-size: 18px; font-weight: 800; color: var(--ciee-blue-main); margin-bottom: 20px; display: flex; align-items: center; justify-content: space-between; text-transform: uppercase; }
-    .title-left { display: flex; align-items: center; gap: 10px; }
-    .title-left::before { content: ''; display: inline-block; width: 6px; height: 20px; background-color: var(--ciee-magenta); border-radius: 3px; }
-    .btn-primary { background-color: var(--ciee-blue-main); color: white; border: none; padding: 8px 14px; border-radius: 6px; font-weight: 700; cursor: pointer; font-size: 12px; display: inline-flex; align-items: center; justify-content: center; gap: 6px; transition: background 0.2s;}
-    .btn-primary:hover { background-color: var(--ciee-magenta); }
-    .btn-back-map { background-color: var(--ciee-blue-main); color: white; border: none; padding: 8px 14px; border-radius: 6px; font-size: 12px; font-weight: 700; cursor: pointer; display: none; transition: background 0.2s;}
-    .btn-back-map:hover { background-color: var(--ciee-magenta); }
-    .btn-excel { background-color: #38a169; color: white; border: none; padding: 8px 14px; border-radius: 6px; font-size: 12px; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: background 0.2s; }
-    .btn-excel:hover { background-color: #2f855a; }
-
-    .view-content { display: none; flex: 1; flex-direction: column; }
-    .view-content.active { display: flex; }
-
-    /* =========================================================
-       DASHBOARD SUMMARY CARDS (NOVIDADE)
-       ========================================================= */
-    .dashboard-summary { display: flex; gap: 20px; margin-bottom: 24px; animation: fadeIn 0.5s ease; }
-    .summary-card { 
-      background: linear-gradient(135deg, var(--ciee-blue-main) 0%, var(--ciee-blue-deep) 100%); 
-      color: white; 
-      padding: 20px 24px; 
-      border-radius: 12px; 
-      flex: 1; 
-      display: flex; 
-      flex-direction: column; 
-      gap: 5px; 
-      box-shadow: 0 6px 15px rgba(0, 35, 86, 0.15); 
-      border-left: 4px solid var(--ciee-yellow); 
+    * {
+      box-sizing: border-box;
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
     }
-    .summary-value { font-size: 32px; font-weight: 900; color: var(--ciee-yellow); line-height: 1; }
-    .summary-label { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; opacity: 0.9; }
 
-    /* =========================================================
-       DIRETÓRIO CORPORATIVO (GRID DE ESTADOS)
-       ========================================================= */
-    .corporate-directory-wrapper { width: 100%; display: flex; flex-direction: column; gap: 30px; padding-bottom: 20px; animation: fadeIn 0.5s ease; }
-    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    body {
+      background-color: var(--ciee-bg);
+      color: var(--ciee-text);
+      margin: 0;
+      padding: 0;
+    }
 
-    .region-group { display: flex; flex-direction: column; gap: 14px; }
-    .region-title { font-size: 14px; font-weight: 800; color: var(--ciee-blue-deep); border-bottom: 2px solid var(--ciee-border); padding-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; display: flex; align-items: center; gap: 8px; }
-    .region-title::before { content: ''; display: block; width: 12px; height: 12px; background-color: var(--ciee-yellow); border-radius: 2px; }
+    #welcome-screen {
+      position: fixed;
+      inset: 0;
+      background: linear-gradient(135deg, var(--ciee-blue-deep) 0%, #004ba8 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      padding: 20px;
+      transition: transform 0.6s cubic-bezier(0.77, 0, 0.175, 1), opacity 0.6s ease;
+    }
 
-    .states-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; }
-    .state-btn { background: #f8fafc; border: 1px solid var(--ciee-border); border-radius: 8px; padding: 14px 16px; display: flex; align-items: center; justify-content: space-between; cursor: pointer; transition: all 0.2s ease; color: var(--ciee-text); font-weight: 700; font-size: 13px; box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
-    .state-btn:hover { background: white; border-color: var(--ciee-blue-main); transform: translateY(-2px); box-shadow: 0 6px 15px rgba(0, 56, 130, 0.08); color: var(--ciee-blue-main); }
-    .state-btn .sigla { background: var(--ciee-border); color: var(--ciee-blue-deep); padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 800; transition: all 0.2s ease; }
-    .state-btn:hover .sigla { background: var(--ciee-blue-main); color: white; }
+    #welcome-screen.hidden {
+      transform: translateY(-100%);
+      opacity: 0;
+      pointer-events: none;
+    }
 
-    /* PAINEL DE DETALHES DO ESTADO */
-    .state-detail-view { position: relative; width: 100%; background: #ffffff; border-radius: 12px; border: 1px solid var(--ciee-border); box-shadow: 0 12px 35px rgba(0, 35, 86, 0.08); display: none; flex-direction: column; padding: 24px; opacity: 0; transform: translateY(20px); transition: opacity 0.4s ease, transform 0.4s ease; margin-bottom: 20px; }
-    .state-detail-view.active { display: flex; opacity: 1; transform: translateY(0); }
-    .detail-tabs { display: flex; gap: 12px; border-bottom: 2px solid var(--ciee-border); margin-bottom: 20px; }
-    .tab-btn { padding: 10px 20px; background: none; border: none; font-size: 14px; font-weight: 700; color: #718096; cursor: pointer; position: relative; }
-    .tab-btn.active { color: var(--ciee-magenta); }
-    .tab-btn.active::after { content: ''; position: absolute; bottom: -2px; left: 0; right: 0; height: 3px; background-color: var(--ciee-magenta); }
-    .tab-panel { display: none; flex: 1; overflow-y: auto; }
-    .tab-panel.active { display: flex; flex-direction: column; gap: 20px; }
+    .sidebar-panel {
+      width: 280px;
+      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.25s ease;
+      flex-shrink: 0;
+    }
 
-    .leaders-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 16px; }
-    .leader-card { display: flex; align-items: center; gap: 16px; background: #f8fafc; padding: 16px; border-radius: 12px; border: 1px solid var(--ciee-border); box-shadow: 0 2px 8px rgba(0,0,0,0.04); }
-    .leader-avatar { width: 75px; height: 75px; border-radius: 50%; background-color: var(--ciee-blue-main); color: white; display: flex; align-items: center; justify-content: center; font-size: 26px; font-weight: 800; border: 3px solid var(--ciee-yellow); overflow: hidden; flex-shrink: 0; }
-    .leader-avatar img { width: 100%; height: 100%; object-fit: cover; }
-    .leader-info { display: flex; flex-direction: column; gap: 4px; flex: 1; }
-    .leader-name { font-size: 16px; font-weight: 800; color: var(--ciee-blue-deep); }
-    .leader-role { font-size: 12px; color: #718096; font-weight: 600; }
-    
-    .polos-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; }
-    .polo-card { background: white; border: 1px solid var(--ciee-border); border-radius: 10px; padding: 16px; display: flex; flex-direction: column; gap: 12px; }
-    .polo-title { font-size: 15px; font-weight: 800; color: var(--ciee-blue-main); }
-    .polo-img { width: 100%; height: 130px; background-color: #edf2f7; border-radius: 6px; display: flex; align-items: center; justify-content: center; color: #718096; font-size: 12px; cursor: pointer; border: 2px dashed #cbd5e0; overflow: hidden; }
-    .polo-img img { width: 100%; height: 100%; object-fit: cover; }
+    .sidebar-panel.collapsed {
+      margin-left: -280px;
+      opacity: 0;
+      pointer-events: none;
+    }
 
-    .docs-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 20px; margin-top: 15px; }
-    .doc-card { background: white; border: 1px solid var(--ciee-border); border-radius: 12px; padding: 16px; display: flex; flex-direction: column; gap: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); transition: transform 0.2s ease, box-shadow 0.2s ease; }
-    .doc-card:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(0, 56, 130, 0.12); }
-    .doc-preview-box { width: 100%; height: 140px; background-color: #f0f4f9; border-radius: 8px; border: 1px dashed #cbd5e0; display: flex; align-items: center; justify-content: center; overflow: hidden; cursor: pointer; }
-    .doc-preview-box img { width: 100%; height: 100%; object-fit: cover; }
-    .doc-title { font-size: 15px; font-weight: 800; color: var(--ciee-blue-deep); line-height: 1.3; }
-    .doc-actions { display: flex; gap: 8px; margin-top: auto; }
-    
-    /* MODAIS */
-    .doc-modal-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0, 35, 86, 0.5); display: none; align-items: center; justify-content: center; z-index: 500; backdrop-filter: blur(4px); }
-    .doc-modal-overlay.active { display: flex; }
-    .doc-modal-card { background: white; border-radius: 14px; width: 100%; max-width: 480px; padding: 24px; display: flex; flex-direction: column; gap: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.25); border: 2px solid var(--ciee-blue-main); }
-    .doc-modal-title { font-size: 18px; font-weight: 800; color: var(--ciee-blue-main); display: flex; justify-content: space-between; align-items: center; }
-    .form-group { display: flex; flex-direction: column; gap: 6px; }
-    .form-group label { font-size: 12px; font-weight: 700; color: #4a5568; text-transform: uppercase; }
-    .form-group input { padding: 10px 12px; border: 1px solid var(--ciee-border); border-radius: 6px; font-size: 13px; outline: none; }
-    .placeholder-box { border: 2px dashed var(--ciee-border); border-radius: 10px; padding: 40px; text-align: center; color: #555; background-color: #f8fafc; flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; }
+    @media (max-width: 1023px) {
+      .sidebar-panel {
+        position: fixed;
+        top: 60px;
+        bottom: 0;
+        left: 0;
+        z-index: 60;
+        margin-left: 0 !important;
+        box-shadow: 0 12px 30px rgba(0, 35, 86, 0.24);
+        transform: translateX(0);
+      }
+      .sidebar-panel.collapsed {
+        transform: translateX(-105%);
+        opacity: 0;
+        pointer-events: none;
+      }
+    }
+
+    .map-canvas-wrapper {
+      position: relative;
+      width: 100%;
+      max-width: 620px;
+      margin-left: auto;
+      margin-right: auto;
+      aspect-ratio: 640 / 600;
+      max-height: 540px;
+      overflow: hidden;
+      border-radius: 10px;
+    }
+
+    #brazil-map-canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+      cursor: pointer;
+      touch-action: none;
+    }
+
+    .chart-container {
+      position: relative;
+      width: 100%;
+      max-width: 640px;
+      margin-left: auto;
+      margin-right: auto;
+      height: 270px;
+      max-height: 340px;
+    }
   </style>
 </head>
-<body>
+<body class="min-h-screen flex flex-col">
+  <!-- Chosen Palette: CIEE Institucional (Azul Profundo #002356, Azul Principal #003882, Magenta #E6007E, Amarelo Destaque #FFC800, Ciano #0099FF e Fundo Neutro Suave #F0F4F9) -->
+  <!-- Application Structure Plan: A aplicação preserva a arquitetura institucional do "SITE DA APRENDIZAGEM - CIEE" com Tela de Boas-Vindas ("Além do Horizonte"), Cabeçalho Institucional com toggle de menu responsivo (iniciando recolhido em telas compactas/mobile com backdrop próprio e modais em camada z-[90] acima da barra lateral), Barra Lateral para "LÍDERES BRASIL" e gestão de pastas personalizadas, e Área Principal interativa. Ao clicar em qualquer UF no mapa Canvas HiDPI, a câmera realiza um zoom animado suave centralizando o estado selecionado ("entra no estado"), atualiza o painel lateral de Líderes e Polos e permite retornar ao mapa geral com um clique. -->
+  <!-- Visualization & Content Choices:
+    1. Tela de Boas-Vindas & Menu Lateral Responsivo -> Goal: Organize -> Entrada institucional e gaveta lateral com auto-fechamento em telas estreitas e modais acima da navegação -> HTML/CSS/JS.
+    2. Mapa Interativo do Brasil com Zoom Animado (Canvas HiDPI) -> Goal: Inform & Explore -> Renderização Web Mercator isotrópica com interpolação suave de câmera (zoom + enquadramento no estado clicado), controles de zoom (+/- e resetar), cápsulas laterais para estados pequenos e tooltip -> HTML5 Canvas 2D (ZERO SVG).
+    3. Painel de Detalhes do Estado (Abas Líderes & Polos) -> Goal: Inform & Manage -> Exibe líderes e polos do estado selecionado com upload de fotos e cadastros via modal interno -> HTML/JS.
+    4. Comparativo Regional de Cobertura -> Goal: Compare -> Gráfico de barras horizontais agrupadas por regional corporativa -> Chart.js (Canvas).
+    5. Dossiês & Documentos por Pasta -> Goal: Organize -> Grade de documentos com upload de capa e links externos -> HTML/JS.
+  -->
+  <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
 
-  <!-- Inputs Escondidos para Upload -->
-  <input type="file" id="file-input-leader" accept="image/*" style="display: none;">
-  <input type="file" id="file-input-polo" accept="image/*" style="display: none;">
-  <input type="file" id="file-input-doc" accept="image/*" style="display: none;">
+  <input type="file" id="file-input-leader" accept="image/*" class="hidden" />
+  <input type="file" id="file-input-polo" accept="image/*" class="hidden" />
+  <input type="file" id="file-input-doc" accept="image/*" class="hidden" />
 
-  <!-- TELA INICIAL BOAS-VINDAS -->
+  <div id="toast-banner" class="fixed bottom-5 right-5 z-[1100] bg-[#002356] text-white px-4 py-3 rounded-xl shadow-xl border-l-4 border-[#ffc800] text-xs font-bold opacity-0 pointer-events-none transition-all duration-300 translate-y-2"></div>
+
   <div id="welcome-screen">
-    <div class="welcome-container">
-      <div class="welcome-banner">
-        <div class="banner-header">
-          <div class="banner-logo">CIEE</div>
-          <div class="banner-tagline">Além do<br>HORIZONTE</div>
-          <div class="banner-sub">Juntos por mais oportunidades!</div>
+    <div class="bg-white rounded-[20px] w-full max-w-[900px] grid grid-cols-1 md:grid-cols-[1.1fr_0.9fr] shadow-2xl overflow-hidden border-[3px] border-[#ffc800]">
+      <div class="bg-gradient-to-b from-[#003380] to-[#001e4e] text-white p-8 sm:p-10 flex flex-col justify-between">
+        <div class="flex flex-col gap-3">
+          <div class="text-2xl sm:text-3xl font-black text-white tracking-[2px]">CIEE</div>
+          <div class="text-3xl sm:text-4xl font-black leading-[1.1] text-[#ffc800] uppercase">
+            Além do<br />HORIZONTE
+          </div>
+          <div class="text-sm sm:text-base font-semibold text-[#e0eafd]">
+            Juntos por mais oportunidades!
+          </div>
         </div>
-        <div class="banner-pilares">
-          <div class="pilar-badge pilar-1">Trabalho em Equipe</div>
-          <div class="pilar-badge pilar-2">Foco em Resultados</div>
-          <div class="pilar-badge pilar-3">Aprendizado Constante</div>
-          <div class="pilar-badge pilar-4">Impacto Positivo</div>
+
+        <div class="flex flex-wrap gap-2 mt-6">
+          <span class="px-3 py-1.5 rounded-full text-[11px] font-extrabold text-white uppercase bg-[#e6007e]">Trabalho em Equipe</span>
+          <span class="px-3 py-1.5 rounded-full text-[11px] font-extrabold text-black uppercase bg-[#ffc800]">Foco em Resultados</span>
+          <span class="px-3 py-1.5 rounded-full text-[11px] font-extrabold text-white uppercase bg-[#8c52ff]">Aprendizado Constante</span>
+          <span class="px-3 py-1.5 rounded-full text-[11px] font-extrabold text-white uppercase bg-[#0099ff]">Impacto Positivo</span>
         </div>
       </div>
-      <div class="welcome-action-side">
-        <div class="welcome-title">Bem-vindo ao Site da Aprendizagem</div>
-        <div class="welcome-desc">Acesse a plataforma para consultar líderes regionais, polos e dossiês de acompanhamento em todo o Brasil.</div>
-        <button class="btn-enter" onclick="enterSite()"><span>Entrar no Site</span> →</button>
+
+      <div class="p-8 sm:p-10 flex flex-col justify-center gap-5 text-center bg-white">
+        <h1 class="text-2xl font-extrabold text-[#002356] leading-tight">
+          Bem-vindo ao Site da Aprendizagem
+        </h1>
+        <p class="text-sm text-slate-500 leading-relaxed">
+          Acesse a plataforma para consultar líderes regionais, polos e dossiês de acompanhamento em todo o Brasil.
+        </p>
+        <button
+          type="button"
+          onclick="enterSite()"
+          class="bg-[#e6007e] hover:bg-[#c9006b] text-white font-extrabold text-base py-4 px-6 rounded-xl shadow-lg shadow-[#e6007e]/35 transition-all hover:-translate-y-0.5 flex items-center justify-center gap-2.5 mt-1 cursor-pointer"
+        >
+          <span>Entrar no Site</span>
+          <span aria-hidden="true">&#8594;</span>
+        </button>
       </div>
     </div>
   </div>
 
-  <!-- DASHBOARD PRINCIPAL -->
-  <header>
-    <div class="top-left">
-      <button class="menu-toggle" id="btn-toggle-sidebar" title="Ocultar/Exibir Menu Lateral">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="white"><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/></svg>
+  <header class="bg-[#002356] h-[60px] flex items-center justify-between px-4 sm:px-5 text-white shadow-md z-40 border-b-[3px] border-[#ffc800] shrink-0">
+    <div class="flex items-center gap-3">
+      <button
+        type="button"
+        id="btn-toggle-sidebar"
+        aria-label="Alternar barra lateral"
+        title="Ocultar/Exibir Menu Lateral"
+        class="text-white text-xl px-2.5 py-1 rounded-lg bg-white/10 hover:bg-white/20 transition cursor-pointer flex items-center gap-1.5"
+      >
+        <span>&#9776;</span>
+        <span class="text-xs font-bold hidden sm:inline">Menu</span>
       </button>
-      <div class="header-title">SITE DA APRENDIZAGEM</div>
+      <div class="text-base sm:text-lg font-extrabold tracking-wider text-white flex items-center gap-2">
+        <span>SITE DA APRENDIZAGEM</span>
+        <span class="inline-block w-2 h-2 rounded-full bg-[#ffc800]"></span>
+      </div>
     </div>
-    <div class="top-right">
-      <div class="help-icon" title="Início" onclick="location.reload()">🏠</div>
+
+    <div class="flex items-center gap-3">
+      <span id="mesh-status-pill" class="hidden sm:inline-flex items-center gap-1.5 text-[11px] font-bold px-2.5 py-1 rounded-full bg-white/10 text-[#e0eafd] border border-white/15">
+        <span id="mesh-dot" class="w-2 h-2 rounded-full bg-[#ffc800]"></span>
+        <span id="mesh-status-label">Carregando malha...</span>
+      </span>
+      <button
+        type="button"
+        title="Voltar à Tela Inicial"
+        onclick="showWelcomeScreen()"
+        class="w-8 h-8 rounded-full bg-[#e6007e] hover:bg-[#c9006b] text-white flex items-center justify-center font-bold text-xs cursor-pointer transition"
+      >
+        &#8962;
+      </button>
     </div>
   </header>
 
-  <div class="app-container">
-    <aside id="sidebar">
-      <div class="sidebar-header">
-        <span>Menu de Opções</span>
-        <button class="add-folder-btn" id="btn-add-folder" title="Adicionar Nova Pasta">+ Nova Pasta</button>
+  <div class="flex flex-1 min-h-0 relative">
+    <div
+      id="sidebar-backdrop"
+      onclick="closeMobileSidebar()"
+      class="fixed inset-0 top-[60px] bg-[#002356]/40 backdrop-blur-[1px] z-50 hidden lg:hidden"
+    ></div>
+
+    <aside id="sidebar" class="sidebar-panel bg-white border-r border-[#d5e0ea] flex flex-col p-3.5 gap-1.5 overflow-y-auto">
+      <div class="flex items-center justify-between px-1.5 pb-2.5 border-b border-dashed border-[#d5e0ea] mb-1">
+        <span class="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Menu de Opções</span>
+        <div class="flex items-center gap-1.5">
+          <button
+            type="button"
+            id="btn-add-folder"
+            title="Adicionar Nova Pasta"
+            class="bg-[#eef5fc] hover:bg-[#dcebfa] text-[#003882] border border-[#c0d8f0] px-2.5 py-1 rounded-md text-xs font-bold cursor-pointer transition"
+          >
+            + Nova Pasta
+          </button>
+          <button
+            type="button"
+            onclick="closeMobileSidebar()"
+            title="Fechar Menu"
+            class="lg:hidden px-2 py-1 rounded-md text-xs font-bold text-slate-500 hover:bg-slate-100 cursor-pointer"
+          >
+            &#10005;
+          </button>
+        </div>
       </div>
-      <div class="nav-item-wrapper">
-        <a class="nav-item active" data-target="mapa-view">
-          <svg class="folder-icon" viewBox="0 0 24 24"><path d="M10 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"/></svg>
-          <span class="title-text">PAINEL BRASIL</span>
-        </a>
+
+      <div class="relative flex items-center w-full">
+        <button
+          type="button"
+          id="nav-leaders-btn"
+          onclick="switchToMapView()"
+          class="nav-item active flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-[13px] font-bold w-full text-left transition cursor-pointer bg-[#e6007e] text-white"
+        >
+          <span class="text-[#ffc800] text-sm">&#9638;</span>
+          <span class="truncate">LÍDERES BRASIL</span>
+        </button>
       </div>
-      <div id="folders-list"></div>
+
+      <div id="folders-list" class="flex flex-col gap-1 mt-1"></div>
+
+      <div class="mt-auto pt-3 border-t border-[#d5e0ea]">
+        <div class="bg-[#f0f4f9] rounded-xl p-3 border border-[#d5e0ea] space-y-2">
+          <div class="text-[11px] font-extrabold uppercase text-[#003882]">Resumo Nacional</div>
+          <div class="grid grid-cols-2 gap-2 text-center">
+            <div class="bg-white rounded-lg p-2 border border-[#d5e0ea]">
+              <div id="sidebar-kpi-polos" class="text-base font-black text-[#003882]">0</div>
+              <div class="text-[10px] font-semibold text-slate-500 uppercase">Polos</div>
+            </div>
+            <div class="bg-white rounded-lg p-2 border border-[#d5e0ea]">
+              <div id="sidebar-kpi-leaders" class="text-base font-black text-[#e6007e]">0</div>
+              <div class="text-[10px] font-semibold text-slate-500 uppercase">Líderes</div>
+            </div>
+          </div>
+        </div>
+      </div>
     </aside>
 
-    <main id="main-content">
-      <div class="dashboard-container">
-        
-        <!-- View 1: Painel Corporativo de Estados -->
-        <div id="mapa-view" class="view-content active">
-          
-          <div class="section-title">
-            <span class="title-left" id="main-section-title">Painel Nacional de Lideranças</span>
-            <div style="display: flex; gap: 10px;">
-              <button class="btn-excel" onclick="exportToExcel()">📥 Exportar Planilha</button>
-              <button class="btn-back-map" id="btn-back-map" onclick="resetMapZoom()">← Voltar ao Painel</button>
+    <main id="main-content" class="flex-1 p-4 sm:p-6 overflow-y-auto flex flex-col gap-5 min-w-0">
+      <div id="mapa-view" class="flex flex-col gap-5">
+        <section class="bg-white rounded-xl p-4 sm:p-6 shadow-sm border border-[#d5e0ea] flex flex-col gap-4 relative">
+          <div class="flex flex-wrap items-center justify-between gap-3">
+            <div class="flex items-center gap-2.5">
+              <span class="inline-block w-1.5 h-5 bg-[#e6007e] rounded-full"></span>
+              <h2 id="main-section-title" class="text-base sm:text-lg font-extrabold text-[#003882] uppercase">
+                Líderes por Estado — Mapa Nacional
+              </h2>
+            </div>
+
+            <div class="flex items-center gap-2">
+              <button
+                type="button"
+                id="btn-back-map"
+                onclick="resetMapFocus()"
+                class="hidden bg-[#003882] hover:bg-[#e6007e] text-white px-3.5 py-2 rounded-lg text-xs font-bold cursor-pointer transition shadow-xs"
+              >
+                &#8592; Voltar ao Mapa Geral
+              </button>
             </div>
           </div>
 
-          <!-- DASHBOARD SUMMARY CARDS (KPIs) -->
-          <div id="dashboard-summary" class="dashboard-summary">
-            <div class="summary-card">
-              <div class="summary-value" id="total-polos-count">0</div>
-              <div class="summary-label">Polos Cadastrados</div>
-            </div>
-            <div class="summary-card">
-              <div class="summary-value" id="total-leaders-count">0</div>
-              <div class="summary-label">Líderes Regionais</div>
-            </div>
-          </div>
+          <p class="text-xs sm:text-sm text-slate-600">
+            Clique em qualquer Unidade da Federação no mapa (ou nas cápsulas laterais) para aplicar zoom no estado e abrir a gestão de líderes e polos. Use a roda do mouse ou os botões de zoom para navegar livremente.
+          </p>
 
-          <!-- O GRID DE ESTADOS -->
-          <div class="corporate-directory-wrapper" id="corporate-directory">
-             <!-- O JS vai injetar as regiões aqui -->
-          </div>
+          <div id="region-filters" class="flex flex-wrap gap-1.5 pt-1" role="toolbar" aria-label="Filtrar por regional"></div>
 
-          <!-- Painel do Estado -->
-          <div class="state-detail-view" id="state-detail-panel">
-            <div class="detail-tabs">
-              <button class="tab-btn active" onclick="switchTab('tab-leader')">👥 Líderes do Estado</button>
-              <button class="tab-btn" onclick="switchTab('tab-polos')">🏢 Polos & Dossiês</button>
-            </div>
+          <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start mt-1">
+            <div class="lg:col-span-7 bg-[#f8fafc] border border-[#d5e0ea] rounded-xl p-3 sm:p-4 relative flex flex-col justify-between">
+              <div id="map-stage" class="relative w-full flex items-center justify-center">
+                <div class="map-canvas-wrapper bg-[#eef4fb]/60 border border-[#dce6f2]">
+                  <canvas id="brazil-map-canvas" aria-label="Mapa interativo do Brasil"></canvas>
 
-            <!-- Aba Múltiplos Líderes -->
-            <div class="tab-panel active" id="tab-leader">
-              <div style="display: flex; justify-content: space-between; align-items: center;">
-                <span style="font-weight: 800; font-size: 16px; color: var(--ciee-blue-main);">Lideranças Regionais</span>
-                <button class="btn-primary" onclick="addNewLeader()">+ Adicionar Líder</button>
+                  <div class="absolute top-2.5 left-2.5 z-20 flex flex-col gap-1 bg-white/95 backdrop-blur-xs p-1 rounded-lg shadow-sm border border-[#d5e0ea]">
+                    <button
+                      type="button"
+                      onclick="zoomMapBy(1.35)"
+                      title="Aproximar Zoom"
+                      class="w-7 h-7 rounded bg-[#f0f4f9] hover:bg-[#003882] hover:text-white text-[#002356] font-black text-sm flex items-center justify-center cursor-pointer transition"
+                    >
+                      +
+                    </button>
+                    <button
+                      type="button"
+                      onclick="zoomMapBy(0.74)"
+                      title="Afastar Zoom"
+                      class="w-7 h-7 rounded bg-[#f0f4f9] hover:bg-[#003882] hover:text-white text-[#002356] font-black text-sm flex items-center justify-center cursor-pointer transition"
+                    >
+                      &minus;
+                    </button>
+                    <button
+                      type="button"
+                      onclick="resetMapFocus()"
+                      title="Enquadrar Brasil Inteiro"
+                      class="w-7 h-7 rounded bg-[#f0f4f9] hover:bg-[#e6007e] hover:text-white text-[#002356] font-extrabold text-[11px] flex items-center justify-center cursor-pointer transition"
+                    >
+                      BR
+                    </button>
+                  </div>
+
+                  <div
+                    id="map-zoom-badge"
+                    class="absolute bottom-2.5 left-2.5 z-20 bg-[#002356]/90 text-white text-[10px] font-bold px-2.5 py-1 rounded-md pointer-events-none"
+                  >
+                    Visão Nacional (100%)
+                  </div>
+                </div>
+
+                <div
+                  id="tooltip"
+                  class="pointer-events-none absolute z-30 bg-[#002356] text-white px-3 py-2 rounded-lg text-xs font-bold shadow-lg border-l-[3px] border-[#e6007e] opacity-0 transition-opacity duration-100 max-w-[230px]"
+                ></div>
               </div>
-              <div class="leaders-grid" id="leaders-container"></div>
+
+              <div class="mt-3 pt-2.5 border-t border-[#d5e0ea] flex flex-wrap items-center justify-between gap-2 text-[11px] font-semibold text-slate-600">
+                <div class="flex flex-wrap items-center gap-3">
+                  <span class="inline-flex items-center gap-1.5">
+                    <span class="w-3 h-3 rounded-sm bg-[#b3d1ff] border border-[#7fb0f7]"></span>
+                    Sem polos
+                  </span>
+                  <span class="inline-flex items-center gap-1.5">
+                    <span class="w-3 h-3 rounded-sm bg-[#0066cc] border border-[#003882]"></span>
+                    1 a 5 polos
+                  </span>
+                  <span class="inline-flex items-center gap-1.5">
+                    <span class="w-3 h-3 rounded-sm bg-[#003882] border border-[#002356]"></span>
+                    6+ polos
+                  </span>
+                  <span class="inline-flex items-center gap-1.5">
+                    <span class="w-3 h-3 rounded-sm bg-[#ffc800] border border-[#b38b00]"></span>
+                    Em foco
+                  </span>
+                </div>
+                <span class="text-slate-400">Clique no estado para dar zoom</span>
+              </div>
             </div>
 
-            <!-- Aba Polos -->
-            <div class="tab-panel" id="tab-polos">
-              <div style="display: flex; justify-content: space-between; align-items: center;">
-                <span style="font-weight: 800; font-size: 16px; color: var(--ciee-blue-main);">Polos no Estado</span>
-                <button class="btn-primary" onclick="addNewPolo()">+ Adicionar Novo Polo</button>
+            <div id="state-detail-card" class="lg:col-span-5 bg-white border-2 border-[#d5e0ea] rounded-xl p-4 sm:p-5 shadow-xs flex flex-col gap-4 transition-colors">
+              <div class="flex items-center justify-between gap-3 pb-3 border-b border-[#d5e0ea]">
+                <div class="flex items-center gap-3 min-w-0">
+                  <div id="detail-uf-badge" class="w-11 h-11 rounded-xl bg-[#003882] text-[#ffc800] font-black text-base flex items-center justify-center shrink-0 shadow-xs">
+                    BA
+                  </div>
+                  <div class="min-w-0">
+                    <h3 id="detail-state-name" class="text-base sm:text-lg font-extrabold text-[#002356] truncate">
+                      Bahia
+                    </h3>
+                    <p id="detail-state-region" class="text-xs font-semibold text-slate-500 truncate">
+                      Regional: Nordeste I
+                    </p>
+                  </div>
+                </div>
+                <span id="detail-ibge-badge" class="text-[11px] font-mono font-bold bg-[#f0f4f9] text-[#003882] px-2 py-1 rounded border border-[#d5e0ea] shrink-0">
+                  IBGE: 29
+                </span>
               </div>
-              <div class="polos-grid" id="polos-container"></div>
+
+              <div class="flex gap-2 border-b-2 border-[#d5e0ea]">
+                <button
+                  type="button"
+                  id="tab-btn-leaders"
+                  onclick="switchDetailTab('leaders')"
+                  class="px-4 py-2 text-xs sm:text-sm font-extrabold text-[#e6007e] border-b-[3px] border-[#e6007e] -mb-[2px] cursor-pointer transition"
+                >
+                  Líderes (<span id="count-tab-leaders">0</span>)
+                </button>
+                <button
+                  type="button"
+                  id="tab-btn-polos"
+                  onclick="switchDetailTab('polos')"
+                  class="px-4 py-2 text-xs sm:text-sm font-bold text-slate-500 hover:text-[#003882] border-b-[3px] border-transparent -mb-[2px] cursor-pointer transition"
+                >
+                  Polos (<span id="count-tab-polos">0</span>)
+                </button>
+              </div>
+
+              <div id="panel-leaders" class="flex flex-col gap-3 max-h-[380px] overflow-y-auto pr-1">
+                <div id="leaders-list" class="flex flex-col gap-3"></div>
+                <button
+                  type="button"
+                  onclick="openAddLeaderModal()"
+                  class="mt-1 w-full py-2.5 px-4 rounded-lg border-2 border-dashed border-[#003882]/40 hover:border-[#e6007e] text-[#003882] hover:text-[#e6007e] font-bold text-xs transition cursor-pointer"
+                >
+                  + Adicionar Líder neste Estado
+                </button>
+              </div>
+
+              <div id="panel-polos" class="hidden flex-col gap-3 max-h-[380px] overflow-y-auto pr-1">
+                <div id="polos-list" class="flex flex-col gap-3"></div>
+                <button
+                  type="button"
+                  onclick="openAddPoloModal()"
+                  class="mt-1 w-full py-2.5 px-4 rounded-lg border-2 border-dashed border-[#003882]/40 hover:border-[#e6007e] text-[#003882] hover:text-[#e6007e] font-bold text-xs transition cursor-pointer"
+                >
+                  + Adicionar Polo neste Estado
+                </button>
+              </div>
             </div>
           </div>
+        </section>
+
+        <section class="bg-white rounded-xl p-4 sm:p-6 shadow-sm border border-[#d5e0ea] flex flex-col gap-4">
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <div class="flex items-center gap-2.5">
+              <span class="inline-block w-1.5 h-5 bg-[#0099ff] rounded-full"></span>
+              <h2 class="text-base sm:text-lg font-extrabold text-[#003882] uppercase">
+                Distribuição de Polos e Lideranças por Regional
+              </h2>
+            </div>
+            <span class="text-xs font-semibold text-slate-500">Atualizado em tempo real conforme cadastros</span>
+          </div>
+
+          <p class="text-xs sm:text-sm text-slate-600">
+            Acompanhe a distribuição consolidada dos polos de aprendizagem e líderes regionais entre os 7 agrupamentos corporativos. Clique em qualquer barra ou linha para enquadrar a regional no mapa.
+          </p>
+
+          <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 items-center">
+            <div class="lg:col-span-7">
+              <div class="chart-container">
+                <canvas id="regional-chart"></canvas>
+              </div>
+            </div>
+            <div class="lg:col-span-5 overflow-x-auto">
+              <table class="w-full text-left border-collapse text-xs sm:text-sm">
+                <thead>
+                  <tr class="border-b-2 border-[#d5e0ea] text-[#002356] font-extrabold">
+                    <th class="py-2 pr-2">Regional</th>
+                    <th class="py-2 px-2 text-center">UFs</th>
+                    <th class="py-2 px-2 text-center">Polos</th>
+                    <th class="py-2 pl-2 text-center">Líderes</th>
+                  </tr>
+                </thead>
+                <tbody id="regional-table-body" class="divide-y divide-slate-100"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <div id="folder-view" class="hidden flex-col gap-4 bg-white rounded-xl p-5 sm:p-6 shadow-sm border border-[#d5e0ea] flex-1">
+        <div class="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-[#d5e0ea]">
+          <div class="flex items-center gap-2.5">
+            <span class="inline-block w-1.5 h-5 bg-[#e6007e] rounded-full"></span>
+            <h2 id="folder-view-title" class="text-base sm:text-lg font-extrabold text-[#003882] uppercase">
+              Pasta de Documentos
+            </h2>
+          </div>
+
+          <button
+            type="button"
+            onclick="openNewDocModal()"
+            class="bg-[#003882] hover:bg-[#e6007e] text-white px-4 py-2 rounded-lg text-xs font-bold transition cursor-pointer"
+          >
+            + Adicionar Documento / Dossiê
+          </button>
         </div>
 
-        <!-- View 2: Conteúdo das Pastas Laterais -->
-        <div id="folder-view" class="view-content">
-          <div class="section-title">
-            <span class="title-left" id="folder-title">Nome da Pasta</span>
-            <div style="display: flex; gap: 10px;">
-              <button class="btn-excel" onclick="exportDocsToExcel()">📥 Exportar Planilha</button>
-              <button class="btn-primary" onclick="openDocModal()">+ Adicionar Conteúdo</button>
-            </div>
-          </div>
-          <div id="docs-container" class="docs-grid"></div>
-          <div id="folder-placeholder" class="placeholder-box" style="display: none;">
-            <svg width="48" height="48" viewBox="0 0 24 24" fill="#003882"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
-            <p>Esta seção está pronta para receber seus documentos e links do Google Docs.</p>
-            <button class="btn-primary" onclick="openDocModal()">+ Adicionar Conteúdo</button>
-          </div>
-        </div>
+        <p class="text-xs sm:text-sm text-slate-600">
+          Gerencie os documentos, apresentações e dossiês de acompanhamento vinculados a esta pasta. Clique na miniatura de qualquer item para atualizar a imagem de capa.
+        </p>
 
+        <div id="docs-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-2"></div>
       </div>
     </main>
   </div>
 
-  <!-- Modal Documentos -->
-  <div class="doc-modal-overlay" id="doc-modal">
-    <div class="doc-modal-card">
-      <div class="doc-modal-title">
-        <span id="doc-modal-heading">Adicionar Novo Documento</span>
-        <button style="background:none; border:none; font-size:20px; cursor:pointer;" onclick="closeDocModal()">&times;</button>
+  <div id="doc-modal" class="fixed inset-0 bg-[#002356]/60 backdrop-blur-xs hidden items-center justify-center z-[90] p-4">
+    <div class="bg-white rounded-2xl w-full max-w-[460px] p-6 flex flex-col gap-4 shadow-2xl border-2 border-[#003882]">
+      <div class="flex items-center justify-between">
+        <h3 class="text-lg font-extrabold text-[#003882]">Novo Documento / Dossiê</h3>
+        <button type="button" onclick="closeNewDocModal()" class="text-slate-400 hover:text-slate-700 font-bold text-lg cursor-pointer">&#10005;</button>
       </div>
-      <div class="form-group"><label>Título do Documento</label><input type="text" id="doc-title-input" placeholder="Ex: Acompanhamento de Turmas - Q1"></div>
-      <div class="form-group"><label>Link do Google Docs / Drive</label><input type="url" id="doc-link-input" placeholder="https://docs.google.com/document/d/..."></div>
-      <div class="form-group">
-        <label>Foto de Prévia / Capa do Documento</label>
-        <div style="display: flex; gap: 8px;">
-          <button class="btn-primary" style="background:#718096; flex:1;" onclick="triggerDocFileSelect()">📷 Do Computador</button>
-          <input type="url" id="doc-img-url-input" placeholder="Ou cole a URL da imagem..." style="flex:1;">
-        </div>
+
+      <div class="flex flex-col gap-1.5">
+        <label for="doc-input-title" class="text-xs font-bold text-slate-600 uppercase">Título do Documento</label>
+        <input
+          type="text"
+          id="doc-input-title"
+          placeholder="Ex.: Relatório Trimestral de Aprendizagem"
+          class="px-3 py-2.5 border border-[#d5e0ea] rounded-lg text-sm focus:outline-none focus:border-[#003882]"
+        />
       </div>
-      <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 10px;">
-        <button class="btn-primary" style="background:#a0aec0;" onclick="closeDocModal()">Cancelar</button>
-        <button class="btn-primary" onclick="saveDocument()">Salvar Documento</button>
+
+      <div class="flex flex-col gap-1.5">
+        <label for="doc-input-desc" class="text-xs font-bold text-slate-600 uppercase">Descrição / Observação</label>
+        <input
+          type="text"
+          id="doc-input-desc"
+          placeholder="Ex.: Indicadores de contratação e acompanhamento"
+          class="px-3 py-2.5 border border-[#d5e0ea] rounded-lg text-sm focus:outline-none focus:border-[#003882]"
+        />
+      </div>
+
+      <div class="flex flex-col gap-1.5">
+        <label for="doc-input-link" class="text-xs font-bold text-slate-600 uppercase">Link Externo (Opcional)</label>
+        <input
+          type="url"
+          id="doc-input-link"
+          placeholder="https://..."
+          class="px-3 py-2.5 border border-[#d5e0ea] rounded-lg text-sm focus:outline-none focus:border-[#003882]"
+        />
+      </div>
+
+      <div class="flex justify-end gap-2 pt-2">
+        <button
+          type="button"
+          onclick="closeNewDocModal()"
+          class="px-4 py-2 rounded-lg border border-[#d5e0ea] text-slate-600 text-xs font-bold hover:bg-slate-50 cursor-pointer"
+        >
+          Cancelar
+        </button>
+        <button
+          type="button"
+          onclick="saveNewDoc()"
+          class="px-4 py-2 rounded-lg bg-[#e6007e] hover:bg-[#c9006b] text-white text-xs font-bold cursor-pointer"
+        >
+          Salvar Documento
+        </button>
       </div>
     </div>
   </div>
 
+  <div id="universal-modal" class="fixed inset-0 bg-[#002356]/60 backdrop-blur-xs hidden items-center justify-center z-[90] p-4">
+    <form id="universal-modal-form" class="bg-white rounded-2xl w-full max-w-[430px] p-6 flex flex-col gap-4 shadow-2xl border-2 border-[#003882]">
+      <div class="flex items-center justify-between">
+        <h3 id="umodal-title" class="text-lg font-extrabold text-[#003882]">Título</h3>
+        <button type="button" onclick="closeUniversalModal()" class="text-slate-400 hover:text-slate-700 font-bold text-lg cursor-pointer">&#10005;</button>
+      </div>
+
+      <p id="umodal-message" class="text-xs sm:text-sm text-slate-600 hidden"></p>
+
+      <div id="umodal-field-1" class="flex flex-col gap-1.5">
+        <label id="umodal-label-1" for="umodal-input-1" class="text-xs font-bold text-slate-600 uppercase">Campo</label>
+        <input
+          type="text"
+          id="umodal-input-1"
+          class="px-3 py-2.5 border border-[#d5e0ea] rounded-lg text-sm focus:outline-none focus:border-[#003882]"
+        />
+      </div>
+
+      <div id="umodal-field-2" class="hidden flex-col gap-1.5">
+        <label id="umodal-label-2" for="umodal-input-2" class="text-xs font-bold text-slate-600 uppercase">Campo Secundário</label>
+        <input
+          type="text"
+          id="umodal-input-2"
+          class="px-3 py-2.5 border border-[#d5e0ea] rounded-lg text-sm focus:outline-none focus:border-[#003882]"
+        />
+      </div>
+
+      <div class="flex justify-end gap-2 pt-2">
+        <button
+          type="button"
+          onclick="closeUniversalModal()"
+          class="px-4 py-2 rounded-lg border border-[#d5e0ea] text-slate-600 text-xs font-bold hover:bg-slate-50 cursor-pointer"
+        >
+          Cancelar
+        </button>
+        <button
+          type="submit"
+          id="umodal-submit-btn"
+          class="px-4 py-2 rounded-lg bg-[#e6007e] hover:bg-[#c9006b] text-white text-xs font-bold cursor-pointer"
+        >
+          Confirmar
+        </button>
+      </div>
+    </form>
+  </div>
+
   <script>
-    function enterSite() { document.getElementById('welcome-screen').classList.add('hidden'); }
+    const IBGE_CODE_TO_UF = {
+      '11': 'RO', '12': 'AC', '13': 'AM', '14': 'RR', '15': 'PA', '16': 'AP', '17': 'TO',
+      '21': 'MA', '22': 'PI', '23': 'CE', '24': 'RN', '25': 'PB', '26': 'PE', '27': 'AL',
+      '28': 'SE', '29': 'BA', '31': 'MG', '32': 'ES', '33': 'RJ', '35': 'SP', '41': 'PR',
+      '42': 'SC', '43': 'RS', '50': 'MS', '51': 'MT', '52': 'GO', '53': 'DF'
+    };
 
-    const btnToggleSidebar = document.getElementById('btn-toggle-sidebar');
-    const sidebar = document.getElementById('sidebar');
-    btnToggleSidebar.addEventListener('click', () => { sidebar.classList.toggle('collapsed'); });
+    const UF_TO_IBGE_CODE = Object.fromEntries(
+      Object.entries(IBGE_CODE_TO_UF).map(([code, uf]) => [uf, code])
+    );
 
-    let activeStateCode = null;
-    let selectedPoloIndex = null;
-    let selectedLeaderIndex = null;
+    const UF_NAMES = {
+      AC: 'Acre', AL: 'Alagoas', AM: 'Amazonas', AP: 'Amapá', BA: 'Bahia',
+      CE: 'Ceará', DF: 'Distrito Federal', ES: 'Espírito Santo', GO: 'Goiás',
+      MA: 'Maranhão', MG: 'Minas Gerais', MS: 'Mato Grosso do Sul', MT: 'Mato Grosso',
+      PA: 'Pará', PB: 'Paraíba', PE: 'Pernambuco', PI: 'Piauí', PR: 'Paraná',
+      RJ: 'Rio de Janeiro', RN: 'Rio Grande do Norte', RO: 'Rondônia', RR: 'Roraima',
+      RS: 'Rio Grande do Sul', SC: 'Santa Catarina', SE: 'Sergipe', SP: 'São Paulo',
+      TO: 'Tocantins'
+    };
 
-    const folderDocsDatabase = {};
-    let activeFolderName = null;
-    let editingDocIndex = null;
-    let tempDocImage = null;
+    const CORPORATE_REGIONS = {
+      'DF, Norte': ['AC', 'AP', 'AM', 'DF', 'PA', 'RO', 'RR', 'TO'],
+      'Nordeste I': ['AL', 'BA', 'SE'],
+      'Nordeste II': ['CE', 'MA', 'PB', 'PI', 'RN'],
+      'Centro-Oeste': ['GO', 'MT', 'MS'],
+      'Espírito Santo': ['ES'],
+      'Gde SP, Capital e Interior': ['SP'],
+      'Outros Estados': ['MG', 'PR', 'RJ', 'RS', 'SC', 'PE']
+    };
 
-    let initialFolders = [
-      "AÇÕES - FAMÍLIAS E APRENDIZES", "AÇÕES - GESTORES E EMPRESAS", "ACOMPANHAMENTO DE TURMAS",
-      "APRESENTAÇÕES - PROJETOS", "ATAS - REUNIÕES", "AVALIAÇÃO DE DESEMPENHO", "COMUNICADOS",
-      "CONTEÚDOS E MATERIAL DIDÁTICO", "DOSSIÊ DOS POLOS", "EAD - FLUXO DE PROCESSOS",
-      "EVENTOS", "GESTÃO DO APRENDIZ", "GUARDA DE DOCUMENTOS", "IMPULSO DIGITAL",
-      "INICIAIS", "LISTAS DE PRESENÇA", "MAPA DA APRENDIZAGEM", "MODELOS DE DOCUMENTOS",
-      "ORÇAMENTOS", "ORIENTAÇÕES", "PERSONALIZADO", "PLANILHAS EM GERAL",
-      "REMUNERAÇÃO RH", "SE LIGA MOÇADA - BEM-ESTAR", "SECRETARIA - SECON",
-      "SERVIÇO SOCIAL", "SESCOOP - PLANILHAS", "TREINAMENTO EQUIPES"
+    const UF_TO_REGION = {};
+    Object.entries(CORPORATE_REGIONS).forEach(([region, ufs]) => {
+      ufs.forEach((uf) => { UF_TO_REGION[uf] = region; });
+    });
+
+    const stateDatabase = {
+      AC: {
+        leaders: [{ name: 'Ana Cicilia', role: 'Líder Regional Norte', photo: '' }],
+        polos: [{ name: 'Polo Rio Branco', photo: '' }]
+      },
+      AL: {
+        leaders: [{ name: 'Iara', role: 'Líder Regional Nordeste I', photo: '' }],
+        polos: [
+          { name: 'Polo Maceió', photo: '' },
+          { name: 'Polo Arapiraca', photo: '' },
+          { name: 'Polo Palmeira dos Índios', photo: '' }
+        ]
+      },
+      AM: {
+        leaders: [{ name: 'Ana Cicilia', role: 'Líder Regional Norte', photo: '' }],
+        polos: [
+          { name: 'Polo Manaus Centro', photo: '' },
+          { name: 'Polo Distrito Industrial', photo: '' },
+          { name: 'Polo Parintins', photo: '' },
+          { name: 'Polo Itacoatiara', photo: '' }
+        ]
+      },
+      AP: {
+        leaders: [{ name: 'Júlia', role: 'Líder Regional Norte', photo: '' }],
+        polos: [{ name: 'Polo Macapá', photo: '' }]
+      },
+      BA: {
+        leaders: [
+          { name: 'Líder Regional BA 1', role: 'Coordenação Estadual Bahia', photo: '' },
+          { name: 'Líder Regional BA 2', role: 'Supervisão Interior Bahia', photo: '' }
+        ],
+        polos: [
+          { name: 'Polo Salvador', photo: '' },
+          { name: 'Polo Feira de Santana', photo: '' },
+          { name: 'Polo Vitória da Conquista', photo: '' },
+          { name: 'Polo Camaçari', photo: '' },
+          { name: 'Polo Itabuna', photo: '' },
+          { name: 'Polo Juazeiro', photo: '' },
+          { name: 'Polo Lauro de Freitas', photo: '' },
+          { name: 'Polo Ilhéus', photo: '' },
+          { name: 'Polo Jequié', photo: '' },
+          { name: 'Polo Barreiras', photo: '' }
+        ]
+      },
+      CE: {
+        leaders: [{ name: 'Líder Regional CE', role: 'Líder Regional Nordeste II', photo: '' }],
+        polos: [
+          { name: 'Polo Fortaleza', photo: '' },
+          { name: 'Polo Juazeiro do Norte', photo: '' },
+          { name: 'Polo Sobral', photo: '' }
+        ]
+      },
+      ES: {
+        leaders: [{ name: 'Líder Regional ES', role: 'Líder Regional Espírito Santo', photo: '' }],
+        polos: [
+          { name: 'Polo Vitória', photo: '' },
+          { name: 'Polo Vila Velha', photo: '' },
+          { name: 'Polo Serra', photo: '' },
+          { name: 'Polo Cariacica', photo: '' },
+          { name: 'Polo Cachoeiro de Itapemirim', photo: '' },
+          { name: 'Polo Linhares', photo: '' },
+          { name: 'Polo Colatina', photo: '' },
+          { name: 'Polo São Mateus', photo: '' },
+          { name: 'Polo Guarapari', photo: '' }
+        ]
+      },
+      GO: {
+        leaders: [{ name: 'Líder Regional GO', role: 'Líder Regional Centro-Oeste', photo: '' }],
+        polos: [
+          { name: 'Polo Goiânia', photo: '' },
+          { name: 'Polo Aparecida de Goiânia', photo: '' },
+          { name: 'Polo Anápolis', photo: '' },
+          { name: 'Polo Rio Verde', photo: '' },
+          { name: 'Polo Luziânia', photo: '' },
+          { name: 'Polo Águas Lindas', photo: '' },
+          { name: 'Polo Catalão', photo: '' }
+        ]
+      },
+      SE: {
+        leaders: [{ name: 'Iara', role: 'Líder Regional Nordeste I', photo: '' }],
+        polos: [
+          { name: 'Polo Aracaju', photo: '' },
+          { name: 'Polo Nossa Senhora do Socorro', photo: '' },
+          { name: 'Polo Lagarto', photo: '' },
+          { name: 'Polo Itabaiana', photo: '' },
+          { name: 'Polo Estância', photo: '' }
+        ]
+      },
+      MS: {
+        leaders: [{ name: 'Líder Regional MS', role: 'Líder Regional Centro-Oeste', photo: '' }],
+        polos: [
+          { name: 'Polo Campo Grande', photo: '' },
+          { name: 'Polo Dourados', photo: '' },
+          { name: 'Polo Três Lagoas', photo: '' },
+          { name: 'Polo Corumbá', photo: '' }
+        ]
+      },
+      MT: {
+        leaders: [{ name: 'Líder Regional MT', role: 'Líder Regional Centro-Oeste', photo: '' }],
+        polos: [
+          { name: 'Polo Cuiabá', photo: '' },
+          { name: 'Polo Várzea Grande', photo: '' },
+          { name: 'Polo Rondonópolis', photo: '' },
+          { name: 'Polo Sinop', photo: '' }
+        ]
+      },
+      PA: {
+        leaders: [{ name: 'Júlia', role: 'Líder Regional Norte', photo: '' }],
+        polos: [
+          { name: 'Polo Belém', photo: '' },
+          { name: 'Polo Ananindeua', photo: '' },
+          { name: 'Polo Santarém', photo: '' }
+        ]
+      }
+    };
+
+    const foldersDatabase = [
+      {
+        id: 'folder-1',
+        name: 'Dossiês de Aprendizagem',
+        docs: [
+          {
+            id: 'doc-1',
+            title: 'Guia Operacional do Jovem Aprendiz',
+            desc: 'Diretrizes pedagógicas e acompanhamento de frequência.',
+            link: '',
+            cover: ''
+          },
+          {
+            id: 'doc-2',
+            title: 'Manual de Integração de Polos',
+            desc: 'Procedimentos padrão para abertura e gestão de polos.',
+            link: '',
+            cover: ''
+          }
+        ]
+      },
+      {
+        id: 'folder-2',
+        name: 'Indicadores & Resultados',
+        docs: [
+          {
+            id: 'doc-3',
+            title: 'Painel Consolidado de Contratações',
+            desc: 'Metas e resultados regionais do programa de aprendizagem.',
+            link: '',
+            cover: ''
+          }
+        ]
+      }
     ];
 
-    const foldersList = document.getElementById('folders-list');
-    const folderTitle = document.getElementById('folder-title');
-    const views = document.querySelectorAll('.view-content');
+    const OFFLINE_BR_COORDS = {
+      RR:[[-60.2,5.27],[-59.9,3.8],[-59.5,2.6],[-58.9,1.25],[-59.9,0.1],[-62.2,-0.5],[-64.2,1.5],[-63.9,2.4],[-64.7,4.1],[-62.8,4.45]],
+      AP:[[-51.6,4.4],[-50.5,2.9],[-49.9,1.65],[-51.0,0.0],[-52.5,-1.15],[-54.6,2.2],[-53.2,3.5]],
+      AM:[[-65.5,1.8],[-64.2,1.5],[-62.2,-0.5],[-59.9,0.1],[-58.3,-1.8],[-56.7,-3.5],[-57.6,-5.6],[-58.1,-7.4],[-61.6,-8.8],[-66.6,-9.0],[-70.1,-8.1],[-73.75,-7.1],[-72.2,-5.8],[-69.9,-4.22],[-70.1,0.2],[-69.5,1.6],[-67.1,1.25]],
+      PA:[[-56.2,1.95],[-54.6,2.2],[-52.5,-1.15],[-50.3,-0.35],[-48.6,-0.55],[-47.4,-0.75],[-46.1,-1.15],[-46.8,-3.5],[-48.6,-5.2],[-49.2,-7.5],[-50.6,-9.8],[-54.9,-9.8],[-58.1,-7.4],[-57.6,-5.6],[-56.7,-3.5],[-58.3,-1.8],[-59.9,0.1],[-58.9,1.25]],
+      AC:[[-73.75,-7.1],[-70.1,-8.1],[-66.6,-9.0],[-66.6,-9.85],[-68.0,-10.9],[-69.6,-11.0],[-70.9,-9.8],[-72.4,-9.6],[-73.1,-8.9],[-73.99,-7.55]],
+      RO:[[-66.6,-9.0],[-61.6,-8.8],[-60.8,-10.1],[-60.0,-11.5],[-60.0,-13.65],[-62.5,-13.15],[-64.5,-12.35],[-65.4,-10.8],[-66.6,-9.85]],
+      TO:[[-48.6,-5.2],[-47.5,-7.5],[-46.4,-10.1],[-46.0,-10.3],[-46.0,-11.6],[-46.4,-12.9],[-48.6,-13.4],[-50.6,-13.2],[-50.6,-9.8],[-49.2,-7.5]],
+      MA:[[-46.1,-1.15],[-44.3,-2.5],[-42.8,-2.55],[-41.8,-2.75],[-42.9,-5.6],[-44.8,-8.3],[-46.4,-10.1],[-47.5,-7.5],[-48.6,-5.2],[-46.8,-3.5]],
+      PI:[[-41.8,-2.75],[-41.25,-2.92],[-41.0,-5.2],[-40.6,-7.3],[-41.0,-9.0],[-43.2,-10.1],[-46.0,-10.3],[-46.4,-10.1],[-44.8,-8.3],[-42.9,-5.6]],
+      CE:[[-41.25,-2.92],[-40.1,-2.9],[-38.5,-3.72],[-37.25,-4.83],[-38.5,-6.45],[-38.6,-7.25],[-40.6,-7.3],[-41.0,-5.2]],
+      RN:[[-37.25,-4.83],[-35.4,-5.15],[-35.15,-5.85],[-34.96,-6.48],[-38.5,-6.45]],
+      PB:[[-38.5,-6.45],[-34.96,-6.48],[-34.79,-7.15],[-34.85,-7.55],[-38.6,-7.25]],
+      PE:[[-40.6,-7.3],[-38.6,-7.25],[-34.85,-7.55],[-34.88,-8.05],[-35.15,-8.9],[-36.7,-9.05],[-38.2,-9.35],[-41.0,-9.0]],
+      AL:[[-38.2,-9.35],[-36.7,-9.05],[-35.15,-8.9],[-35.72,-9.66],[-36.4,-10.5],[-38.0,-9.55]],
+      SE:[[-38.0,-9.55],[-36.4,-10.5],[-37.05,-10.95],[-37.4,-11.45]],
+      BA:[[-41.0,-9.0],[-38.2,-9.35],[-38.0,-9.55],[-37.4,-11.45],[-38.5,-13.0],[-39.0,-14.8],[-38.95,-16.4],[-39.25,-17.85],[-39.7,-18.35],[-40.9,-17.9],[-42.0,-15.6],[-44.1,-15.0],[-46.1,-14.8],[-46.4,-12.9],[-46.0,-11.6],[-46.0,-10.3],[-43.2,-10.1]],
+      MT:[[-61.6,-8.8],[-58.1,-7.4],[-54.9,-9.8],[-50.6,-9.8],[-50.6,-13.2],[-53.2,-17.9],[-55.2,-17.35],[-57.6,-17.65],[-58.4,-16.2],[-60.0,-13.65],[-60.0,-11.5],[-60.8,-10.1]],
+      GO:[[-50.6,-13.2],[-48.6,-13.4],[-46.4,-12.9],[-46.1,-14.8],[-47.4,-17.0],[-48.4,-18.55],[-51.0,-19.5],[-53.2,-17.9]],
+      DF:[[-48.28,-15.5],[-47.31,-15.5],[-47.31,-16.05],[-48.28,-16.05]],
+      MS:[[-57.6,-17.65],[-55.2,-17.35],[-53.2,-17.9],[-51.0,-19.5],[-51.0,-20.1],[-52.1,-21.5],[-53.1,-22.65],[-54.25,-24.05],[-55.7,-22.55],[-57.8,-22.1],[-58.15,-20.15]],
+      MG:[[-46.1,-14.8],[-44.1,-15.0],[-42.0,-15.6],[-40.9,-17.9],[-41.8,-20.8],[-44.6,-22.45],[-46.5,-22.25],[-47.8,-20.05],[-51.0,-20.1],[-51.0,-19.5],[-48.4,-18.55],[-47.4,-17.0]],
+      ES:[[-40.9,-17.9],[-39.7,-18.35],[-40.05,-19.65],[-40.3,-20.32],[-40.95,-21.3],[-41.8,-20.8]],
+      RJ:[[-41.8,-20.8],[-40.95,-21.3],[-41.0,-22.05],[-42.0,-22.9],[-43.2,-22.97],[-44.7,-23.35],[-44.6,-22.45]],
+      SP:[[-51.0,-20.1],[-47.8,-20.05],[-46.5,-22.25],[-44.6,-22.45],[-44.7,-23.35],[-46.3,-23.96],[-48.0,-25.25],[-49.8,-23.15],[-53.1,-22.65],[-52.1,-21.5]],
+      PR:[[-54.25,-24.05],[-53.1,-22.65],[-49.8,-23.15],[-48.0,-25.25],[-48.6,-25.95],[-51.1,-26.25],[-53.6,-26.55],[-54.6,-25.55]],
+      SC:[[-53.6,-26.55],[-51.1,-26.25],[-48.6,-25.95],[-48.5,-27.6],[-49.7,-29.32],[-51.5,-27.65],[-53.8,-27.15]],
+      RS:[[-53.8,-27.15],[-51.5,-27.65],[-49.7,-29.32],[-50.2,-30.2],[-52.1,-32.1],[-53.37,-33.75],[-53.8,-32.6],[-55.5,-30.9],[-57.6,-30.2],[-56.1,-28.6]]
+    };
 
-    function renderFolders() {
-      foldersList.innerHTML = '';
-      initialFolders.forEach((name, index) => {
-        const wrapper = document.createElement('div'); wrapper.className = 'nav-item-wrapper';
-        wrapper.innerHTML = `
-          <a class="nav-item" data-target="mapa-view" data-title="${name}">
-            <svg class="folder-icon" viewBox="0 0 24 24"><path d="M10 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"/></svg>
-            <span class="title-text">${name}</span>
-          </a>
-          <button class="actions-btn" title="Editar ou Excluir" onclick="toggleMenu(event, ${index})">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>
-          </button>
-          <div class="action-menu" id="menu-${index}">
-            <div class="action-menu-item" onclick="editFolder(${index})">✏️ Editar nome</div>
-            <div class="action-menu-item delete-item" onclick="deleteFolder(${index})">🗑️ Excluir</div>
-          </div>
-        `;
-        foldersList.appendChild(wrapper);
-      });
-      attachNavEvents();
+    const VB_W = 640;
+    const VB_H = 600;
+    const PAD_L = 18;
+    const PAD_R = 96;
+    const PAD_T = 20;
+    const PAD_B = 20;
+    const COASTAL_CALLOUT_UFS = ['RN', 'PB', 'PE', 'AL', 'SE', 'ES', 'RJ'];
+
+    const state = {
+      selectedUf: 'BA',
+      hoveredUf: null,
+      activeRegion: 'ALL',
+      activeDetailTab: 'leaders',
+      isStateFocused: false,
+      activeFolderId: null,
+      projectedScene: null,
+      pendingUpload: null,
+      modalCallback: null,
+      cam: { scale: 1, tx: 0, ty: 0 },
+      targetCam: { scale: 1, tx: 0, ty: 0 },
+      animFrame: null,
+      isDragging: false,
+      dragMoved: false,
+      dragStart: { x: 0, y: 0, tx: 0, ty: 0 }
+    };
+
+    let regionalChart = null;
+    let toastTimer = null;
+
+    function showToast(msg) {
+      const toast = document.getElementById('toast-banner');
+      toast.textContent = msg;
+      toast.classList.remove('opacity-0', 'translate-y-2');
+      toast.classList.add('opacity-100', 'translate-y-0');
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => {
+        toast.classList.add('opacity-0', 'translate-y-2');
+        toast.classList.remove('opacity-100', 'translate-y-0');
+      }, 3000);
     }
 
-    window.toggleMenu = function(e, index) {
-      e.stopPropagation();
-      document.querySelectorAll('.action-menu').forEach(m => { if (m.id !== `menu-${index}`) m.classList.remove('open'); });
-      const menu = document.getElementById(`menu-${index}`);
-      if (menu) menu.classList.toggle('open');
-    };
-    document.addEventListener('click', () => { document.querySelectorAll('.action-menu').forEach(m => m.classList.remove('open')); });
-
-    window.editFolder = function(index) {
-      const currentName = initialFolders[index];
-      const newName = prompt("Digite o novo nome para esta pasta:", currentName);
-      if (newName && newName.trim() !== '') { initialFolders[index] = newName.trim(); renderFolders(); }
-    };
-    window.deleteFolder = function(index) {
-      if (confirm(`Tem certeza que deseja excluir a pasta "${initialFolders[index]}"?`)) { initialFolders.splice(index, 1); renderFolders(); }
-    };
-    document.getElementById('btn-add-folder').addEventListener('click', () => {
-      const name = prompt("Digite o nome da nova pasta:");
-      if (name && name.trim() !== '') { initialFolders.unshift(name.trim()); renderFolders(); }
-    });
-
-    function attachNavEvents() {
-      const navItems = document.querySelectorAll('.nav-item');
-      navItems.forEach(item => {
-        item.addEventListener('click', () => {
-          navItems.forEach(nav => nav.classList.remove('active'));
-          item.classList.add('active');
-          const target = item.getAttribute('data-target');
-          views.forEach(v => v.classList.remove('active'));
-          
-          const menuText = item.querySelector('.title-text').textContent;
-          if (menuText === 'PAINEL BRASIL' || menuText === 'DIRETÓRIO BRASIL' || menuText === 'LÍDERES BRASIL') {
-            document.getElementById('mapa-view').classList.add('active');
-            updateDashboardTotals(); // Atualiza os contadores ao voltar pro inicio
-          } else {
-            activeFolderName = item.getAttribute('data-title');
-            folderTitle.textContent = activeFolderName;
-            document.getElementById('folder-view').classList.add('active');
-            renderFolderDocs();
-          }
-        });
-      });
+    function isCompactViewport() {
+      return window.innerWidth < 1024;
     }
 
-    renderFolders();
-
-    function renderFolderDocs() {
-      const container = document.getElementById('docs-container');
-      const placeholder = document.getElementById('folder-placeholder');
-      container.innerHTML = '';
-      if (!folderDocsDatabase[activeFolderName]) folderDocsDatabase[activeFolderName] = [];
-      const docs = folderDocsDatabase[activeFolderName];
-      if (docs.length === 0) {
-        placeholder.style.display = 'flex';
-      } else {
-        placeholder.style.display = 'none';
-        docs.forEach((doc, idx) => {
-          const card = document.createElement('div'); card.className = 'doc-card';
-          card.innerHTML = `
-            <div class="doc-title"><span>📄 ${doc.title}</span></div>
-            <div class="doc-preview-box" onclick="editDoc(${idx})" title="Clique para editar documento">
-              ${doc.image ? `<img src="${doc.image}">` : '<span style="color:#718096; font-weight:600;">Sem imagem de prévia</span>'}
-            </div>
-            <div class="doc-actions">
-              <a href="${doc.link}" target="_blank" class="btn-primary" style="flex:1; text-decoration:none;">🔗 Abrir Documento</a>
-              <button class="btn-primary" style="background:#718096;" title="Editar" onclick="editDoc(${idx})">✏️</button>
-              <button class="btn-primary" style="background:#e53e3e;" title="Excluir" onclick="deleteDoc(${idx})">🗑️</button>
-            </div>
-          `;
-          container.appendChild(card);
-        });
+    function openMobileSidebar() {
+      const sb = document.getElementById('sidebar');
+      const bd = document.getElementById('sidebar-backdrop');
+      sb.classList.remove('collapsed');
+      if (isCompactViewport()) {
+        bd.classList.remove('hidden');
       }
     }
 
-    function openDocModal(isEdit = false) {
-      document.getElementById('doc-modal').classList.add('active');
-      if (!isEdit) {
-        editingDocIndex = null; tempDocImage = null;
-        document.getElementById('doc-modal-heading').textContent = "Adicionar Novo Documento";
-        document.getElementById('doc-title-input').value = ""; document.getElementById('doc-link-input').value = ""; document.getElementById('doc-img-url-input').value = "";
+    function closeMobileSidebar() {
+      const sb = document.getElementById('sidebar');
+      const bd = document.getElementById('sidebar-backdrop');
+      if (isCompactViewport()) {
+        sb.classList.add('collapsed');
+        bd.classList.add('hidden');
       }
     }
-    function closeDocModal() { document.getElementById('doc-modal').classList.remove('active'); }
-    function saveDocument() {
-      const title = document.getElementById('doc-title-input').value.trim();
-      const link = document.getElementById('doc-link-input').value.trim();
-      const urlImg = document.getElementById('doc-img-url-input').value.trim();
-      if (!title) { alert("Por favor, digite o título do documento."); return; }
-      const finalImage = tempDocImage || urlImg || null;
-      if (!folderDocsDatabase[activeFolderName]) folderDocsDatabase[activeFolderName] = [];
-      if (editingDocIndex !== null) folderDocsDatabase[activeFolderName][editingDocIndex] = { title: title, link: link || '#', image: finalImage };
-      else folderDocsDatabase[activeFolderName].push({ title: title, link: link || '#', image: finalImage });
-      closeDocModal(); renderFolderDocs();
-    }
-    function editDoc(idx) {
-      editingDocIndex = idx; const doc = folderDocsDatabase[activeFolderName][idx]; tempDocImage = doc.image;
-      document.getElementById('doc-modal-heading').textContent = "Editar Documento";
-      document.getElementById('doc-title-input').value = doc.title; document.getElementById('doc-link-input').value = doc.link;
-      document.getElementById('doc-img-url-input').value = (doc.image && !doc.image.startsWith('data:')) ? doc.image : "";
-      openDocModal(true);
-    }
-    function deleteDoc(idx) { if (confirm("Deseja excluir este documento?")) { folderDocsDatabase[activeFolderName].splice(idx, 1); renderFolderDocs(); } }
-    function triggerDocFileSelect() { document.getElementById('file-input-doc').click(); }
-    document.getElementById('file-input-doc').addEventListener('change', function(e) {
-      const file = e.target.files[0];
-      if (file) { const reader = new FileReader(); reader.onload = function(evt) { tempDocImage = evt.target.result; alert("Imagem selecionada!"); }; reader.readAsDataURL(file); }
-    });
 
-    // =========================================================================
-    // EXPORTAR PARA EXCEL (CSV UTF-8) - LIDERANÇAS E POLOS
-    // =========================================================================
-    window.exportToExcel = function() {
-      let csvContent = "Estado (Sigla);Nome do Polo;Link do Dossiê;Liderança(s);E-mail(s)\n";
-
-      for (const [sigla, data] of Object.entries(stateDatabase)) {
-        const leaders = data.leaders.map(l => l.name).join(' e ');
-        const emails = data.leaders.map(l => l.email || '-').join(' e ');
-
-        if (data.polos.length === 0) {
-           csvContent += `${sigla};Sem Polos Cadastrados;-;${leaders};${emails}\n`;
+    function toggleSidebarMenu() {
+      const sb = document.getElementById('sidebar');
+      const bd = document.getElementById('sidebar-backdrop');
+      const willCollapse = !sb.classList.contains('collapsed');
+      sb.classList.toggle('collapsed');
+      if (isCompactViewport()) {
+        if (willCollapse) {
+          bd.classList.add('hidden');
         } else {
-           data.polos.forEach(polo => {
-             const pName = polo.name.replace(/;/g, ',');
-             const pLink = polo.link.replace(/;/g, ',');
-             csvContent += `${sigla};${pName};${pLink};${leaders};${emails}\n`;
-           });
+          bd.classList.remove('hidden');
         }
       }
-
-      const bom = "\uFEFF";
-      const blob = new Blob([bom + csvContent], { type: 'text/csv;charset=utf-8;' });
-      const link = document.createElement("a");
-      
-      if (link.download !== undefined) {
-        const url = URL.createObjectURL(blob);
-        link.setAttribute("href", url);
-        link.setAttribute("download", "Liderancas_e_Polos_CIEE.csv");
-        link.style.visibility = 'hidden';
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-      }
-    };
-
-    // =========================================================================
-    // EXPORTAR PARA EXCEL (DOCUMENTOS DA PASTA)
-    // =========================================================================
-    window.exportDocsToExcel = function() {
-      let csvContent = "Pasta;Título do Documento;Link do Documento\n";
-
-      if (activeFolderName && folderDocsDatabase[activeFolderName] && folderDocsDatabase[activeFolderName].length > 0) {
-        folderDocsDatabase[activeFolderName].forEach(doc => {
-          const pTitle = doc.title.replace(/;/g, ',');
-          const pLink = doc.link.replace(/;/g, ',');
-          csvContent += `${activeFolderName};${pTitle};${pLink}\n`;
-        });
-      } else {
-        csvContent += `${activeFolderName || 'Pasta'};Sem documentos cadastrados;-\n`;
-      }
-
-      const bom = "\uFEFF";
-      const blob = new Blob([bom + csvContent], { type: 'text/csv;charset=utf-8;' });
-      const link = document.createElement("a");
-      
-      if (link.download !== undefined) {
-        const url = URL.createObjectURL(blob);
-        link.setAttribute("href", url);
-        const fileName = activeFolderName ? activeFolderName.replace(/\s+/g, '_') : 'Documentos';
-        link.setAttribute("download", `Documentos_${fileName}.csv`);
-        link.style.visibility = 'hidden';
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-      }
-    };
-
-    // =========================================================================
-    // BASE DE DADOS REAL (IMPORTADA DA PLANILHA)
-    // =========================================================================
-    const stateDatabase = {
-      'AC': {
-        leaders: [
-          { name: 'Ana Cicilia Cruz Moreno', role: 'Líder Técnica da Aprendizagem', email: 'ana_moreno@ciee.org.br', photo: null },
-        ],
-        polos: [
-          { name: 'RIO BRANCO - POLO PAZ', link: '#', image: null },
-        ]
-      },
-      'AL': {
-        leaders: [
-          { name: 'Iara Santana', role: 'Líder Técnica da Aprendizagem', email: 'iara_santana@ciee.ong.br', photo: null },
-        ],
-        polos: [
-          { name: 'ARAPIRACA - POLO SANTA EDWIGES', link: '#', image: null },
-          { name: 'MACEIO - POLO JATIÚCA', link: '#', image: null },
-          { name: 'PENEDO - POLO DOM CONSTANTINO', link: '#', image: null },
-        ]
-      },
-      'AM': {
-        leaders: [
-          { name: 'Ana Cicilia Cruz Moreno', role: 'Líder Técnica da Aprendizagem', email: 'ana_moreno@ciee.org.br', photo: null },
-        ],
-        polos: [
-          { name: 'MANAUS - POLO DOM PEDRO', link: '#', image: null },
-          { name: 'MANAUS - POLO  CHAPADA', link: '#', image: null },
-          { name: 'PRESIDENTE FIGUEIREDO - POLO CENTRO', link: '#', image: null },
-          { name: 'MANAUS - POLO JAPIM', link: '#', image: null },
-        ]
-      },
-      'AP': {
-        leaders: [
-          { name: 'Júlia Freitas', role: 'Líder Técnica da Aprendizagem', email: 'julia.freitas@ciee.org.br', photo: null },
-        ],
-        polos: [
-          { name: 'MACAPÁ - POLO JESÚS DE NAZARÉ', link: '#', image: null },
-        ]
-      },
-      'BA': {
-        leaders: [
-          { name: 'Leandro Costa', role: 'Líder Técnica da Aprendizagem', email: 'leandro_costa@ciee.ong.br', photo: null },
-          { name: 'Lorena Santos', role: 'Líder Técnica da Aprendizagem', email: 'lorena_ferreira@ciee.ong.br', photo: null },
-        ],
-        polos: [
-          { name: 'ALAGOINHAS - POLO SANTA ISABEL', link: '#', image: null },
-          { name: 'CAMAÇARI - POLO INDUSTRIAL', link: '#', image: null },
-          { name: 'ILHÉUS - POLO CONQUISTA', link: '#', image: null },
-          { name: 'ITAPETINGA - POLO CENTRO', link: '#', image: null },
-          { name: 'JEQUIE - POLO LOMANTO JUNIOR', link: '#', image: null },
-          { name: 'JUAZEIRO - POLO PARAÍSO', link: '#', image: null },
-          { name: 'PORTO SEGURO - POLO CENTRO', link: '#', image: null },
-          { name: 'SALVADOR - POLO PARALELA', link: '#', image: null },
-          { name: 'SANTO ANTONIO DE JESUS - POLO CENTRO', link: '#', image: null },
-          { name: 'EUNÁPOLIS - POLO CENTRO', link: '#', image: null },
-        ]
-      },
-      'CE': {
-        leaders: [
-          { name: 'Danielle Cabral', role: 'Líder Técnica da Aprendizagem', email: 'danielle_cabral@ciee.ong.br', photo: null },
-        ],
-        polos: [
-          { name: 'FORTALEZA - POLO CENTRO', link: '#', image: null },
-          { name: 'MARACANAU - POLO PAJUCARA', link: '#', image: null },
-          { name: 'SOBRAL - POLO DOM EXPEDITO', link: '#', image: null },
-        ]
-      },
-      'ES': {
-        leaders: [
-          { name: 'Geórgia Thamisa Malta Cardoso', role: 'Líder Técnica da Aprendizagem', email: 'georgia_cardoso@ciee.ong.br', photo: null },
-        ],
-        polos: [
-          { name: 'ARACRUZ - POLO JARDINS', link: '#', image: null },
-          { name: 'CACHOEIRO DE ITAPEMIRIM - POLO CENTRO', link: '#', image: null },
-          { name: 'CARIACICA - POLO CAMPO GRANDE', link: '#', image: null },
-          { name: 'COLATINA - POLO ESPLANADA', link: '#', image: null },
-          { name: 'LINHARES - POLO CENTRO', link: '#', image: null },
-          { name: 'SAO MATEUS - POLO IDEAL', link: '#', image: null },
-          { name: 'SERRA - POLO LARANJEIRAS', link: '#', image: null },
-          { name: 'VILA VELHA - POLO ITAPUÃ', link: '#', image: null },
-          { name: 'VITORIA - POLO CENTRO', link: '#', image: null },
-        ]
-      },
-      'GO': {
-        leaders: [
-          { name: 'Alicione Lima', role: 'Líder Técnica da Aprendizagem', email: 'alicione_lima@ciee.ong.br', photo: null },
-        ],
-        polos: [
-          { name: 'Anápolis - Polo Cidade Jardim', link: '#', image: null },
-          { name: 'APARECIDA DE GOIANIA - POLO SETOR DOS AFONSOS', link: '#', image: null },
-          { name: 'CATALAO - POLO SETOR CENTRAL', link: '#', image: null },
-          { name: 'GOIANIA - POLO CENTRO', link: '#', image: null },
-          { name: 'ITUMBIARA - POLO SETOR CENTRAL', link: '#', image: null },
-          { name: 'JATAI - POLO SETOR CENTRAL', link: '#', image: null },
-          { name: 'RIO VERDE - POLO SETOR CENTRAL', link: '#', image: null },
-        ]
-      },
-      'SE': {
-        leaders: [
-          { name: 'Iara Santana', role: 'Líder Técnica da Aprendizagem', email: 'iara_santana@ciee.org.br', photo: null },
-        ],
-        polos: [
-          { name: 'ARACAJU - POLO SIQUEIRA CAMPOS', link: '#', image: null },
-          { name: 'ESTANCIA - POLO CENTRO', link: '#', image: null },
-          { name: 'ITABAIANA - POLO MARIAP', link: '#', image: null },
-          { name: 'LAGARTO - POLO CENTRO', link: '#', image: null },
-          { name: 'ARACAJU - POLO SALGADO FILHO', link: '#', image: null },
-        ]
-      },
-      'MS': {
-        leaders: [
-          { name: 'Ana Carolina Marques', role: 'Líder Técnica da Aprendizagem', email: 'ana_marques@ciee.org.br', photo: null },
-        ],
-        polos: [
-          { name: 'CAMPO GRANDE - POLO VILA RICA', link: '#', image: null },
-          { name: 'CORUMBA - POLO CENTRO', link: '#', image: null },
-          { name: 'DOURADOS - POLO JARDIM TROPICAL', link: '#', image: null },
-          { name: 'TRES LAGOAS - POLO CENTRO', link: '#', image: null },
-        ]
-      },
-      'MT': {
-        leaders: [
-          { name: 'Adrieli Teixeira', role: 'Líder Técnica da Aprendizagem', email: 'adrieli.teixeira@ciee.org.br', photo: null },
-        ],
-        polos: [
-          { name: 'CUIABA - POLO JARDIM LEBLON', link: '#', image: null },
-          { name: 'SINOP - POLO SETOR COMERCIAL', link: '#', image: null },
-          { name: 'PRIMAVERA DO LESTE - POLO JARDIM RIVA', link: '#', image: null },
-          { name: 'RONDONOPOLIS - POLO LA SALLE', link: '#', image: null },
-        ]
-      },
-      'PA': {
-        leaders: [
-          { name: 'Júlia Freitas', role: 'Líder Técnica da Aprendizagem', email: 'julia.freitas@ciee.org.br', photo: null },
-        ],
-        polos: [
-          { name: 'MARABA - POLO NOVA MARABA', link: '#', image: null },
-          { name: 'PARAUAPEBAS - POLO CIDADE NOVA', link: '#', image: null },
-          { name: 'BELEM - POLO SAO BRAS', link: '#', image: null },
-        ]
-      }
-    };
-
-    // Função para atualizar os KPIs no painel inicial
-    function updateDashboardTotals() {
-      let totalPolos = 0;
-      let totalLeaders = 0;
-      for (const state in stateDatabase) {
-        totalPolos += stateDatabase[state].polos.length;
-        totalLeaders += stateDatabase[state].leaders.length;
-      }
-      
-      const polosEl = document.getElementById('total-polos-count');
-      const leadersEl = document.getElementById('total-leaders-count');
-      
-      if (polosEl) polosEl.textContent = totalPolos;
-      if (leadersEl) leadersEl.textContent = totalLeaders;
+      setTimeout(drawMapCanvas, 320);
     }
 
-    // =========================================================================
-    // LÓGICA DO DIRETÓRIO CORPORATIVO (GRID DE ESTADOS - NOMENCLATURAS EXATAS)
-    // =========================================================================
-    function initCorporateGrid() {
-      const wrapper = document.getElementById('corporate-directory');
-      if(!wrapper) return;
-      wrapper.innerHTML = '';
-      
-      const regions = [
-        { 
-          name: 'DF, Norte', 
-          states: [{id: 'AC', n: 'Acre'}, {id: 'AP', n: 'Amapá'}, {id: 'AM', n: 'Amazonas'}, {id: 'DF', n: 'Distrito Federal'}, {id: 'PA', n: 'Pará'}, {id: 'RO', n: 'Rondônia'}, {id: 'RR', n: 'Roraima'}, {id: 'TO', n: 'Tocantins'}] 
-        },
-        { 
-          name: 'Nordeste I', 
-          states: [{id: 'AL', n: 'Alagoas'}, {id: 'BA', n: 'Bahia'}, {id: 'SE', n: 'Sergipe'}] 
-        },
-        { 
-          name: 'Nordeste II', 
-          states: [{id: 'CE', n: 'Ceará'}, {id: 'MA', n: 'Maranhão'}, {id: 'PB', n: 'Paraíba'}, {id: 'PI', n: 'Piauí'}, {id: 'RN', n: 'Rio Grande do Norte'}] 
-        },
-        { 
-          name: 'Centro-Oeste', 
-          states: [{id: 'GO', n: 'Goiás'}, {id: 'MT', n: 'Mato Grosso'}, {id: 'MS', n: 'Mato Grosso do Sul'}] 
-        },
-        { 
-          name: 'Espírito Santo', 
-          states: [{id: 'ES', n: 'Espírito Santo'}] 
-        },
-        { 
-          name: 'Gde SP, Capital e Interior', 
-          states: [{id: 'SP', n: 'São Paulo'}] 
-        },
-        { 
-          name: 'Outros Estados', 
-          states: [{id: 'MG', n: 'Minas Gerais'}, {id: 'PR', n: 'Paraná'}, {id: 'RJ', n: 'Rio de Janeiro'}, {id: 'RS', n: 'Rio Grande do Sul'}, {id: 'SC', n: 'Santa Catarina'}, {id: 'PE', n: 'Pernambuco'}] 
+    function openUniversalModal(options) {
+      closeMobileSidebar();
+      const modal = document.getElementById('universal-modal');
+      const titleEl = document.getElementById('umodal-title');
+      const msgEl = document.getElementById('umodal-message');
+      const f1 = document.getElementById('umodal-field-1');
+      const l1 = document.getElementById('umodal-label-1');
+      const i1 = document.getElementById('umodal-input-1');
+      const f2 = document.getElementById('umodal-field-2');
+      const l2 = document.getElementById('umodal-label-2');
+      const i2 = document.getElementById('umodal-input-2');
+      const submitBtn = document.getElementById('umodal-submit-btn');
+
+      titleEl.textContent = options.title || '';
+      submitBtn.textContent = options.submitText || 'Confirmar';
+      submitBtn.className = options.danger
+        ? 'px-4 py-2 rounded-lg bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold cursor-pointer'
+        : 'px-4 py-2 rounded-lg bg-[#e6007e] hover:bg-[#c9006b] text-white text-xs font-bold cursor-pointer';
+
+      if (options.message) {
+        msgEl.textContent = options.message;
+        msgEl.classList.remove('hidden');
+      } else {
+        msgEl.classList.add('hidden');
+      }
+
+      if (options.field1) {
+        f1.classList.remove('hidden');
+        f1.classList.add('flex');
+        l1.textContent = options.field1.label;
+        i1.placeholder = options.field1.placeholder || '';
+        i1.value = options.field1.value || '';
+      } else {
+        f1.classList.add('hidden');
+        f1.classList.remove('flex');
+      }
+
+      if (options.field2) {
+        f2.classList.remove('hidden');
+        f2.classList.add('flex');
+        l2.textContent = options.field2.label;
+        i2.placeholder = options.field2.placeholder || '';
+        i2.value = options.field2.value || '';
+      } else {
+        f2.classList.add('hidden');
+        f2.classList.remove('flex');
+      }
+
+      state.modalCallback = options.onConfirm;
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+
+      setTimeout(() => {
+        if (options.field1) {
+          i1.focus();
+          i1.select();
+        } else {
+          submitBtn.focus();
         }
+      }, 30);
+    }
+
+    function closeUniversalModal() {
+      const modal = document.getElementById('universal-modal');
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+      state.modalCallback = null;
+    }
+
+    function enterSite() {
+      document.getElementById('welcome-screen').classList.add('hidden');
+      if (isCompactViewport()) {
+        document.getElementById('sidebar').classList.add('collapsed');
+        document.getElementById('sidebar-backdrop').classList.add('hidden');
+      }
+      setTimeout(drawMapCanvas, 80);
+    }
+
+    function showWelcomeScreen() {
+      document.getElementById('welcome-screen').classList.remove('hidden');
+    }
+
+    function ensureStateEntry(uf) {
+      if (!stateDatabase[uf]) {
+        stateDatabase[uf] = { leaders: [], polos: [] };
+      }
+      return stateDatabase[uf];
+    }
+
+    function projectMercator(lon, lat) {
+      const clampedLat = Math.max(-85, Math.min(85, lat));
+      const x = (lon * Math.PI) / 180;
+      const radLat = (clampedLat * Math.PI) / 180;
+      const y = -Math.log(Math.tan(Math.PI / 4 + radLat / 2));
+      return [x, y];
+    }
+
+    function isMainlandRing(ring) {
+      if (!ring || ring.length < 3) return false;
+      let sumLon = 0;
+      for (let i = 0; i < ring.length; i++) sumLon += ring[i][0];
+      const avgLon = sumLon / ring.length;
+      return avgLon >= -75.0 && avgLon <= -34.0;
+    }
+
+    function extractRingsFromGeometry(geometry) {
+      const rings = [];
+      if (!geometry) return rings;
+      if (geometry.type === 'Polygon') {
+        geometry.coordinates.forEach((ring) => {
+          if (isMainlandRing(ring)) rings.push(ring);
+        });
+      } else if (geometry.type === 'MultiPolygon') {
+        geometry.coordinates.forEach((poly) => {
+          poly.forEach((ring) => {
+            if (isMainlandRing(ring)) rings.push(ring);
+          });
+        });
+      }
+      return rings;
+    }
+
+    function ringMetrics(pts) {
+      const n = pts.length;
+      let area2 = 0;
+      let cx = 0;
+      let cy = 0;
+      for (let i = 0; i < n; i++) {
+        const [x0, y0] = pts[i];
+        const [x1, y1] = pts[(i + 1) % n];
+        const cross = x0 * y1 - x1 * y0;
+        area2 += cross;
+        cx += (x0 + x1) * cross;
+        cy += (y0 + y1) * cross;
+      }
+      if (Math.abs(area2) < 1e-6) {
+        return { area: 0, cx: pts[0][0], cy: pts[0][1] };
+      }
+      return {
+        area: Math.abs(area2) * 0.5,
+        cx: cx / (3 * area2),
+        cy: cy / (3 * area2)
+      };
+    }
+
+    function buildOfflineGeometries() {
+      const map = {};
+      Object.entries(OFFLINE_BR_COORDS).forEach(([uf, ring]) => {
+        map[uf] = [ring];
+      });
+      return map;
+    }
+
+    function buildMapScene(stateRingsMap) {
+      const projected = {};
+      let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
+
+      Object.entries(stateRingsMap).forEach(([uf, rings]) => {
+        projected[uf] = rings.map((ring) =>
+          ring.map(([lon, lat]) => {
+            const [px, py] = projectMercator(lon, lat);
+            if (px < minX) minX = px;
+            if (px > maxX) maxX = px;
+            if (py < minY) minY = py;
+            if (py > maxY) maxY = py;
+            return [px, py];
+          })
+        );
+      });
+
+      const spanX = maxX - minX;
+      const spanY = maxY - minY;
+      const availW = VB_W - PAD_L - PAD_R;
+      const availH = VB_H - PAD_T - PAD_B;
+      const scale = Math.min(availW / spanX, availH / spanY);
+      const offX = PAD_L + (availW - spanX * scale) / 2;
+      const offY = PAD_T + (availH - spanY * scale) / 2;
+
+      const toLogical = ([px, py]) => [
+        offX + (px - minX) * scale,
+        offY + (py - minY) * scale
       ];
 
-      regions.forEach(region => {
-        const group = document.createElement('div');
-        group.className = 'region-group';
-        
-        const title = document.createElement('div');
-        title.className = 'region-title';
-        title.textContent = region.name;
-        
-        const grid = document.createElement('div');
-        grid.className = 'states-grid';
-        
-        region.states.forEach(s => {
-          const btn = document.createElement('button');
-          btn.className = 'state-btn';
-          btn.innerHTML = `<span>${s.n}</span><span class="sigla">${s.id}</span>`;
-          btn.onclick = () => {
-             document.getElementById('corporate-directory').style.display = 'none';
-             document.getElementById('dashboard-summary').style.display = 'none'; // Esconde os KPIs
-             window.zoomToStateSmooth(s.id, s.n);
-          };
-          grid.appendChild(btn);
+      const ufList = Object.keys(projected).sort((a, b) => {
+        if (a === 'DF') return 1;
+        if (b === 'DF') return -1;
+        return a.localeCompare(b);
+      });
+
+      const states = {};
+      const centroids = {};
+      const eastAnchors = {};
+
+      ufList.forEach((uf) => {
+        const ringsLogical = projected[uf].map((ring) => ring.map(toLogical));
+        let bestMetric = { area: -1, cx: 0, cy: 0 };
+        let eastPt = [-Infinity, 0];
+        let bMinX = Infinity, bMaxX = -Infinity, bMinY = Infinity, bMaxY = -Infinity;
+
+        ringsLogical.forEach((pts) => {
+          if (pts.length < 3) return;
+          pts.forEach((pt) => {
+            if (pt[0] < bMinX) bMinX = pt[0];
+            if (pt[0] > bMaxX) bMaxX = pt[0];
+            if (pt[1] < bMinY) bMinY = pt[1];
+            if (pt[1] > bMaxY) bMaxY = pt[1];
+          });
+          const m = ringMetrics(pts);
+          if (m.area > bestMetric.area) {
+            bestMetric = m;
+            pts.forEach((pt) => {
+              if (pt[0] > eastPt[0]) eastPt = pt;
+            });
+          }
         });
-        
-        group.appendChild(title);
-        group.appendChild(grid);
-        wrapper.appendChild(group);
+
+        states[uf] = {
+          uf,
+          rings: ringsLogical,
+          centroid: bestMetric,
+          bbox: { minX: bMinX, maxX: bMaxX, minY: bMinY, maxY: bMaxY }
+        };
+        centroids[uf] = bestMetric;
+        eastAnchors[uf] = eastPt;
       });
-    }
 
-    window.addEventListener("load", () => {
-      initCorporateGrid();
-      updateDashboardTotals();
-    });
+      const callouts = [];
+      const rightColumnX = VB_W - 46;
+      const coastalItems = COASTAL_CALLOUT_UFS
+        .filter((uf) => centroids[uf])
+        .map((uf) => ({ uf, y: centroids[uf].cy }))
+        .sort((a, b) => a.y - b.y);
 
-    window.zoomToStateSmooth = function(id, stateName) {
-      activeStateCode = id;
-      
-      document.getElementById('main-section-title').textContent = `ESTADO: ${stateName.toUpperCase()}`;
-      document.getElementById('btn-back-map').style.display = 'inline-flex';
-
-      if (!stateDatabase[activeStateCode]) {
-        stateDatabase[activeStateCode] = { leaders: [{ name: `Líder 1 - ${stateName}`, role: 'Coordenadora Regional da Aprendizagem', email: 'lider@ciee.org.br', photo: null }], polos: [{ name: `Polo Principal - ${stateName}`, link: 'https://ciee.org.br', image: null }] };
+      const minGap = 26;
+      for (let i = 1; i < coastalItems.length; i++) {
+        if (coastalItems[i].y - coastalItems[i - 1].y < minGap) {
+          coastalItems[i].y = coastalItems[i - 1].y + minGap;
+        }
       }
 
-      loadStateData();
-      
-      const detailPanel = document.getElementById('state-detail-panel');
-      detailPanel.style.display = 'flex';
-      setTimeout(() => { detailPanel.classList.add('active'); }, 50);
+      coastalItems.forEach(({ uf, y }) => {
+        const anchor = eastAnchors[uf];
+        const pillX = rightColumnX;
+        const pillY = Math.min(VB_H - 22, Math.max(22, y));
+        const pillW = 54;
+        const pillH = 21;
+        callouts.push({
+          uf,
+          anchor,
+          elbowX: pillX - pillW / 2 - 12,
+          pillX,
+          pillY,
+          pillW,
+          pillH,
+          isCoastal: true
+        });
+      });
+
+      if (centroids.DF) {
+        const dfC = centroids.DF;
+        const pillX = dfC.cx + 36;
+        const pillY = dfC.cy - 22;
+        const pillW = 38;
+        const pillH = 19;
+        callouts.push({
+          uf: 'DF',
+          anchor: [dfC.cx, dfC.cy],
+          elbowX: null,
+          pillX,
+          pillY,
+          pillW,
+          pillH,
+          isCoastal: false
+        });
+      }
+
+      state.projectedScene = { ufList, states, callouts };
+      drawMapCanvas();
     }
 
-    window.resetMapZoom = function() {
-      document.getElementById('corporate-directory').style.display = 'flex';
-      document.getElementById('dashboard-summary').style.display = 'flex'; // Volta os KPIs
-      document.getElementById('main-section-title').textContent = 'Painel Nacional de Lideranças';
-      document.getElementById('btn-back-map').style.display = 'none';
-      
-      updateDashboardTotals(); // Atualiza contadores caso tenha editado/adicionado líderes ou polos
-      
-      const detailPanel = document.getElementById('state-detail-panel');
-      detailPanel.classList.remove('active');
-      setTimeout(() => { detailPanel.style.display = 'none'; }, 300);
+    function updateZoomBadge() {
+      const badge = document.getElementById('map-zoom-badge');
+      if (!badge) return;
+      const pct = Math.round(state.cam.scale * 100);
+      if (state.isStateFocused && state.selectedUf) {
+        badge.textContent = `${UF_NAMES[state.selectedUf]} (${state.selectedUf}) · Zoom ${pct}%`;
+      } else {
+        badge.textContent = `Visão Nacional (${pct}%)`;
+      }
     }
 
-    function loadStateData() { renderLeaders(); renderPolos(); }
+    function animateCameraTo(targetScale, targetTx, targetTy) {
+      state.targetCam = { scale: targetScale, tx: targetTx, ty: targetTy };
+      if (state.animFrame) cancelAnimationFrame(state.animFrame);
 
-    function renderLeaders() {
-      const container = document.getElementById('leaders-container'); container.innerHTML = '';
-      const leaders = stateDatabase[activeStateCode].leaders;
-      leaders.forEach((leader, idx) => {
-        const card = document.createElement('div'); card.className = 'leader-card';
-        card.innerHTML = `
-          <div class="leader-avatar" id="leader-avatar-${idx}">${leader.photo ? `<img src="${leader.photo}">` : leader.name.charAt(0).toUpperCase()}</div>
-          <div class="leader-info">
-            <div class="leader-name">${leader.name}</div>
-            <div class="leader-role">${leader.role}</div>
-            ${leader.email ? `<div style="font-size:11px; color:#718096; margin-bottom:4px; font-weight:600;">✉️ ${leader.email}</div>` : ''}
-            <div style="margin-top: 6px; display: flex; gap: 6px;">
-              <button class="btn-primary" style="padding: 4px 8px; font-size:11px;" onclick="editLeaderInfo(${idx})">✏️ Editar</button>
-              <button class="btn-primary" style="background:#4a5568; padding: 4px 8px; font-size:11px;" onclick="triggerLeaderFileSelect(${idx})">🖼️ Foto</button>
-              <button class="btn-primary" style="background:#e53e3e; padding: 4px 8px; font-size:11px;" onclick="deleteLeader(${idx})">🗑️</button>
+      const step = () => {
+        const ease = 0.2;
+        const dScale = state.targetCam.scale - state.cam.scale;
+        const dTx = state.targetCam.tx - state.cam.tx;
+        const dTy = state.targetCam.ty - state.cam.ty;
+
+        if (Math.abs(dScale) < 0.002 && Math.abs(dTx) < 0.15 && Math.abs(dTy) < 0.15) {
+          state.cam.scale = state.targetCam.scale;
+          state.cam.tx = state.targetCam.tx;
+          state.cam.ty = state.targetCam.ty;
+          state.animFrame = null;
+          updateZoomBadge();
+          drawMapCanvas();
+          return;
+        }
+
+        state.cam.scale += dScale * ease;
+        state.cam.tx += dTx * ease;
+        state.cam.ty += dTy * ease;
+        updateZoomBadge();
+        drawMapCanvas();
+        state.animFrame = requestAnimationFrame(step);
+      };
+
+      state.animFrame = requestAnimationFrame(step);
+    }
+
+    function focusCameraOnUfs(ufArray) {
+      const scene = state.projectedScene;
+      if (!scene || !ufArray.length) return;
+
+      let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
+      ufArray.forEach((uf) => {
+        const st = scene.states[uf];
+        if (!st) return;
+        if (st.bbox.minX < minX) minX = st.bbox.minX;
+        if (st.bbox.maxX > maxX) maxX = st.bbox.maxX;
+        if (st.bbox.minY < minY) minY = st.bbox.minY;
+        if (st.bbox.maxY > maxY) maxY = st.bbox.maxY;
+      });
+
+      if (!isFinite(minX)) return;
+
+      const boxW = Math.max(24, maxX - minX);
+      const boxH = Math.max(24, maxY - minY);
+      const centerX = (minX + maxX) * 0.5;
+      const centerY = (minY + maxY) * 0.5;
+
+      const fitScale = Math.min((VB_W * 0.62) / boxW, (VB_H * 0.62) / boxH);
+      const clampedScale = Math.max(1.5, Math.min(4.6, fitScale));
+      const tx = VB_W * 0.5 - centerX * clampedScale;
+      const ty = VB_H * 0.5 - centerY * clampedScale;
+
+      animateCameraTo(clampedScale, tx, ty);
+    }
+
+    function zoomMapBy(factor, anchorLogicalX = VB_W * 0.5, anchorLogicalY = VB_H * 0.5) {
+      const nextScale = Math.max(1, Math.min(6, state.targetCam.scale * factor));
+      if (nextScale <= 1.02) {
+        animateCameraTo(1, 0, 0);
+        return;
+      }
+      const worldX = (anchorLogicalX - state.targetCam.tx) / state.targetCam.scale;
+      const worldY = (anchorLogicalY - state.targetCam.ty) / state.targetCam.scale;
+      const nextTx = anchorLogicalX - worldX * nextScale;
+      const nextTy = anchorLogicalY - worldY * nextScale;
+      animateCameraTo(nextScale, nextTx, nextTy);
+    }
+
+    function drawRoundedRect(ctx, x, y, w, h, r) {
+      ctx.beginPath();
+      ctx.moveTo(x + r, y);
+      ctx.lineTo(x + w - r, y);
+      ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+      ctx.lineTo(x + w, y + h - r);
+      ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+      ctx.lineTo(x + r, y + h);
+      ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+      ctx.lineTo(x, y + r);
+      ctx.quadraticCurveTo(x, y, x + r, y);
+      ctx.closePath();
+    }
+
+    function drawMapCanvas() {
+      const scene = state.projectedScene;
+      if (!scene) return;
+
+      const canvas = document.getElementById('brazil-map-canvas');
+      const rect = canvas.getBoundingClientRect();
+      if (!rect.width || !rect.height) return;
+
+      const dpr = Math.max(1, window.devicePixelRatio || 1);
+      const targetW = Math.round(rect.width * dpr);
+      const targetH = Math.round(rect.height * dpr);
+
+      if (canvas.width !== targetW || canvas.height !== targetH) {
+        canvas.width = targetW;
+        canvas.height = targetH;
+      }
+
+      const ctx = canvas.getContext('2d');
+      ctx.save();
+      ctx.clearRect(0, 0, targetW, targetH);
+
+      const scaleX = targetW / VB_W;
+      const scaleY = targetH / VB_H;
+      ctx.scale(scaleX, scaleY);
+
+      ctx.translate(state.cam.tx, state.cam.ty);
+      ctx.scale(state.cam.scale, state.cam.scale);
+
+      const allowedUfs = state.activeRegion === 'ALL'
+        ? null
+        : new Set(CORPORATE_REGIONS[state.activeRegion] || []);
+
+      const invScale = 1 / Math.sqrt(state.cam.scale);
+
+      scene.ufList.forEach((uf) => {
+        const st = scene.states[uf];
+        const polosCount = (stateDatabase[uf]?.polos || []).length;
+        const isAllowed = !allowedUfs || allowedUfs.has(uf);
+        const isSelected = state.selectedUf === uf;
+        const isHovered = state.hoveredUf === uf;
+
+        let fill = '#b3d1ff';
+        if (!isAllowed) {
+          fill = '#e2e8f0';
+        } else if (isSelected) {
+          fill = '#ffc800';
+        } else if (isHovered) {
+          fill = '#e6007e';
+        } else if (polosCount >= 6) {
+          fill = '#003882';
+        } else if (polosCount > 0) {
+          fill = '#0066cc';
+        }
+
+        const dimForFocus = state.isStateFocused && !isSelected && !isHovered;
+
+        ctx.save();
+        ctx.globalAlpha = dimForFocus ? 0.55 : (isAllowed || isSelected || isHovered ? 1 : 0.45);
+        ctx.beginPath();
+        st.rings.forEach((pts) => {
+          if (pts.length < 3) return;
+          ctx.moveTo(pts[0][0], pts[0][1]);
+          for (let i = 1; i < pts.length; i++) {
+            ctx.lineTo(pts[i][0], pts[i][1]);
+          }
+          ctx.closePath();
+        });
+
+        ctx.fillStyle = fill;
+        ctx.fill('evenodd');
+
+        ctx.lineJoin = 'round';
+        ctx.lineCap = 'round';
+        ctx.lineWidth = (isSelected ? 2.2 : 1.35) * invScale;
+        ctx.strokeStyle = isSelected ? '#002356' : '#ffffff';
+        ctx.stroke();
+        ctx.restore();
+      });
+
+      const labelFontSize = Math.max(7, 10.5 * invScale);
+      ctx.font = `800 ${labelFontSize.toFixed(1)}px "Segoe UI", system-ui, sans-serif`;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+
+      scene.ufList.forEach((uf) => {
+        if ((COASTAL_CALLOUT_UFS.includes(uf) || uf === 'DF') && state.cam.scale < 1.8) return;
+        const c = scene.states[uf].centroid;
+        const polosCount = (stateDatabase[uf]?.polos || []).length;
+        const isAllowed = !allowedUfs || allowedUfs.has(uf);
+        const isSelected = state.selectedUf === uf;
+        const isHovered = state.hoveredUf === uf;
+
+        let lx = c.cx;
+        let ly = c.cy;
+        if (uf === 'GO') { lx -= 14; ly += 12; }
+        if (uf === 'PI') { lx -= 4; ly += 8; }
+        if (uf === 'MA') { lx -= 4; ly -= 6; }
+
+        const darkBg = isAllowed && (polosCount > 0 || isHovered) && !isSelected;
+        ctx.save();
+        ctx.globalAlpha = isAllowed || isSelected || isHovered ? 1 : 0.45;
+        ctx.fillStyle = darkBg ? '#ffffff' : '#002356';
+        ctx.fillText(uf, lx, ly);
+        ctx.restore();
+      });
+
+      if (state.cam.scale < 2.2) {
+        const pillFontSize = Math.max(7.5, 10 * invScale);
+        ctx.font = `800 ${pillFontSize.toFixed(1)}px "Segoe UI", system-ui, sans-serif`;
+        scene.callouts.forEach((item) => {
+          const { uf, anchor, elbowX, pillX, pillY, pillW, pillH, isCoastal } = item;
+          const polosCount = (stateDatabase[uf]?.polos || []).length;
+          const isAllowed = !allowedUfs || allowedUfs.has(uf);
+          const isSelected = state.selectedUf === uf;
+          const isHovered = state.hoveredUf === uf;
+
+          ctx.save();
+          ctx.globalAlpha = isAllowed || isSelected || isHovered ? 1 : 0.4;
+
+          ctx.beginPath();
+          ctx.moveTo(anchor[0], anchor[1]);
+          if (elbowX !== null) {
+            ctx.lineTo(elbowX, pillY);
+          }
+          ctx.lineTo(pillX - pillW / 2, pillY);
+          ctx.strokeStyle = '#94a3b8';
+          ctx.lineWidth = 1 * invScale;
+          ctx.stroke();
+
+          if (isCoastal) {
+            ctx.beginPath();
+            ctx.arc(anchor[0], anchor[1], 2.2 * invScale, 0, Math.PI * 2);
+            ctx.fillStyle = '#002356';
+            ctx.fill();
+          }
+
+          let pillFill = '#ffffff';
+          let pillStroke = '#cbd5e1';
+          let textFill = '#002356';
+
+          if (isSelected) {
+            pillFill = '#ffc800';
+            pillStroke = '#002356';
+            textFill = '#002356';
+          } else if (isHovered) {
+            pillFill = '#e6007e';
+            pillStroke = '#9d0055';
+            textFill = '#ffffff';
+          } else if (polosCount > 0) {
+            pillFill = '#eef5fc';
+            pillStroke = '#003882';
+            textFill = '#003882';
+          }
+
+          drawRoundedRect(ctx, pillX - pillW / 2, pillY - pillH / 2, pillW, pillH, 5);
+          ctx.fillStyle = pillFill;
+          ctx.fill();
+          ctx.lineWidth = 1.2 * invScale;
+          ctx.strokeStyle = pillStroke;
+          ctx.stroke();
+
+          ctx.fillStyle = textFill;
+          const label = polosCount > 0 && pillW >= 50 ? `${uf} · ${polosCount}` : uf;
+          ctx.fillText(label, pillX, pillY + 0.5);
+          ctx.restore();
+        });
+      }
+
+      ctx.restore();
+    }
+
+    function clientToWorld(clientX, clientY) {
+      const canvas = document.getElementById('brazil-map-canvas');
+      const rect = canvas.getBoundingClientRect();
+      const lx = ((clientX - rect.left) / rect.width) * VB_W;
+      const ly = ((clientY - rect.top) / rect.height) * VB_H;
+      const wx = (lx - state.cam.tx) / state.cam.scale;
+      const wy = (ly - state.cam.ty) / state.cam.scale;
+      return { lx, ly, wx, wy };
+    }
+
+    function pointInRing(x, y, ring) {
+      let inside = false;
+      for (let i = 0, j = ring.length - 1; i < ring.length; j = i++) {
+        const xi = ring[i][0], yi = ring[i][1];
+        const xj = ring[j][0], yj = ring[j][1];
+        const intersect = ((yi > y) !== (yj > y)) && (x < ((xj - xi) * (y - yi)) / (yj - yi + 1e-12) + xi);
+        if (intersect) inside = !inside;
+      }
+      return inside;
+    }
+
+    function hitTestMap(clientX, clientY) {
+      const scene = state.projectedScene;
+      if (!scene) return null;
+      const { wx, wy } = clientToWorld(clientX, clientY);
+
+      if (state.cam.scale < 2.2) {
+        for (let i = scene.callouts.length - 1; i >= 0; i--) {
+          const c = scene.callouts[i];
+          if (
+            wx >= c.pillX - c.pillW / 2 &&
+            wx <= c.pillX + c.pillW / 2 &&
+            wy >= c.pillY - c.pillH / 2 &&
+            wy <= c.pillY + c.pillH / 2
+          ) {
+            return c.uf;
+          }
+        }
+      }
+
+      for (let i = scene.ufList.length - 1; i >= 0; i--) {
+        const uf = scene.ufList[i];
+        const rings = scene.states[uf].rings;
+        let hitCount = 0;
+        for (let r = 0; r < rings.length; r++) {
+          if (pointInRing(wx, wy, rings[r])) hitCount++;
+        }
+        if (hitCount % 2 === 1) return uf;
+      }
+
+      return null;
+    }
+
+    function showTooltip(clientX, clientY, uf) {
+      const tooltip = document.getElementById('tooltip');
+      const stage = document.getElementById('map-stage');
+      const data = stateDatabase[uf] || { leaders: [], polos: [] };
+
+      tooltip.innerHTML = `
+        <div class="text-white text-xs font-extrabold">${UF_NAMES[uf] || uf} (${uf})</div>
+        <div class="text-[#ffc800] text-[11px] mt-0.5">${data.leaders.length} Líder(es) · ${data.polos.length} Polo(s)</div>
+        <div class="text-[10px] text-slate-300 mt-0.5">Clique para aproximar e abrir</div>
+      `;
+      tooltip.style.opacity = '1';
+
+      const rect = stage.getBoundingClientRect();
+      let left = clientX - rect.left + 12;
+      let top = clientY - rect.top - 12;
+      if (left + tooltip.offsetWidth > rect.width - 8) {
+        left = clientX - rect.left - tooltip.offsetWidth - 12;
+      }
+      if (top < 6) top = 6;
+
+      tooltip.style.left = `${left}px`;
+      tooltip.style.top = `${top}px`;
+    }
+
+    function hideTooltip() {
+      document.getElementById('tooltip').style.opacity = '0';
+    }
+
+    function escapeHtml(str) {
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    }
+
+    function selectState(uf, zoomIntoState = true) {
+      state.selectedUf = uf;
+      state.isStateFocused = zoomIntoState;
+
+      const backBtn = document.getElementById('btn-back-map');
+      const titleEl = document.getElementById('main-section-title');
+      const detailCard = document.getElementById('state-detail-card');
+
+      if (zoomIntoState) {
+        backBtn.classList.remove('hidden');
+        titleEl.textContent = `${UF_NAMES[uf] || uf} (${uf}) — Líderes e Polos`;
+        detailCard.classList.remove('border-[#d5e0ea]');
+        detailCard.classList.add('border-[#ffc800]');
+        focusCameraOnUfs([uf]);
+      } else {
+        backBtn.classList.add('hidden');
+        titleEl.textContent = 'Líderes por Estado — Mapa Nacional';
+        detailCard.classList.add('border-[#d5e0ea]');
+        detailCard.classList.remove('border-[#ffc800]');
+        animateCameraTo(1, 0, 0);
+      }
+
+      updateZoomBadge();
+      drawMapCanvas();
+      renderStateDetails(uf);
+    }
+
+    function resetMapFocus() {
+      state.isStateFocused = false;
+      state.activeRegion = 'ALL';
+      document.getElementById('btn-back-map').classList.add('hidden');
+      document.getElementById('main-section-title').textContent = 'Líderes por Estado — Mapa Nacional';
+      const detailCard = document.getElementById('state-detail-card');
+      detailCard.classList.add('border-[#d5e0ea]');
+      detailCard.classList.remove('border-[#ffc800]');
+      renderRegionFilters();
+      animateCameraTo(1, 0, 0);
+      updateZoomBadge();
+      drawMapCanvas();
+    }
+
+    function switchDetailTab(tab) {
+      state.activeDetailTab = tab;
+      const btnLeaders = document.getElementById('tab-btn-leaders');
+      const btnPolos = document.getElementById('tab-btn-polos');
+      const panelLeaders = document.getElementById('panel-leaders');
+      const panelPolos = document.getElementById('panel-polos');
+
+      if (tab === 'leaders') {
+        btnLeaders.className = 'px-4 py-2 text-xs sm:text-sm font-extrabold text-[#e6007e] border-b-[3px] border-[#e6007e] -mb-[2px] cursor-pointer transition';
+        btnPolos.className = 'px-4 py-2 text-xs sm:text-sm font-bold text-slate-500 hover:text-[#003882] border-b-[3px] border-transparent -mb-[2px] cursor-pointer transition';
+        panelLeaders.classList.remove('hidden');
+        panelLeaders.classList.add('flex');
+        panelPolos.classList.add('hidden');
+        panelPolos.classList.remove('flex');
+      } else {
+        btnPolos.className = 'px-4 py-2 text-xs sm:text-sm font-extrabold text-[#e6007e] border-b-[3px] border-[#e6007e] -mb-[2px] cursor-pointer transition';
+        btnLeaders.className = 'px-4 py-2 text-xs sm:text-sm font-bold text-slate-500 hover:text-[#003882] border-b-[3px] border-transparent -mb-[2px] cursor-pointer transition';
+        panelPolos.classList.remove('hidden');
+        panelPolos.classList.add('flex');
+        panelLeaders.classList.add('hidden');
+        panelLeaders.classList.remove('flex');
+      }
+    }
+
+    function renderStateDetails(uf) {
+      const data = stateDatabase[uf] || { leaders: [], polos: [] };
+      document.getElementById('detail-uf-badge').textContent = uf;
+      document.getElementById('detail-state-name').textContent = UF_NAMES[uf] || uf;
+      document.getElementById('detail-state-region').textContent = `Regional: ${UF_TO_REGION[uf] || '—'}`;
+      document.getElementById('detail-ibge-badge').textContent = `IBGE: ${UF_TO_IBGE_CODE[uf] || '—'}`;
+
+      document.getElementById('count-tab-leaders').textContent = data.leaders.length;
+      document.getElementById('count-tab-polos').textContent = data.polos.length;
+
+      const leadersList = document.getElementById('leaders-list');
+      leadersList.innerHTML = '';
+
+      if (!data.leaders.length) {
+        leadersList.innerHTML = '<p class="text-xs text-slate-400 italic py-2">Nenhum líder cadastrado neste estado.</p>';
+      } else {
+        data.leaders.forEach((leader, idx) => {
+          const initials = leader.name
+            .split(' ')
+            .slice(0, 2)
+            .map((p) => p[0] || '')
+            .join('')
+            .toUpperCase();
+
+          const card = document.createElement('div');
+          card.className = 'flex items-center gap-3.5 bg-[#f8fafc] p-3.5 rounded-xl border border-[#d5e0ea]';
+          card.innerHTML = `
+            <div
+              title="Clique para alterar foto"
+              onclick="triggerLeaderPhotoUpload('${uf}', ${idx})"
+              class="w-14 h-14 rounded-full bg-[#003882] text-white flex items-center justify-center text-lg font-extrabold border-2 border-[#ffc800] overflow-hidden shrink-0 cursor-pointer"
+            >
+              ${leader.photo ? `<img src="${leader.photo}" alt="${escapeHtml(leader.name)}" class="w-full h-full object-cover" />` : escapeHtml(initials)}
             </div>
-          </div>`;
-        container.appendChild(card);
+            <div class="flex flex-col gap-0.5 flex-1 min-w-0">
+              <div class="text-sm font-extrabold text-[#002356] truncate">${escapeHtml(leader.name)}</div>
+              <div class="text-xs font-semibold text-slate-500 truncate">${escapeHtml(leader.role || 'Líder Regional CIEE')}</div>
+              <div class="flex items-center gap-2 mt-1">
+                <button type="button" onclick="triggerLeaderPhotoUpload('${uf}', ${idx})" class="text-[11px] font-bold text-[#003882] hover:text-[#e6007e] cursor-pointer">
+                  Alterar Foto
+                </button>
+                <span class="text-slate-300">|</span>
+                <button type="button" onclick="removeLeader('${uf}', ${idx})" class="text-[11px] font-bold text-rose-600 hover:underline cursor-pointer">
+                  Remover
+                </button>
+              </div>
+            </div>
+          `;
+          leadersList.appendChild(card);
+        });
+      }
+
+      const polosList = document.getElementById('polos-list');
+      polosList.innerHTML = '';
+
+      if (!data.polos.length) {
+        polosList.innerHTML = '<p class="text-xs text-slate-400 italic py-2">Nenhum polo cadastrado neste estado.</p>';
+      } else {
+        data.polos.forEach((polo, idx) => {
+          const card = document.createElement('div');
+          card.className = 'bg-[#f8fafc] border border-[#d5e0ea] rounded-xl p-3.5 flex flex-col gap-2.5';
+          card.innerHTML = `
+            <div class="flex items-center justify-between gap-2">
+              <div class="text-sm font-extrabold text-[#003882]">${escapeHtml(polo.name)}</div>
+              <button type="button" onclick="removePolo('${uf}', ${idx})" class="text-[11px] font-bold text-rose-600 hover:underline cursor-pointer">
+                Remover
+              </button>
+            </div>
+            <div
+              onclick="triggerPoloPhotoUpload('${uf}', ${idx})"
+              class="w-full h-24 bg-[#edf2f7] rounded-lg border-2 border-dashed border-slate-300 flex items-center justify-center text-xs text-slate-500 overflow-hidden cursor-pointer hover:border-[#003882]"
+            >
+              ${polo.photo ? `<img src="${polo.photo}" alt="${escapeHtml(polo.name)}" class="w-full h-full object-cover" />` : 'Clique para adicionar foto do polo'}
+            </div>
+          `;
+          polosList.appendChild(card);
+        });
+      }
+    }
+
+    function openAddLeaderModal() {
+      const uf = state.selectedUf;
+      openUniversalModal({
+        title: `Novo Líder — ${UF_NAMES[uf]} (${uf})`,
+        field1: { label: 'Nome do Líder', placeholder: 'Ex.: Mariana Silva' },
+        field2: {
+          label: 'Cargo / Atuação',
+          placeholder: 'Ex.: Líder Regional',
+          value: `Líder Regional ${UF_TO_REGION[uf] || uf}`
+        },
+        submitText: 'Salvar Líder',
+        onConfirm: (nameVal, roleVal) => {
+          if (!nameVal.trim()) {
+            showToast('Informe o nome do líder.');
+            return false;
+          }
+          const entry = ensureStateEntry(uf);
+          entry.leaders.push({
+            name: nameVal.trim(),
+            role: (roleVal || 'Líder Regional CIEE').trim(),
+            photo: ''
+          });
+          refreshAllDataViews();
+          showToast('Líder adicionado com sucesso!');
+          return true;
+        }
       });
     }
 
-    function addNewLeader() {
-      const name = prompt("Nome da nova Liderança:");
-      if (name && name.trim() !== '') {
-        const role = prompt("Cargo/Função:", "Líder Regional da Aprendizagem");
-        stateDatabase[activeStateCode].leaders.push({ name: name.trim(), role: role ? role.trim() : 'Líder Regional', email: '', photo: null });
-        renderLeaders();
-      }
+    function removeLeader(uf, idx) {
+      const entry = stateDatabase[uf];
+      if (!entry) return;
+      entry.leaders.splice(idx, 1);
+      refreshAllDataViews();
+      showToast('Líder removido.');
     }
-    function editLeaderInfo(idx) {
-      const leader = stateDatabase[activeStateCode].leaders[idx];
-      const newName = prompt("Nome da Líder:", leader.name); if (newName) leader.name = newName.trim();
-      const newRole = prompt("Cargo/Função da Líder:", leader.role); if (newRole) leader.role = newRole.trim();
-      const newEmail = prompt("Email da Líder:", leader.email || ''); if (newEmail !== null) leader.email = newEmail.trim();
-      renderLeaders();
+
+    function openAddPoloModal() {
+      const uf = state.selectedUf;
+      openUniversalModal({
+        title: `Novo Polo — ${UF_NAMES[uf]} (${uf})`,
+        field1: { label: 'Nome do Polo', placeholder: 'Ex.: Polo Campinas' },
+        submitText: 'Salvar Polo',
+        onConfirm: (poloVal) => {
+          if (!poloVal.trim()) {
+            showToast('Informe o nome do polo.');
+            return false;
+          }
+          const entry = ensureStateEntry(uf);
+          entry.polos.push({ name: poloVal.trim(), photo: '' });
+          refreshAllDataViews();
+          showToast('Polo cadastrado com sucesso!');
+          return true;
+        }
+      });
     }
-    function deleteLeader(idx) { if (confirm("Deseja remover esta liderança?")) { stateDatabase[activeStateCode].leaders.splice(idx, 1); renderLeaders(); } }
-    function triggerLeaderFileSelect(idx) { selectedLeaderIndex = idx; document.getElementById('file-input-leader').click(); }
 
-    document.getElementById('file-input-leader').addEventListener('change', function(e) {
-      const file = e.target.files[0];
-      if (file && activeStateCode && selectedLeaderIndex !== null) {
-        const reader = new FileReader(); reader.onload = function(evt) { stateDatabase[activeStateCode].leaders[selectedLeaderIndex].photo = evt.target.result; renderLeaders(); }; reader.readAsDataURL(file);
+    function removePolo(uf, idx) {
+      const entry = stateDatabase[uf];
+      if (!entry) return;
+      entry.polos.splice(idx, 1);
+      refreshAllDataViews();
+      showToast('Polo removido.');
+    }
+
+    function triggerLeaderPhotoUpload(uf, idx) {
+      state.pendingUpload = { type: 'leader', uf, idx };
+      document.getElementById('file-input-leader').click();
+    }
+
+    function triggerPoloPhotoUpload(uf, idx) {
+      state.pendingUpload = { type: 'polo', uf, idx };
+      document.getElementById('file-input-polo').click();
+    }
+
+    function triggerDocCoverUpload(folderId, docId) {
+      state.pendingUpload = { type: 'doc', folderId, docId };
+      document.getElementById('file-input-doc').click();
+    }
+
+    function refreshAllDataViews() {
+      updateDashboardTotals();
+      renderStateDetails(state.selectedUf);
+      drawMapCanvas();
+      renderRegionalAnalytics();
+    }
+
+    function updateDashboardTotals() {
+      let totalLeaders = 0;
+      let totalPolos = 0;
+
+      Object.keys(stateDatabase).forEach((uf) => {
+        const entry = stateDatabase[uf];
+        if (!entry) return;
+        totalLeaders += (entry.leaders || []).length;
+        totalPolos += (entry.polos || []).length;
+      });
+
+      document.getElementById('sidebar-kpi-polos').textContent = totalPolos;
+      document.getElementById('sidebar-kpi-leaders').textContent = totalLeaders;
+    }
+
+    function applyRegionSelection(regionKey) {
+      state.activeRegion = regionKey;
+      renderRegionFilters();
+      if (regionKey === 'ALL') {
+        state.isStateFocused = false;
+        document.getElementById('btn-back-map').classList.add('hidden');
+        document.getElementById('main-section-title').textContent = 'Líderes por Estado — Mapa Nacional';
+        animateCameraTo(1, 0, 0);
+      } else {
+        const ufs = CORPORATE_REGIONS[regionKey] || [];
+        document.getElementById('btn-back-map').classList.remove('hidden');
+        document.getElementById('main-section-title').textContent = `Regional: ${regionKey}`;
+        focusCameraOnUfs(ufs);
+        if (ufs.length && !ufs.includes(state.selectedUf)) {
+          state.selectedUf = ufs[0];
+          renderStateDetails(ufs[0]);
+        }
       }
-    });
+      drawMapCanvas();
+    }
 
-    document.getElementById('file-input-polo').addEventListener('change', function(e) {
-      const file = e.target.files[0];
-      if (file && activeStateCode && selectedPoloIndex !== null) {
-        const reader = new FileReader(); reader.onload = function(evt) { stateDatabase[activeStateCode].polos[selectedPoloIndex].image = evt.target.result; renderPolos(); }; reader.readAsDataURL(file);
+    function renderRegionFilters() {
+      const container = document.getElementById('region-filters');
+      const items = ['ALL', ...Object.keys(CORPORATE_REGIONS)];
+      container.innerHTML = '';
+
+      items.forEach((key) => {
+        const isActive = state.activeRegion === key;
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = isActive
+          ? 'px-3 py-1 rounded-full text-xs font-extrabold bg-[#003882] text-white border border-[#003882] cursor-pointer transition'
+          : 'px-3 py-1 rounded-full text-xs font-bold bg-white text-slate-600 border border-[#d5e0ea] hover:border-[#003882] hover:text-[#003882] cursor-pointer transition';
+        btn.textContent = key === 'ALL' ? 'Brasil Completo (27 UFs)' : key;
+        btn.addEventListener('click', () => applyRegionSelection(key));
+        container.appendChild(btn);
+      });
+    }
+
+    function wrapChartLabel(label, maxLen = 16) {
+      if (label.length <= maxLen) return label;
+      const words = label.split(' ');
+      const lines = [];
+      let current = '';
+      words.forEach((w) => {
+        if ((current + ' ' + w).trim().length <= maxLen) {
+          current = (current + ' ' + w).trim();
+        } else {
+          if (current) lines.push(current);
+          current = w;
+        }
+      });
+      if (current) lines.push(current);
+      return lines;
+    }
+
+    function renderRegionalAnalytics() {
+      const regionNames = Object.keys(CORPORATE_REGIONS);
+      const polosData = [];
+      const leadersData = [];
+      const tbody = document.getElementById('regional-table-body');
+      tbody.innerHTML = '';
+
+      regionNames.forEach((region) => {
+        const ufs = CORPORATE_REGIONS[region];
+        let polos = 0;
+        let leaders = 0;
+        ufs.forEach((uf) => {
+          const entry = stateDatabase[uf];
+          if (entry) {
+            polos += (entry.polos || []).length;
+            leaders += (entry.leaders || []).length;
+          }
+        });
+        polosData.push(polos);
+        leadersData.push(leaders);
+
+        const tr = document.createElement('tr');
+        tr.className = 'hover:bg-[#f0f4f9] cursor-pointer transition';
+        tr.innerHTML = `
+          <td class="py-2 pr-2 font-bold text-[#002356]">${region}</td>
+          <td class="py-2 px-2 text-center text-slate-500">${ufs.length}</td>
+          <td class="py-2 px-2 text-center font-extrabold text-[#003882]">${polos}</td>
+          <td class="py-2 pl-2 text-center font-extrabold text-[#e6007e]">${leaders}</td>
+        `;
+        tr.addEventListener('click', () => applyRegionSelection(region));
+        tbody.appendChild(tr);
+      });
+
+      const ctx = document.getElementById('regional-chart').getContext('2d');
+      if (regionalChart) regionalChart.destroy();
+
+      regionalChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: regionNames.map((n) => wrapChartLabel(n, 16)),
+          datasets: [
+            {
+              label: 'Polos de Aprendizagem',
+              data: polosData,
+              backgroundColor: '#003882',
+              borderRadius: 6,
+              barPercentage: 0.72
+            },
+            {
+              label: 'Líderes Alocados',
+              data: leadersData,
+              backgroundColor: '#e6007e',
+              borderRadius: 6,
+              barPercentage: 0.72
+            }
+          ]
+        },
+        options: {
+          indexAxis: 'y',
+          responsive: true,
+          maintainAspectRatio: false,
+          onClick: (_, elements) => {
+            if (elements && elements.length > 0) {
+              applyRegionSelection(regionNames[elements[0].index]);
+            }
+          },
+          plugins: {
+            legend: {
+              position: 'top',
+              labels: { boxWidth: 12, font: { size: 11, weight: 'bold' } }
+            },
+            tooltip: {
+              callbacks: {
+                title: (items) => regionNames[items[0].dataIndex]
+              }
+            }
+          },
+          scales: {
+            x: {
+              beginAtZero: true,
+              grid: { color: '#eef2f6' },
+              ticks: { precision: 0, font: { size: 11 } }
+            },
+            y: {
+              grid: { display: false },
+              ticks: { font: { size: 11, weight: '600' } }
+            }
+          }
+        }
+      });
+    }
+
+    function renderFoldersSidebar() {
+      const container = document.getElementById('folders-list');
+      container.innerHTML = '';
+
+      foldersDatabase.forEach((folder) => {
+        const isActive = state.activeFolderId === folder.id;
+        const row = document.createElement('div');
+        row.className = 'relative flex items-center w-full group';
+
+        row.innerHTML = `
+          <button
+            type="button"
+            onclick="openFolderView('${folder.id}')"
+            class="flex items-center gap-2.5 pl-3 pr-14 py-2.5 rounded-lg text-[13px] font-semibold w-full text-left transition cursor-pointer ${isActive ? 'bg-[#e6007e] text-white' : 'text-slate-700 hover:bg-[#f0f4f9]'}"
+          >
+            <span class="${isActive ? 'text-[#ffc800]' : 'text-[#003882]'} text-sm">&#128193;</span>
+            <span class="truncate">${escapeHtml(folder.name)}</span>
+          </button>
+          <div class="absolute right-1.5 flex items-center gap-1">
+            <button
+              type="button"
+              title="Renomear Pasta"
+              onclick="renameFolder('${folder.id}')"
+              class="px-1.5 py-0.5 rounded text-xs ${isActive ? 'text-white/90 hover:bg-white/20' : 'text-slate-400 hover:text-[#003882]'} cursor-pointer"
+            >
+              &#9998;
+            </button>
+            <button
+              type="button"
+              title="Excluir Pasta"
+              onclick="deleteFolder('${folder.id}')"
+              class="px-1.5 py-0.5 rounded text-xs ${isActive ? 'text-white/90 hover:bg-white/20' : 'text-slate-400 hover:text-rose-600'} cursor-pointer"
+            >
+              &#10005;
+            </button>
+          </div>
+        `;
+        container.appendChild(row);
+      });
+    }
+
+    function switchToMapView() {
+      state.activeFolderId = null;
+      closeMobileSidebar();
+      const navBtn = document.getElementById('nav-leaders-btn');
+      navBtn.className = 'nav-item active flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-[13px] font-bold w-full text-left transition cursor-pointer bg-[#e6007e] text-white';
+
+      document.getElementById('mapa-view').classList.remove('hidden');
+      document.getElementById('folder-view').classList.add('hidden');
+      renderFoldersSidebar();
+      setTimeout(drawMapCanvas, 40);
+    }
+
+    function openFolderView(folderId) {
+      const folder = foldersDatabase.find((f) => f.id === folderId);
+      if (!folder) return;
+      state.activeFolderId = folderId;
+      closeMobileSidebar();
+
+      const navBtn = document.getElementById('nav-leaders-btn');
+      navBtn.className = 'nav-item flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-[13px] font-bold w-full text-left transition cursor-pointer text-slate-700 hover:bg-[#f0f4f9]';
+
+      document.getElementById('mapa-view').classList.add('hidden');
+      document.getElementById('folder-view').classList.remove('hidden');
+      document.getElementById('folder-view').classList.add('flex');
+
+      document.getElementById('folder-view-title').textContent = folder.name;
+      renderFoldersSidebar();
+      renderFolderDocs(folder);
+    }
+
+    function renderFolderDocs(folder) {
+      const grid = document.getElementById('docs-grid');
+      grid.innerHTML = '';
+
+      if (!folder.docs.length) {
+        grid.innerHTML = `
+          <div class="col-span-full border-2 border-dashed border-[#d5e0ea] rounded-xl p-10 text-center text-slate-500 bg-[#f8fafc]">
+            <p class="text-sm font-bold text-[#002356]">Nenhum documento cadastrado nesta pasta</p>
+            <p class="text-xs mt-1">Clique em "+ Adicionar Documento / Dossiê" acima para inserir o primeiro item.</p>
+          </div>
+        `;
+        return;
       }
-    });
 
-    function triggerPoloFileSelect(idx) { selectedPoloIndex = idx; document.getElementById('file-input-polo').click(); }
-
-    function renderPolos() {
-      const container = document.getElementById('polos-container'); container.innerHTML = '';
-      const polos = stateDatabase[activeStateCode].polos;
-      polos.forEach((polo, idx) => {
-        const card = document.createElement('div'); card.className = 'polo-card';
+      folder.docs.forEach((doc) => {
+        const card = document.createElement('div');
+        card.className = 'bg-white border border-[#d5e0ea] rounded-xl p-4 flex flex-col gap-3 shadow-xs hover:shadow-md transition';
         card.innerHTML = `
-          <div class="polo-header">
-            <div class="polo-title">${polo.name}</div>
-            <button style="border:none; background:none; cursor:pointer; color:#ffc800; font-size:16px;" title="Editar Nome" onclick="editPoloName(${idx})">✏️</button>
+          <div
+            onclick="triggerDocCoverUpload('${folder.id}', '${doc.id}')"
+            title="Clique para alterar imagem de capa"
+            class="w-full h-36 bg-[#f0f4f9] rounded-lg border border-dashed border-slate-300 flex items-center justify-center overflow-hidden cursor-pointer"
+          >
+            ${doc.cover ? `<img src="${doc.cover}" alt="${escapeHtml(doc.title)}" class="w-full h-full object-cover" />` : '<span class="text-xs font-semibold text-slate-500">Clique para enviar capa</span>'}
           </div>
-          <div class="polo-img" onclick="triggerPoloFileSelect(${idx})" title="Clique para carregar foto do computador">
-            ${polo.image ? `<img src="${polo.image}">` : '📸 Clique para carregar foto'}
+          <div class="text-sm font-extrabold text-[#002356] leading-snug">${escapeHtml(doc.title)}</div>
+          <p class="text-xs text-slate-500">${escapeHtml(doc.desc || 'Documento de acompanhamento CIEE')}</p>
+          <div class="flex items-center justify-between gap-2 mt-auto pt-2 border-t border-slate-100">
+            ${doc.link ? `<a href="${escapeHtml(doc.link)}" target="_blank" rel="noopener noreferrer" class="bg-[#003882] hover:bg-[#e6007e] text-white px-3 py-1.5 rounded-md text-xs font-bold transition">Abrir Link</a>` : '<span class="text-[11px] font-semibold text-slate-400">Arquivo interno</span>'}
+            <button type="button" onclick="deleteDoc('${folder.id}', '${doc.id}')" class="text-xs font-bold text-rose-600 hover:underline cursor-pointer">
+              Excluir
+            </button>
           </div>
-          <div style="display:flex; gap:6px;">
-            <a href="${polo.link}" target="_blank" class="btn-primary" style="flex:1; text-decoration:none;">🔗 Dossiê do Polo</a>
-            <button class="btn-primary" style="background:#718096;" title="Configurar Foto / Link" onclick="editPoloDetails(${idx})">⚙️</button>
-            <button class="btn-primary" style="background:#e53e3e;" title="Excluir Polo" onclick="deletePolo(${idx})">🗑️</button>
-          </div>`;
-        container.appendChild(card);
+        `;
+        grid.appendChild(card);
       });
     }
 
-    function editPoloName(idx) {
-      const polo = stateDatabase[activeStateCode].polos[idx];
-      const newName = prompt("Digite o novo nome para o Polo:", polo.name);
-      if (newName && newName.trim() !== '') { polo.name = newName.trim(); renderPolos(); }
+    function addNewFolder() {
+      openUniversalModal({
+        title: 'Criar Nova Pasta',
+        message: 'Adicione uma nova pasta ao menu lateral para organizar dossiês, relatórios ou documentos.',
+        field1: {
+          label: 'Nome da Pasta',
+          placeholder: 'Ex.: Cronograma de Treinamentos'
+        },
+        submitText: 'Criar Pasta',
+        onConfirm: (nameVal) => {
+          if (!nameVal.trim()) {
+            showToast('Digite um nome válido para a pasta.');
+            return false;
+          }
+          const newFolder = {
+            id: 'folder-' + Date.now(),
+            name: nameVal.trim(),
+            docs: []
+          };
+          foldersDatabase.push(newFolder);
+          openFolderView(newFolder.id);
+          showToast(`Pasta "${newFolder.name}" criada!`);
+          return true;
+        }
+      });
     }
-    function editPoloDetails(idx) {
-      const polo = stateDatabase[activeStateCode].polos[idx];
-      const choice = confirm("Deseja carregar a foto do computador? (Clique em 'Cancelar' se quiser apenas alterar o link do Dossiê)");
-      if (choice) { triggerPoloFileSelect(idx); } else { const link = prompt("Link do Dossiê do Polo:", polo.link); if (link !== null) { polo.link = link.trim(); renderPolos(); } }
+
+    function renameFolder(folderId) {
+      const folder = foldersDatabase.find((f) => f.id === folderId);
+      if (!folder) return;
+      openUniversalModal({
+        title: 'Renomear Pasta',
+        field1: {
+          label: 'Novo Nome da Pasta',
+          value: folder.name
+        },
+        submitText: 'Salvar Nome',
+        onConfirm: (newVal) => {
+          if (!newVal.trim()) {
+            showToast('O nome da pasta não pode ficar vazio.');
+            return false;
+          }
+          folder.name = newVal.trim();
+          renderFoldersSidebar();
+          if (state.activeFolderId === folderId) {
+            document.getElementById('folder-view-title').textContent = folder.name;
+          }
+          showToast('Pasta renomeada!');
+          return true;
+        }
+      });
     }
-    function deletePolo(idx) { const polo = stateDatabase[activeStateCode].polos[idx]; if (confirm(`Deseja remover o polo "${polo.name}"?`)) { stateDatabase[activeStateCode].polos.splice(idx, 1); renderPolos(); } }
-    function addNewPolo() {
-      const name = prompt("Nome do Novo Polo:");
-      if (name && name.trim() !== '') {
-        const link = prompt("Link do Dossiê do Polo:", "https://ciee.org.br");
-        stateDatabase[activeStateCode].polos.push({ name: name.trim(), link: link ? link.trim() : '#', image: null }); renderPolos();
+
+    function deleteFolder(folderId) {
+      const idx = foldersDatabase.findIndex((f) => f.id === folderId);
+      if (idx === -1) return;
+      const folderName = foldersDatabase[idx].name;
+      openUniversalModal({
+        title: 'Excluir Pasta',
+        message: `Tem certeza que deseja excluir a pasta "${folderName}" e todos os documentos vinculados a ela?`,
+        submitText: 'Excluir Pasta',
+        danger: true,
+        onConfirm: () => {
+          foldersDatabase.splice(idx, 1);
+          if (state.activeFolderId === folderId) {
+            switchToMapView();
+          } else {
+            renderFoldersSidebar();
+          }
+          showToast(`Pasta "${folderName}" excluída.`);
+          return true;
+        }
+      });
+    }
+
+    function openNewDocModal() {
+      closeMobileSidebar();
+      document.getElementById('doc-input-title').value = '';
+      document.getElementById('doc-input-desc').value = '';
+      document.getElementById('doc-input-link').value = '';
+      const modal = document.getElementById('doc-modal');
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+      setTimeout(() => document.getElementById('doc-input-title').focus(), 30);
+    }
+
+    function closeNewDocModal() {
+      const modal = document.getElementById('doc-modal');
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+    }
+
+    function saveNewDoc() {
+      const title = document.getElementById('doc-input-title').value.trim();
+      if (!title) {
+        showToast('Informe o título do documento.');
+        return;
+      }
+      const desc = document.getElementById('doc-input-desc').value.trim();
+      const link = document.getElementById('doc-input-link').value.trim();
+      const folder = foldersDatabase.find((f) => f.id === state.activeFolderId);
+      if (!folder) return;
+
+      folder.docs.push({
+        id: 'doc-' + Date.now(),
+        title,
+        desc,
+        link,
+        cover: ''
+      });
+      closeNewDocModal();
+      renderFolderDocs(folder);
+      showToast('Documento adicionado à pasta!');
+    }
+
+    function deleteDoc(folderId, docId) {
+      const folder = foldersDatabase.find((f) => f.id === folderId);
+      if (!folder) return;
+      folder.docs = folder.docs.filter((d) => d.id !== docId);
+      renderFolderDocs(folder);
+      showToast('Documento removido.');
+    }
+
+    function setMeshStatus(label, isReady) {
+      document.getElementById('mesh-status-label').textContent = label;
+      document.getElementById('mesh-dot').className = isReady
+        ? 'w-2 h-2 rounded-full bg-emerald-400'
+        : 'w-2 h-2 rounded-full bg-[#ffc800]';
+    }
+
+    async function fetchWithTimeout(url, timeoutMs = 7000) {
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), timeoutMs);
+      try {
+        const res = await fetch(url, { signal: controller.signal });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        return await res.json();
+      } finally {
+        clearTimeout(timer);
       }
     }
 
-    function switchTab(tabId) {
-      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-      document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
-      event.target.classList.add('active');
-      document.getElementById(tabId).classList.add('active');
+    async function upgradeToOfficialMesh() {
+      const ibgeUrl = 'https://servicodados.ibge.gov.br/api/v3/malhas/paises/BR?formato=application/vnd.geo+json&qualidade=intermediaria&intrarregiao=UF';
+      try {
+        const geojson = await fetchWithTimeout(ibgeUrl, 7500);
+        const mapped = {};
+        (geojson.features || []).forEach((feat) => {
+          const code = String(feat.properties?.codarea || '');
+          const uf = IBGE_CODE_TO_UF[code];
+          if (uf) {
+            const rings = extractRingsFromGeometry(feat.geometry);
+            if (rings.length) mapped[uf] = rings;
+          }
+        });
+        if (Object.keys(mapped).length === 27) {
+          buildMapScene(mapped);
+          if (state.isStateFocused && state.selectedUf) {
+            focusCameraOnUfs([state.selectedUf]);
+          }
+          setMeshStatus('Malha IBGE v3 Ativa', true);
+          return;
+        }
+      } catch (_) {}
+
+      const fallbackUrl = 'https://raw.githubusercontent.com/codeforamerica/click_that_hood/master/public/data/brazil-states.geojson';
+      try {
+        const geojson = await fetchWithTimeout(fallbackUrl, 6000);
+        const mapped = {};
+        (geojson.features || []).forEach((feat) => {
+          const uf = String(feat.properties?.sigla || '').toUpperCase();
+          if (UF_NAMES[uf]) {
+            const rings = extractRingsFromGeometry(feat.geometry);
+            if (rings.length) mapped[uf] = rings;
+          }
+        });
+        if (Object.keys(mapped).length === 27) {
+          buildMapScene(mapped);
+          if (state.isStateFocused && state.selectedUf) {
+            focusCameraOnUfs([state.selectedUf]);
+          }
+          setMeshStatus('Malha GeoJSON Ativa', true);
+          return;
+        }
+      } catch (_) {}
+
+      setMeshStatus('Malha Vetorial Local', false);
     }
+
+    function bindImageUploadInput(inputId) {
+      document.getElementById(inputId).addEventListener('change', (ev) => {
+        const file = ev.target.files && ev.target.files[0];
+        if (!file || !state.pendingUpload) return;
+
+        const reader = new FileReader();
+        reader.onload = () => {
+          const dataUrl = reader.result;
+          const { type, uf, idx, folderId, docId } = state.pendingUpload;
+
+          if (type === 'leader' && stateDatabase[uf]?.leaders[idx]) {
+            stateDatabase[uf].leaders[idx].photo = dataUrl;
+            renderStateDetails(uf);
+          } else if (type === 'polo' && stateDatabase[uf]?.polos[idx]) {
+            stateDatabase[uf].polos[idx].photo = dataUrl;
+            renderStateDetails(uf);
+          } else if (type === 'doc') {
+            const folder = foldersDatabase.find((f) => f.id === folderId);
+            const doc = folder?.docs.find((d) => d.id === docId);
+            if (doc) {
+              doc.cover = dataUrl;
+              renderFolderDocs(folder);
+            }
+          }
+          state.pendingUpload = null;
+          ev.target.value = '';
+          showToast('Imagem atualizada!');
+        };
+        reader.readAsDataURL(file);
+      });
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      if (isCompactViewport()) {
+        document.getElementById('sidebar').classList.add('collapsed');
+      }
+
+      updateDashboardTotals();
+      renderRegionFilters();
+      renderFoldersSidebar();
+      renderRegionalAnalytics();
+
+      buildMapScene(buildOfflineGeometries());
+      selectState('BA', false);
+
+      const canvas = document.getElementById('brazil-map-canvas');
+
+      canvas.addEventListener('mousedown', (ev) => {
+        if (ev.button !== 0) return;
+        state.isDragging = true;
+        state.dragMoved = false;
+        const rect = canvas.getBoundingClientRect();
+        state.dragStart = {
+          x: ev.clientX,
+          y: ev.clientY,
+          tx: state.cam.tx,
+          ty: state.cam.ty,
+          scaleX: VB_W / rect.width,
+          scaleY: VB_H / rect.height
+        };
+      });
+
+      window.addEventListener('mousemove', (ev) => {
+        if (!state.isDragging) return;
+        const dx = ev.clientX - state.dragStart.x;
+        const dy = ev.clientY - state.dragStart.y;
+        if (Math.hypot(dx, dy) > 4) {
+          state.dragMoved = true;
+          canvas.style.cursor = 'grabbing';
+          if (state.animFrame) {
+            cancelAnimationFrame(state.animFrame);
+            state.animFrame = null;
+          }
+          state.cam.tx = state.dragStart.tx + dx * state.dragStart.scaleX;
+          state.cam.ty = state.dragStart.ty + dy * state.dragStart.scaleY;
+          state.targetCam.tx = state.cam.tx;
+          state.targetCam.ty = state.cam.ty;
+          drawMapCanvas();
+        }
+      });
+
+      window.addEventListener('mouseup', () => {
+        if (state.isDragging) {
+          state.isDragging = false;
+          canvas.style.cursor = state.hoveredUf ? 'pointer' : 'default';
+        }
+      });
+
+      canvas.addEventListener('wheel', (ev) => {
+        ev.preventDefault();
+        const { lx, ly } = clientToWorld(ev.clientX, ev.clientY);
+        const factor = ev.deltaY < 0 ? 1.25 : 0.8;
+        zoomMapBy(factor, lx, ly);
+      }, { passive: false });
+
+      canvas.addEventListener('mousemove', (ev) => {
+        if (state.isDragging && state.dragMoved) {
+          hideTooltip();
+          return;
+        }
+        const hitUf = hitTestMap(ev.clientX, ev.clientY);
+        if (hitUf !== state.hoveredUf) {
+          state.hoveredUf = hitUf;
+          drawMapCanvas();
+        }
+        if (hitUf) {
+          canvas.style.cursor = 'pointer';
+          showTooltip(ev.clientX, ev.clientY, hitUf);
+        } else {
+          canvas.style.cursor = 'default';
+          hideTooltip();
+        }
+      });
+
+      canvas.addEventListener('mouseleave', () => {
+        state.hoveredUf = null;
+        drawMapCanvas();
+        hideTooltip();
+      });
+
+      canvas.addEventListener('click', (ev) => {
+        if (state.dragMoved) {
+          state.dragMoved = false;
+          return;
+        }
+        const hitUf = hitTestMap(ev.clientX, ev.clientY);
+        if (hitUf) {
+          selectState(hitUf, true);
+        }
+      });
+
+      window.addEventListener('resize', () => {
+        if (!isCompactViewport()) {
+          document.getElementById('sidebar-backdrop').classList.add('hidden');
+        }
+        drawMapCanvas();
+      });
+
+      document.getElementById('btn-toggle-sidebar').addEventListener('click', toggleSidebarMenu);
+      document.getElementById('btn-add-folder').addEventListener('click', addNewFolder);
+
+      document.getElementById('universal-modal-form').addEventListener('submit', (ev) => {
+        ev.preventDefault();
+        if (!state.modalCallback) return;
+        const v1 = document.getElementById('umodal-input-1').value;
+        const v2 = document.getElementById('umodal-input-2').value;
+        const shouldClose = state.modalCallback(v1, v2);
+        if (shouldClose !== false) {
+          closeUniversalModal();
+        }
+      });
+
+      bindImageUploadInput('file-input-leader');
+      bindImageUploadInput('file-input-polo');
+      bindImageUploadInput('file-input-doc');
+
+      upgradeToOfficialMesh();
+    });
   </script>
 </body>
 </html>
