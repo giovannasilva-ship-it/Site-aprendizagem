@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com https://cdn.jsdelivr.net; connect-src 'self' https://servicodados.ibge.gov.br https://raw.githubusercontent.com; img-src 'self' data: https:; style-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com;" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com https://cdn.jsdelivr.net; connect-src 'self' https://servicodados.ibge.gov.br https://raw.githubusercontent.com; img-src 'self' data: https:; style-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com; frame-src https://relatorios-equipa.streamlit.app;" />
   <meta name="referrer" content="no-referrer" />
   <title>SITE DA APRENDIZAGEM - CIEE</title>
   <script src="https://cdn.tailwindcss.com"></script>
@@ -200,7 +200,7 @@
         <!-- Painel Visitante / Equipe -->
         <div id="login-panel-visitor" class="flex flex-col gap-3.5 text-center pt-1">
           <p class="text-xs text-slate-500 leading-relaxed">
-            Consulte o <strong>Mapa Nacional</strong>, lideranças, polos, instrutores e o <strong>Dashboard Gerencial</strong> em modo somente leitura. Edições e pastas permanecem bloqueadas.
+            Consulte o <strong>Mapa Nacional</strong>, lideranças, polos, instrutores, o <strong>Dashboard Gerencial</strong> e o <strong>Painel da Aprendizagem</strong> em modo somente leitura. Edições e pastas permanecem bloqueadas.
           </p>
           <button
             type="button"
@@ -353,6 +353,19 @@
         </button>
       </div>
 
+      <!-- Item Fixo 3: Painel da Aprendizagem (Streamlit) -->
+      <div class="relative flex items-center w-full">
+        <button
+          type="button"
+          id="nav-streamlit-btn"
+          onclick="switchToStreamlitView()"
+          class="nav-item flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-[13px] font-bold w-full text-left transition cursor-pointer text-slate-700 hover:bg-[#f0f4f9]"
+        >
+          <span class="text-[#003882] text-sm">&#128200;</span>
+          <span class="truncate">PAINEL DA APRENDIZAGEM</span>
+        </button>
+      </div>
+
       <!-- ÁREA PRIVATIVA DE PASTAS (SOMENTE CONTAS AUTORIZADAS) -->
       <div id="private-folders-section" class="hidden flex-col flex-1 mt-2 pt-2 border-t border-[#d5e0ea]">
         <div class="px-2 pb-1.5 flex items-center justify-between">
@@ -391,7 +404,7 @@
       <div id="visitor-privacy-card" class="mt-auto pt-3 border-t border-[#d5e0ea]">
         <div class="bg-[#f8fafc] rounded-xl p-3 border border-[#d5e0ea] text-[11px] text-slate-500 leading-relaxed">
           <div class="font-extrabold text-[#003882] mb-1">&#128274; Modo Somente Leitura</div>
-          Você está visualizando o Mapa Nacional e o Dashboard Gerencial. Edições e pastas de documentos são restritas à gestão autorizada.
+          Você está visualizando o Mapa Nacional, o Dashboard Gerencial e o Painel da Aprendizagem. Edições e pastas de documentos são restritas à gestão autorizada.
         </div>
       </div>
     </aside>
@@ -812,6 +825,53 @@
               <tbody id="dash-table-body" class="divide-y divide-slate-100"></tbody>
             </table>
           </div>
+        </section>
+      </div>
+
+      <!-- =========================================================
+           PÁGINA 3B: PAINEL DA APRENDIZAGEM (STREAMLIT)
+           ========================================================= -->
+      <div id="streamlit-view" class="hidden page-enter flex-col gap-4 flex-1 min-h-0">
+        <section class="bg-white rounded-xl p-4 sm:p-5 shadow-sm border border-[#d5e0ea] flex flex-wrap items-center justify-between gap-3">
+          <div class="flex items-center gap-2.5">
+            <span class="inline-block w-1.5 h-6 bg-[#e6007e] rounded-full"></span>
+            <div>
+              <h2 class="text-base sm:text-lg font-extrabold text-[#003882] uppercase">
+                Painel da Aprendizagem — Relatórios da Equipe
+              </h2>
+              <p class="text-xs text-slate-500">
+                Visualização integrada do painel interativo Streamlit.
+              </p>
+            </div>
+          </div>
+
+          <div class="flex flex-wrap items-center gap-2">
+            <button
+              type="button"
+              onclick="reloadStreamlitPanel()"
+              class="bg-[#eef5fc] hover:bg-[#dcebfa] text-[#003882] border border-[#c0d8f0] px-3.5 py-2 rounded-lg text-xs font-bold cursor-pointer transition"
+            >
+              &#8635; Recarregar
+            </button>
+            <a
+              href="https://relatorios-equipa.streamlit.app/#painel-da-aprendizagem"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="bg-[#003882] hover:bg-[#e6007e] text-white px-3.5 py-2 rounded-lg text-xs font-bold transition"
+            >
+              &#8599; Abrir em Nova Aba
+            </a>
+          </div>
+        </section>
+
+        <section class="bg-white rounded-xl shadow-sm border border-[#d5e0ea] overflow-hidden flex-1 min-h-[72vh] flex flex-col">
+          <iframe
+            id="streamlit-iframe"
+            title="Painel da Aprendizagem - CIEE"
+            data-src="https://relatorios-equipa.streamlit.app/?embed=true#painel-da-aprendizagem"
+            class="w-full flex-1 min-h-[72vh] border-0"
+            allow="clipboard-read; clipboard-write"
+          ></iframe>
         </section>
       </div>
 
@@ -1588,12 +1648,14 @@
     function updateSidebarNavHighlight(activeKey) {
       const btnMap = document.getElementById('nav-leaders-btn');
       const btnDash = document.getElementById('nav-dashboard-btn');
+      const btnStreamlit = document.getElementById('nav-streamlit-btn');
 
       const activeClass = 'nav-item active flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-[13px] font-bold w-full text-left transition cursor-pointer bg-[#e6007e] text-white';
       const inactiveClass = 'nav-item flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-[13px] font-bold w-full text-left transition cursor-pointer text-slate-700 hover:bg-[#f0f4f9]';
 
       btnMap.className = (activeKey === 'map' || activeKey === 'state') ? activeClass : inactiveClass;
       btnDash.className = activeKey === 'dashboard' ? activeClass : inactiveClass;
+      if (btnStreamlit) btnStreamlit.className = activeKey === 'streamlit' ? activeClass : inactiveClass;
     }
 
     function showPage(pageName) {
@@ -1607,6 +1669,7 @@
         map: document.getElementById('mapa-view'),
         state: document.getElementById('state-page-view'),
         dashboard: document.getElementById('dashboard-view'),
+        streamlit: document.getElementById('streamlit-view'),
         folder: document.getElementById('folder-view')
       };
 
@@ -1699,6 +1762,26 @@
       requestAnimationFrame(() => {
         renderDashboard();
       });
+    }
+
+    function switchToStreamlitView() {
+      cancelPendingZoomTransition();
+      state.activeFolderId = null;
+      closeMobileSidebar();
+
+      const iframe = document.getElementById('streamlit-iframe');
+      if (iframe && !iframe.getAttribute('src')) {
+        iframe.setAttribute('src', iframe.getAttribute('data-src'));
+      }
+      showPage('streamlit');
+    }
+
+    function reloadStreamlitPanel() {
+      const iframe = document.getElementById('streamlit-iframe');
+      if (iframe) {
+        iframe.setAttribute('src', iframe.getAttribute('data-src'));
+        showToast('Recarregando Painel da Aprendizagem...');
+      }
     }
 
     /* =========================================================================
