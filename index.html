@@ -163,7 +163,7 @@
         </div>
 
         <div class="mt-6 pt-4 border-t border-white/15 text-[11px] text-[#cfe0ff] leading-relaxed">
-          &#128274; <strong>Proteção de Dados (LGPD):</strong> Pastas de documentos são privativas e acessíveis apenas para contas corporativas autorizadas.
+          &#128274; <strong>Proteção de Dados (LGPD):</strong> Edições e pastas de documentos são privativas e acessíveis apenas para contas corporativas autorizadas.
         </div>
       </div>
 
@@ -200,7 +200,7 @@
         <!-- Painel Visitante / Equipe -->
         <div id="login-panel-visitor" class="flex flex-col gap-3.5 text-center pt-1">
           <p class="text-xs text-slate-500 leading-relaxed">
-            Visualize o <strong>Mapa Nacional</strong>, lideranças, polos, instrutores e o <strong>Dashboard Gerencial</strong>. As pastas de documentos permanecem ocultas.
+            Consulte o <strong>Mapa Nacional</strong>, lideranças, polos, instrutores e o <strong>Dashboard Gerencial</strong> em modo somente leitura. Edições e pastas permanecem bloqueadas.
           </p>
           <button
             type="button"
@@ -212,7 +212,7 @@
           </button>
         </div>
 
-        <!-- Painel Administrador (Pastas Privativas) -->
+        <!-- Painel Administrador (Pastas Privativas e Edição) -->
         <form id="login-panel-admin" class="hidden flex-col gap-3 pt-1" onsubmit="handleAdminLogin(event)">
           <div class="flex flex-col gap-1">
             <label for="admin-email-input" class="text-[11px] font-bold text-slate-600 uppercase">E-mail Corporativo Autorizado</label>
@@ -244,7 +244,7 @@
             type="submit"
             class="bg-[#003882] hover:bg-[#e6007e] text-white font-extrabold text-sm py-3.5 px-6 rounded-xl shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer mt-1"
           >
-            <span>&#128275; Autenticar e Liberar Pastas</span>
+            <span>&#128275; Autenticar e Liberar Acesso</span>
           </button>
         </form>
       </div>
@@ -353,7 +353,7 @@
         </button>
       </div>
 
-      <!-- ÁREA PRIVATIVA DE PASTAS (VISÍVEL SOMENTE PARA GIOVANNA E ESTHEVAN) -->
+      <!-- ÁREA PRIVATIVA DE PASTAS (SOMENTE CONTAS AUTORIZADAS) -->
       <div id="private-folders-section" class="hidden flex-col flex-1 mt-2 pt-2 border-t border-[#d5e0ea]">
         <div class="px-2 pb-1.5 flex items-center justify-between">
           <span class="text-[10px] font-extrabold uppercase tracking-wider text-[#e6007e]">
@@ -390,8 +390,8 @@
       <!-- Aviso para Visitantes -->
       <div id="visitor-privacy-card" class="mt-auto pt-3 border-t border-[#d5e0ea]">
         <div class="bg-[#f8fafc] rounded-xl p-3 border border-[#d5e0ea] text-[11px] text-slate-500 leading-relaxed">
-          <div class="font-extrabold text-[#003882] mb-1">&#128274; Modo Consulta</div>
-          Você está visualizando o Mapa Nacional e o Dashboard Gerencial. Pastas de documentos são de acesso exclusivo da gestão autorizada.
+          <div class="font-extrabold text-[#003882] mb-1">&#128274; Modo Somente Leitura</div>
+          Você está visualizando o Mapa Nacional e o Dashboard Gerencial. Edições e pastas de documentos são restritas à gestão autorizada.
         </div>
       </div>
     </aside>
@@ -628,8 +628,9 @@
             <div id="leaders-list" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
             <button
               type="button"
+              id="btn-add-leader"
               onclick="openAddLeaderModal()"
-              class="w-full py-3.5 px-4 rounded-xl border-2 border-dashed border-[#003882]/40 hover:border-[#e6007e] text-[#003882] hover:text-[#e6007e] font-extrabold text-xs sm:text-sm transition cursor-pointer mt-2"
+              class="hidden w-full py-3.5 px-4 rounded-xl border-2 border-dashed border-[#003882]/40 hover:border-[#e6007e] text-[#003882] hover:text-[#e6007e] font-extrabold text-xs sm:text-sm transition cursor-pointer mt-2"
             >
               + Adicionar Líder neste Estado
             </button>
@@ -640,8 +641,9 @@
             <div id="polos-list" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4"></div>
             <button
               type="button"
+              id="btn-add-polo"
               onclick="openAddPoloModal()"
-              class="w-full py-3.5 px-4 rounded-xl border-2 border-dashed border-[#003882]/40 hover:border-[#e6007e] text-[#003882] hover:text-[#e6007e] font-extrabold text-xs sm:text-sm transition cursor-pointer mt-2"
+              class="hidden w-full py-3.5 px-4 rounded-xl border-2 border-dashed border-[#003882]/40 hover:border-[#e6007e] text-[#003882] hover:text-[#e6007e] font-extrabold text-xs sm:text-sm transition cursor-pointer mt-2"
             >
               + Adicionar Polo neste Estado
             </button>
@@ -787,7 +789,7 @@
                 Matriz Operacional por Estado
               </h3>
               <p class="text-xs text-slate-500">
-                Filtre os cenários e clique em <strong>Gerenciar</strong> para adicionar instrutores, polos ou lideranças.
+                Filtre os cenários e acesse qualquer estado para visualizar os detalhes.
               </p>
             </div>
             <div id="dash-table-filters" class="flex flex-wrap gap-1.5"></div>
@@ -977,10 +979,12 @@
     const SESSION_KEY = 'ciee_aprendizagem_session_v1';
     const SESSION_TIMEOUT_MS = 30 * 60 * 1000; // 30 minutos de inatividade
 
-    // E-mails autorizados a visualizar e gerenciar as pastas de documentos
+    // E-mails autorizados a editar informações e acessar as pastas privativas
     const AUTHORIZED_FOLDER_EMAILS = new Set([
       'giovanna.silva@ciee.org.br',
-      'esthevan.fernandes@ciee.org.br'
+      'esthevan.fernandes@ciee.org.br',
+      'patricia.castro@ciee.org.br',
+      'elaine_bancala@ciee.org.br'
     ]);
 
     // Senha inicial padrão ("CIEE2026") codificada em Base64
@@ -1055,19 +1059,25 @@
       const addFolderBtn = document.getElementById('btn-add-folder');
       const visitorCard = document.getElementById('visitor-privacy-card');
       const headerBadge = document.getElementById('header-user-badge');
+      const addLeaderBtn = document.getElementById('btn-add-leader');
+      const addPoloBtn = document.getElementById('btn-add-polo');
 
       if (admin) {
         privateSection.classList.remove('hidden');
         privateSection.classList.add('flex');
         addFolderBtn.classList.remove('hidden');
         visitorCard.classList.add('hidden');
+        if (addLeaderBtn) addLeaderBtn.classList.remove('hidden');
+        if (addPoloBtn) addPoloBtn.classList.remove('hidden');
         headerBadge.innerHTML = `&#128275; ${escapeHtml(currentUser.email)}`;
       } else {
         privateSection.classList.add('hidden');
         privateSection.classList.remove('flex');
         addFolderBtn.classList.add('hidden');
         visitorCard.classList.remove('hidden');
-        headerBadge.innerHTML = '&#128100; Acesso Mapa &amp; Dashboard';
+        if (addLeaderBtn) addLeaderBtn.classList.add('hidden');
+        if (addPoloBtn) addPoloBtn.classList.add('hidden');
+        headerBadge.innerHTML = '&#128100; Somente Leitura';
         if (state.currentPage === 'folder') {
           switchToMapView();
         }
@@ -1075,6 +1085,7 @@
 
       renderFoldersSidebar();
       if (state.selectedUf) renderStateDetails(state.selectedUf);
+      if (state.currentPage === 'dashboard') renderDashboard();
     }
 
     function resetInactivityTimer() {
@@ -1105,7 +1116,7 @@
       const errMsg = document.getElementById('login-error-msg');
 
       if (!AUTHORIZED_FOLDER_EMAILS.has(email)) {
-        errMsg.textContent = 'E-mail não autorizado para acesso às pastas privativas.';
+        errMsg.textContent = 'E-mail não autorizado para acesso administrativo.';
         errMsg.classList.remove('hidden');
         return;
       }
@@ -1129,7 +1140,7 @@
         document.getElementById('sidebar').classList.add('collapsed');
         document.getElementById('sidebar-backdrop').classList.add('hidden');
       }
-      showToast('Acesso autorizado! Pastas privativas liberadas.');
+      showToast('Acesso autorizado! Edições e pastas privativas liberadas.');
       setTimeout(drawMapCanvas, 80);
     }
 
@@ -2103,7 +2114,7 @@
     }
 
     /* =========================================================================
-       5. PÁGINA DO ESTADO: LÍDERES, POLOS E INSTRUTORES
+       5. PÁGINA DO ESTADO: LÍDERES, POLOS E INSTRUTORES (EDIÇÃO SOMENTE ADMIN)
        ========================================================================= */
     function switchDetailTab(tab) {
       state.activeDetailTab = tab;
@@ -2132,6 +2143,7 @@
     function renderStateDetails(uf) {
       const data = stateDatabase[uf] || { leaders: [], polos: [] };
       const stateName = UF_NAMES[uf] || uf;
+      const admin = isAdminUser();
 
       document.getElementById('state-breadcrumb-name').textContent = `${stateName} (${uf})`;
       document.getElementById('detail-uf-badge').textContent = uf;
@@ -2141,6 +2153,11 @@
 
       document.getElementById('count-tab-leaders').textContent = data.leaders.length;
       document.getElementById('count-tab-polos').textContent = data.polos.length;
+
+      const addLeaderBtn = document.getElementById('btn-add-leader');
+      const addPoloBtn = document.getElementById('btn-add-polo');
+      if (addLeaderBtn) addLeaderBtn.classList.toggle('hidden', !admin);
+      if (addPoloBtn) addPoloBtn.classList.toggle('hidden', !admin);
 
       const leadersList = document.getElementById('leaders-list');
       leadersList.innerHTML = '';
@@ -2157,22 +2174,12 @@
             .toUpperCase();
 
           const displayEmail = maskEmailForPrivacy(leader.email);
-
-          const card = document.createElement('div');
-          card.className = 'flex items-center gap-4 bg-[#f8fafc] p-4 rounded-xl border border-[#d5e0ea] shadow-xs';
-          card.innerHTML = `
-            <div
-              title="Clique para alterar foto"
-              onclick="triggerLeaderPhotoUpload('${uf}', ${idx})"
-              class="w-16 h-16 rounded-full bg-[#003882] text-white flex items-center justify-center text-xl font-extrabold border-[3px] border-[#ffc800] overflow-hidden shrink-0 cursor-pointer"
-            >
-              ${leader.photo ? `<img src="${leader.photo}" alt="${escapeHtml(leader.name)}" class="w-full h-full object-cover" />` : escapeHtml(initials)}
-            </div>
-            <div class="flex flex-col gap-0.5 flex-1 min-w-0">
-              <div class="text-base font-extrabold text-[#002356] truncate">${escapeHtml(leader.name)}</div>
-              <div class="text-xs font-semibold text-slate-500 truncate">${escapeHtml(leader.role || 'Líder Técnica da Aprendizagem')}</div>
-              ${displayEmail ? `<div class="text-[11px] text-slate-500 font-semibold truncate">&#9993; ${escapeHtml(displayEmail)}</div>` : ''}
-              <div class="flex flex-wrap items-center gap-2 mt-2">
+          const avatarAttr = admin
+            ? `title="Clique para alterar foto" onclick="triggerLeaderPhotoUpload('${uf}', ${idx})"`
+            : '';
+          const avatarCursor = admin ? 'cursor-pointer' : '';
+          const adminActionsHtml = admin
+            ? `<div class="flex flex-wrap items-center gap-2 mt-2">
                 <button type="button" onclick="openEditLeaderModal('${uf}', ${idx})" class="bg-[#003882] hover:bg-[#e6007e] text-white px-2.5 py-1 rounded text-[11px] font-bold cursor-pointer transition">
                   Editar
                 </button>
@@ -2182,7 +2189,23 @@
                 <button type="button" onclick="removeLeader('${uf}', ${idx})" class="bg-rose-600 hover:bg-rose-700 text-white px-2.5 py-1 rounded text-[11px] font-bold cursor-pointer transition">
                   Remover
                 </button>
-              </div>
+              </div>`
+            : '';
+
+          const card = document.createElement('div');
+          card.className = 'flex items-center gap-4 bg-[#f8fafc] p-4 rounded-xl border border-[#d5e0ea] shadow-xs';
+          card.innerHTML = `
+            <div
+              ${avatarAttr}
+              class="w-16 h-16 rounded-full bg-[#003882] text-white flex items-center justify-center text-xl font-extrabold border-[3px] border-[#ffc800] overflow-hidden shrink-0 ${avatarCursor}"
+            >
+              ${leader.photo ? `<img src="${leader.photo}" alt="${escapeHtml(leader.name)}" class="w-full h-full object-cover" />` : escapeHtml(initials)}
+            </div>
+            <div class="flex flex-col gap-0.5 flex-1 min-w-0">
+              <div class="text-base font-extrabold text-[#002356] truncate">${escapeHtml(leader.name)}</div>
+              <div class="text-xs font-semibold text-slate-500 truncate">${escapeHtml(leader.role || 'Líder Técnica da Aprendizagem')}</div>
+              ${displayEmail ? `<div class="text-[11px] text-slate-500 font-semibold truncate">&#9993; ${escapeHtml(displayEmail)}</div>` : ''}
+              ${adminActionsHtml}
             </div>
           `;
           leadersList.appendChild(card);
@@ -2204,15 +2227,18 @@
                 ${polo.instructors.map((inst, iIdx) => {
                   const instName = typeof inst === 'string' ? inst : inst.name;
                   const instArea = typeof inst === 'object' && inst.area ? ` (${inst.area})` : '';
-                  return `
-                    <span class="inline-flex items-center gap-1.5 bg-white border border-[#c0d8f0] text-[#002356] px-2.5 py-1 rounded-full text-[11px] font-bold shadow-2xs">
-                      <span>&#128100; ${escapeHtml(instName)}${escapeHtml(instArea)}</span>
-                      <button
+                  const removeInstBtn = admin
+                    ? `<button
                         type="button"
                         title="Remover instrutor"
                         onclick="removeInstructor('${uf}', ${idx}, ${iIdx})"
                         class="text-rose-500 hover:text-rose-700 font-black cursor-pointer ml-0.5"
-                      >&times;</button>
+                      >&times;</button>`
+                    : '';
+                  return `
+                    <span class="inline-flex items-center gap-1.5 bg-white border border-[#c0d8f0] text-[#002356] px-2.5 py-1 rounded-full text-[11px] font-bold shadow-2xs">
+                      <span>&#128100; ${escapeHtml(instName)}${escapeHtml(instArea)}</span>
+                      ${removeInstBtn}
                     </span>
                   `;
                 }).join('')}
@@ -2220,6 +2246,35 @@
             : `<p class="text-[11px] text-amber-700 bg-amber-50 border border-amber-200 rounded-md px-2.5 py-1.5 mt-1.5 font-semibold">
                  Nenhum instrutor cadastrado neste polo ainda.
                </p>`;
+
+          const poloImgAttr = admin
+            ? `onclick="triggerPoloPhotoUpload('${uf}', ${idx})" title="Clique para carregar foto do computador"`
+            : '';
+          const poloImgClass = admin
+            ? 'cursor-pointer hover:border-[#003882]'
+            : '';
+          const poloImgPlaceholder = admin
+            ? 'Clique para carregar foto do polo'
+            : 'Sem foto cadastrada';
+
+          const addInstBtnHtml = admin
+            ? `<button
+                type="button"
+                onclick="openAddInstructorModal('${uf}', ${idx})"
+                class="bg-[#003882] hover:bg-[#e6007e] text-white px-2.5 py-1 rounded-md text-[11px] font-bold cursor-pointer transition"
+              >
+                + Instrutor
+              </button>`
+            : '';
+
+          const poloAdminBtnsHtml = admin
+            ? `<button type="button" onclick="openEditPoloModal('${uf}', ${idx})" class="bg-slate-600 hover:bg-slate-700 text-white px-2.5 py-1.5 rounded-md text-xs font-bold cursor-pointer transition">
+                Editar
+              </button>
+              <button type="button" onclick="removePolo('${uf}', ${idx})" class="bg-rose-600 hover:bg-rose-700 text-white px-2.5 py-1.5 rounded-md text-xs font-bold cursor-pointer transition">
+                &#10005;
+              </button>`
+            : '';
 
           const card = document.createElement('div');
           card.className = 'bg-[#f8fafc] border border-[#d5e0ea] rounded-xl p-4 flex flex-col gap-3 shadow-xs';
@@ -2229,11 +2284,10 @@
             </div>
 
             <div
-              onclick="triggerPoloPhotoUpload('${uf}', ${idx})"
-              title="Clique para carregar foto do computador"
-              class="w-full h-28 bg-[#edf2f7] rounded-lg border-2 border-dashed border-slate-300 flex items-center justify-center text-xs font-semibold text-slate-500 overflow-hidden cursor-pointer hover:border-[#003882]"
+              ${poloImgAttr}
+              class="w-full h-28 bg-[#edf2f7] rounded-lg border-2 border-dashed border-slate-300 flex items-center justify-center text-xs font-semibold text-slate-500 overflow-hidden ${poloImgClass}"
             >
-              ${polo.photo ? `<img src="${polo.photo}" alt="${escapeHtml(polo.name)}" class="w-full h-full object-cover" />` : 'Clique para carregar foto do polo'}
+              ${polo.photo ? `<img src="${polo.photo}" alt="${escapeHtml(polo.name)}" class="w-full h-full object-cover" />` : poloImgPlaceholder}
             </div>
 
             <div class="bg-[#eef5fc]/70 border border-[#d5e0ea] rounded-lg p-3 flex flex-col">
@@ -2241,13 +2295,7 @@
                 <span class="text-[11px] font-extrabold uppercase tracking-wide text-[#003882]">
                   Instrutores (${polo.instructors.length})
                 </span>
-                <button
-                  type="button"
-                  onclick="openAddInstructorModal('${uf}', ${idx})"
-                  class="bg-[#003882] hover:bg-[#e6007e] text-white px-2.5 py-1 rounded-md text-[11px] font-bold cursor-pointer transition"
-                >
-                  + Instrutor
-                </button>
+                ${addInstBtnHtml}
               </div>
               ${instructorsHtml}
             </div>
@@ -2261,12 +2309,7 @@
               >
                 Dossiê do Polo
               </a>
-              <button type="button" onclick="openEditPoloModal('${uf}', ${idx})" class="bg-slate-600 hover:bg-slate-700 text-white px-2.5 py-1.5 rounded-md text-xs font-bold cursor-pointer transition">
-                Editar
-              </button>
-              <button type="button" onclick="removePolo('${uf}', ${idx})" class="bg-rose-600 hover:bg-rose-700 text-white px-2.5 py-1.5 rounded-md text-xs font-bold cursor-pointer transition">
-                &#10005;
-              </button>
+              ${poloAdminBtnsHtml}
             </div>
           `;
           polosList.appendChild(card);
@@ -2275,6 +2318,7 @@
     }
 
     function openAddInstructorModal(uf, poloIdx) {
+      if (!isAdminUser()) return;
       const polo = stateDatabase[uf]?.polos[poloIdx];
       if (!polo) return;
       openUniversalModal({
@@ -2301,6 +2345,7 @@
     }
 
     function removeInstructor(uf, poloIdx, instIdx) {
+      if (!isAdminUser()) return;
       const polo = stateDatabase[uf]?.polos[poloIdx];
       if (!polo || !Array.isArray(polo.instructors)) return;
       polo.instructors.splice(instIdx, 1);
@@ -2318,6 +2363,7 @@
     }
 
     function openAddLeaderModal() {
+      if (!isAdminUser()) return;
       const uf = state.selectedUf;
       if (!uf) return;
       openUniversalModal({
@@ -2350,6 +2396,7 @@
     }
 
     function openEditLeaderModal(uf, idx) {
+      if (!isAdminUser()) return;
       const leader = stateDatabase[uf]?.leaders[idx];
       if (!leader) return;
       openUniversalModal({
@@ -2374,6 +2421,7 @@
     }
 
     function removeLeader(uf, idx) {
+      if (!isAdminUser()) return;
       const entry = stateDatabase[uf];
       if (!entry) return;
       const leaderName = entry.leaders[idx]?.name || 'esta liderança';
@@ -2392,6 +2440,7 @@
     }
 
     function openAddPoloModal() {
+      if (!isAdminUser()) return;
       const uf = state.selectedUf;
       if (!uf) return;
       openUniversalModal({
@@ -2420,6 +2469,7 @@
     }
 
     function openEditPoloModal(uf, idx) {
+      if (!isAdminUser()) return;
       const polo = stateDatabase[uf]?.polos[idx];
       if (!polo) return;
       openUniversalModal({
@@ -2442,6 +2492,7 @@
     }
 
     function removePolo(uf, idx) {
+      if (!isAdminUser()) return;
       const entry = stateDatabase[uf];
       if (!entry) return;
       const poloName = entry.polos[idx]?.name || 'este polo';
@@ -2460,11 +2511,13 @@
     }
 
     function triggerLeaderPhotoUpload(uf, idx) {
+      if (!isAdminUser()) return;
       state.pendingUpload = { type: 'leader', uf, idx };
       document.getElementById('file-input-leader').click();
     }
 
     function triggerPoloPhotoUpload(uf, idx) {
+      if (!isAdminUser()) return;
       state.pendingUpload = { type: 'polo', uf, idx };
       document.getElementById('file-input-polo').click();
     }
@@ -2635,7 +2688,7 @@
           <p class="text-xs text-slate-600">
             ${topInstState && topInstState.instructorsCount > 0
               ? `Líder em instrutores: <strong>${topInstState.uf} (${topInstState.instructorsCount})</strong>.`
-              : 'Nenhum instrutor cadastrado ainda. Acesse um estado para vincular instrutores.'}
+              : 'Nenhum instrutor cadastrado ainda.'}
           </p>
         </div>
 
@@ -2837,6 +2890,7 @@
     function renderDashboardTable(stats) {
       const tbody = document.getElementById('dash-table-body');
       tbody.innerHTML = '';
+      const actionLabel = isAdminUser() ? 'Gerenciar' : 'Visualizar';
 
       let rows = [...stats.stateRows];
       if (state.dashTableFilter === 'active') {
@@ -2882,7 +2936,7 @@
               onclick="openStatePage('${r.uf}', 'polos')"
               class="bg-[#003882] hover:bg-[#e6007e] text-white px-3 py-1 rounded-md text-[11px] font-bold cursor-pointer transition"
             >
-              Gerenciar
+              ${actionLabel}
             </button>
           </td>
         `;
@@ -3261,6 +3315,7 @@
 
     function bindImageUploadInput(inputId) {
       document.getElementById(inputId).addEventListener('change', (ev) => {
+        if (!isAdminUser()) return;
         const file = ev.target.files && ev.target.files[0];
         if (!file || !state.pendingUpload) return;
 
@@ -3277,7 +3332,7 @@
             stateDatabase[uf].polos[idx].photo = dataUrl;
             persistDataToLocalStorage();
             renderStateDetails(uf);
-          } else if (type === 'doc' && isAdminUser()) {
+          } else if (type === 'doc') {
             const folder = foldersDatabase.find((f) => f.id === folderId);
             const doc = folder?.docs.find((d) => d.id === docId);
             if (doc) {
